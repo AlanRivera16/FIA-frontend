@@ -1,0 +1,229 @@
+<ion-content class="ion-padding">
+  <ion-row>
+    <ion-col size="7" style="display:flex; align-items: center; color: black;">
+      <h2 style="font-size: 22px; font-weight: bold; margin: 0;">Prestamos</h2>
+    </ion-col>
+    <ion-col size="5">
+      <ion-item lines="none">
+        <ion-avatar slot="end">
+          <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
+        </ion-avatar>
+        <ion-label style="padding-left: 10px; color: black;">
+          <ion-icon style="font-size: 24px;" name="notifications-outline"></ion-icon>
+        </ion-label>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+  <div class="" style="padding: 10px 32px 20px;">
+    <h5 style="font-size: 13px; font-weight: bold; margin:16px 0px; color:gray; text-align: center;">Aprobados 3 / 6</h5>
+    <ion-progress-bar [value]="progress"></ion-progress-bar>
+  </div>
+
+
+  <h5 style="font-size: 13px; font-weight: bold; margin:16px 0px; color:gray;">Aprobados:</h5>
+  <div class="card-prestamo ion-activatable ripple-parent" (click)="setModalInfo(true)">
+    <ion-grid style="padding: 1px 8px;">
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _money prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Monto solicitado</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">          
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">$11.200.00</h5>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _calendar prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Fecha de prestamo</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">01/12/2023</h5>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-ripple-effect></ion-ripple-effect>
+  </div>
+  <div class="card-prestamo">
+    <ion-grid style="padding: 1px 8px;">
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _money prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Monto solicitado</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">          
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">$11.200.00</h5>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _calendar prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Fecha de prestamo</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">01/12/2023</h5>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+  <div class="card-prestamo">
+    <ion-grid style="padding: 1px 8px;">
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _money prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Monto solicitado</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">          
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">$11.200.00</h5>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _calendar prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Fecha de prestamo</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">01/12/2023</h5>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <h5 style="font-size: 13px; font-weight: bold; margin:16px 0px; color:gray;">Pendientes:</h5>
+  <div class="card-prestamo" style="border-left: solid 8px #93BFCF;">
+    <ion-grid style="padding: 1px 8px;">
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _money prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Monto solicitado</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">          
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">$11.200.00</h5>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _calendar prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Fecha de prestamo</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">01/12/2023</h5>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+  <div class="card-prestamo" style="border-left: solid 8px #93BFCF;">
+    <ion-grid style="padding: 1px 8px;">
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _money prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Monto solicitado</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">          
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">$11.200.00</h5>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _calendar prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Fecha de prestamo</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">01/12/2023</h5>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <h5 style="font-size: 13px; font-weight: bold; margin:16px 0px; color:gray;">Rechazados:</h5>
+  <div class="card-prestamo" style="border-left: solid 8px #EEE9DA;">
+    <ion-grid style="padding: 1px 8px;">
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _money prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Monto solicitado</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">          
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">$11.200.00</h5>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+          <img src="../../assets/🦆 icon _calendar prestamo_.svg" width="16px" height="16px">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Fecha de prestamo</h5>
+        </ion-col>
+        <ion-col class="ion-no-padding">
+          <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">01/12/2023</h5>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <ion-modal
+      #modal
+      [isOpen]="infoModel"
+      [initialBreakpoint]="0.80"
+      [breakpoints]="[0,0.80,1]"
+      cssClass='custom-modal'
+      (willDismiss)="setModalInfo(false)"
+    >
+      <ng-template>
+        <ion-content class="ion-padding modal-content" (click)="modal.setCurrentBreakpoint(1)">
+          <h5 style="font-size: 14px; font-weight: bold; text-align: center; margin-top: 32px;">Pendiente: $10,400.00 <span style="color: #CACACA;">| Aprobado</span></h5>
+
+          <ion-list style="padding: 10px 28px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Fecha de prestamo:</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">01/12/23</p>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Monto solicitado:</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">$11,200.00</p>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Esquema de pago:</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Quincenal</p>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Número de pagos:</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">14</p>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Pago acordado:</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">$800.00</p>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Día de pago:</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Miércoles</p>
+            </div>
+          </ion-list>
+
+          <ion-grid style="padding: 5px 0px;">
+            <ion-row style="font-size: 11px; font-weight: bold; text-align: center; border-top: 1px solid #CACACA; border-bottom: 1px solid #CACACA;">
+              <ion-col size="1"></ion-col>
+              <ion-col size="2"># Pago</ion-col>
+              <ion-col size="3">Fecha pago</ion-col>
+              <ion-col size="3">Monto</ion-col>
+              <ion-col size="3">Estado pago</ion-col>
+            </ion-row>
+            <!-- <ion-row class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
+              <ion-col size="1"><ion-checkbox [checked]="true"></ion-checkbox></ion-col>
+              <ion-col size="2">1</ion-col>
+              <ion-col size="3">01/12/23</ion-col>
+              <ion-col size="3">$800</ion-col>
+              <ion-col size="3">Pagado</ion-col>
+            </ion-row> -->
+            <ion-row *ngFor="let li of dataTableMort" class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
+              <ion-col size="1"><ion-checkbox [checked]="li.pagado"></ion-checkbox></ion-col>
+              <ion-col size="2">{{li.num_pago}}</ion-col>
+              <ion-col size="3">{{li.fecha_pago}}</ion-col>
+              <ion-col size="3">{{li.monto}}</ion-col>
+              <ion-col size="3">{{li.status_pago}}</ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+</ion-content>

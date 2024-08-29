@@ -1,0 +1,57 @@
+.noti{
+    display: flex;
+    align-items: center;
+    margin: 12px;
+}
+
+ion-content {
+    --background:#0B5970;
+}
+
+.counter__section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-content{
+    background-color:white;
+    border-radius: 15px 15px 0px 0px;
+    width: 100%;
+    height: 85%;
+    box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+    position: fixed;
+    left: 0;
+    bottom: 0;
+}
+
+ion-item {
+    --background:none;
+    // --min-height: 0;
+    // width: 120px !important;
+    --inner-padding-end: 0;
+}
+
+.ion-col-content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.actividad-item{
+    background-color: #0B5970;
+    height: 120px;
+    border-radius: 10px;
+    color: white;
+}
+
+.actividad-saldo{
+    background-color: #0B5970;
+    // height: 100%;
+    height: 100%;
+    border-radius: 10px;
+    color: white;
+    padding: 10px;
+}

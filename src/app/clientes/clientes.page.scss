@@ -1,0 +1,162 @@
+// Searchbar
+ion-searchbar.custom {
+    --background: #e0e0e0;
+    --color: rgb(98, 98, 98);
+    --placeholder-color: rgb(98, 98, 98);
+    --icon-color: rgb(98, 98, 98);
+    --clear-button-color: rgb(98, 98, 98);
+    --box-shadow:none;
+    --border-radius: 20px;
+    margin-top: 10%;
+    margin-bottom: 10%;
+}
+
+ion-fab-button{
+    --background:#0B5970;
+}
+
+.truncar{
+    width: 130px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.image{
+    // clip-path: circle(40%);
+    border-radius: 20%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    box-shadow: 1px 2px 4px #00000076;
+    // box-shadow: 5px 5px 20px 24px rgb(113 108 108 / 53%);
+    // box-shadow: 0 0 0.15em 0.15em rgba(0, 0, 0, 0.25);
+}
+
+.head-list{
+    --padding-start: 0px;
+    border-bottom: none;
+    margin-top: 14px;
+    margin-bottom: 14px;
+}
+
+//Card client
+.card-item::part(native){
+    background: #E0E0E0;
+    border-radius: 8px;
+    padding-inline-start:7px;
+}
+.card-item{
+    margin-left: 10px;
+    // margin-top: 10px;
+    --inner-padding-end: 0px;
+}
+
+//Card client
+.card-item-d::part(native){
+    background: transparent;
+    border-radius: 8px;
+    padding-inline-start:7px;
+}
+.card-item-d{
+    // margin-left: 16px;
+    // margin-top: 10px;
+    --inner-padding-end: 0px;
+}
+
+.item-native{
+    padding-inline-start:0px;
+}
+
+.item-avatar {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 32px !important;    
+    max-height: 32px !important;    
+}
+
+
+.head-avatar{
+    --border-radius: 12px;
+    box-shadow: 1px 2px 4px #00000076;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 48px !important;    
+    max-height: 48px !important;
+}
+
+
+//Estilos para input de formulario
+.input-form{
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: #CACACA;
+    padding: 6px 6px 6px 14px;
+    font-weight: bold;
+    text-transform: capitalize;
+    box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+  }
+  .input-form::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: #CACACA;
+    margin-left: 6px;
+    text-transform: none;
+  }
+  .input-form:focus{
+    font-size: 12px;
+    font-weight: 750;
+    color: #0b587042;
+    box-shadow: 0px 2px 8px 1px rgba(147, 191, 207, 0.50);
+    transition: box-shadow 310ms;
+  }
+  .input-form:focus::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(147, 191, 207, 0.80);
+    margin-left: 6px;
+    transition: color 310ms;
+  }
+
+
+  .input-form-map{
+    background-color: transparent;
+    border: none;
+    outline: none;
+  }
+  .input-form-map::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: #CACACA;
+  }
+
+
+  // Style for modal options
+  .block {
+    width: 100%;
+    height: 140px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    // text-align: left;
+  }
+  .ion-modal-opts {
+    --height: auto;
+    --width: 96%;
+    --border-radius: 16px 16px 0px 0px;
+  }
+
+
+
+  .ripple-parent {
+    position: relative;
+    overflow: hidden;
+  }

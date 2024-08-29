@@ -25,3 +25,17 @@
 #container a {
   text-decoration: none;
 }
+
+ion-toolbar {
+  --background: transparent;
+  --color: black;
+
+  // --border-color: #f24aec;
+  // --border-width: 4px 0;
+  // --border-style: double;
+
+  // --min-height: 80px;
+  // --padding-top: 20px;
+  // --padding-bottom: 20px;
+  --width:50%
+}

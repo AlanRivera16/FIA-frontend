@@ -1,0 +1,234 @@
+#container {
+    text-align: center;
+  
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  #container strong {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  
+  #container p {
+    font-size: 16px;
+    line-height: 22px;
+  
+    color: #8c8c8c;
+  
+    margin: 0;
+  }
+  
+  #container a {
+    text-decoration: none;
+  }
+  
+  .input-mail{
+    // background-color: rgba(147, 191, 207, 0.5);
+    width: 100%;
+    // height: auto;
+    // max-height: 0;
+    border-radius: 5px;
+    padding: 14px;
+  }
+  .input-mail input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    opacity: 0.8;
+  }
+  
+  
+  .input-visible {
+    display: block
+  }
+  
+  //Estilos para input de formulario
+  .input-form{
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: #CACACA;
+    padding: 4px 6px 4px 14px;
+    font-weight: bold;
+    // text-transform: capitalize;
+    box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+  }
+  .input-form::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: #CACACA;
+    margin-left: 6px;
+    text-transform: none;
+  }
+  .input-form:focus{
+    font-size: 12px;
+    font-weight: bold;
+    color: #0b587042;
+    box-shadow: 0px 2px 8px 1px rgba(147, 191, 207, 0.50);
+    transition: box-shadow 310ms, font-weight 1.5s ;
+  }
+  .input-form:focus::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(147, 191, 207, 0.80);
+    margin-left: 6px;
+    transition: color 310ms;
+  }
+
+  .input-form-map{
+    background-color: transparent;
+    border: none;
+    outline: none;
+  }
+  .input-form-map::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: #CACACA;
+  }
+  
+  
+  // Searchbar
+  ion-searchbar.custom {
+    --background: #BDCDD6;
+    --color: rgb(98, 98, 98);
+    --placeholder-color: rgb(98, 98, 98);
+    --icon-color: rgb(98, 98, 98);
+    --clear-button-color: rgb(98, 98, 98);
+    --box-shadow:none;
+    --border-radius: 20px;
+    margin-top: 10%;
+    margin-bottom: 10%;
+    font-family: 'Barlow';
+    font-weight: 600;
+  }
+  
+  ion-fab-button{
+    --background:#0B5970;
+  }
+  
+  .avatar-ion-item::part(native) {
+    background: none;
+    // padding: 14px;
+  }
+  
+  .image{
+    // clip-path: circle(40%);
+    border-radius: 20%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  .image-circule{
+    // clip-path: circle(40%);
+    border-radius: 50%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  
+  .truncar{
+    width: 120px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  
+  .ripple-parent {
+    position: relative;
+    overflow: hidden;
+  }
+
+
+  // Style for modal options
+  .block {
+    width: 100%;
+    height: 140px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    // text-align: left;
+  }
+
+  .ion-modal-opts {
+    --height: auto;
+    --width: 96%;
+    --border-radius: 16px 16px 0px 0px;
+  }
+
+
+
+
+.card-item-d::part(native){
+    background: #fff;
+    border-radius: 8px;
+    padding-inline-start:8px;
+    padding-inline-end: 5px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.card-item-d{
+    --inner-padding-end: 0px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.item-avatar {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 36px !important;    
+  max-height: 36px !important;    
+}
+
+
+.card-item-client::part(native){
+  padding-inline-start:0px;
+}
+.card-item-client{
+  --inner-padding-end: 0px;
+  // margin-top: 8px;
+  --min-height: 40px;
+}
+
+.item-avatar-client{
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 32px !important;    
+  max-height: 32px !important;  
+
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.barlow{
+  font-family: Barlow !important;
+  font-weight: 600;
+}
+.barlow-bold{
+  font-family: Barlow-Bold !important;
+  font-weight: bold;
+}
+
+.small{
+  --background:#0B5970;
+  --padding-start: 0.4em;
+  --padding-end: 0.4em;
+
+  margin: 0;
+}
+  
+  

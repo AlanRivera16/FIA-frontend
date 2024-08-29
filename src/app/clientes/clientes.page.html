@@ -1,0 +1,364 @@
+<ion-content class="ion-padding">
+  <ion-row>
+    <ion-col size="7" style="align-items: left; justify-content: left; color: black;">
+      <h5 style="font-size: 16px; font-weight: bold;">Mis</h5>
+      <h2 style="font-size: 22px; font-weight: bold; margin: 0;">Clientes</h2>
+    </ion-col>
+    <ion-col size="5">
+      <ion-item lines="none">
+        <ion-avatar slot="end">
+          <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
+        </ion-avatar>
+        <ion-label style="padding-left: 10px; color: black;">
+          <ion-icon style="font-size: 24px;" name="notifications-outline"></ion-icon>
+        </ion-label>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+  <ion-searchbar class="custom ion-no-padding"></ion-searchbar>
+  
+  <h5 style="font-size: 14px; font-weight: bold;">Clientes denegados o sin asesor</h5>
+
+  <!-- <ion-card class="ion-no-margin" style="margin-bottom: 3%;">
+    <ion-card-content class="ion-no-padding" style="display: flex; align-items: center; justify-content: space-around;">
+      <ion-grid style="padding: 0;">
+        <ion-row class="ion-align-items-center ion-justify-content-around">
+          <ion-col size="2" style="padding-bottom: 0;">
+            <div>
+              <img style="border-radius: 50%;" src="https://ionicframework.com/docs/img/demos/avatar.svg" referrerpolicy="no-referrer" width="36px" height="36px" />
+            </div> 
+          </ion-col>
+          <ion-col size="4.5" style=" padding-bottom: 0; padding-left: 0;">
+            <div class="truncar">
+              <h5 style="margin: 0; font-size: 12px; font-weight: 800;">Mariana Salas</h5>
+              <small><strong>mariana.salas@gmail.com</strong></small>
+            </div>
+          </ion-col>
+          <ion-col size="4.5" style="padding-right: 0; padding-left: 0; text-align: center;" class="truncar">
+            <p style="margin: 0; font-size: 12px; color: #BD2121; font-weight: bold;"><strong style="color: black;">Saldo:</strong> Sin Saldo</p>
+          </ion-col>
+          <ion-col size="1" style="padding-bottom: 0;">
+            <ion-icon style="font-size: 22px;" name="ellipsis-vertical"></ion-icon>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card> -->
+
+  <!-- <div class="" style="border-bottom: solid rgb(194, 194, 194) 1px; padding: 4px;">
+    <ion-grid style="padding: 0;">
+      <ion-row class="ion-align-items-center ion-justify-content-around">
+        <ion-col size="2" style="padding-bottom: 0;">
+          <div>
+            <img style="border-radius: 50%;" src="https://ionicframework.com/docs/img/demos/avatar.svg" referrerpolicy="no-referrer" width="36px" height="36px" />
+          </div> 
+        </ion-col>
+        <ion-col size="5" style=" padding-bottom: 0; padding-left: 0;">
+          <div class="truncar">
+            <h5 style="margin: 0; font-size: 11px; font-weight: 800;">Mariana Salas</h5>
+            <small style="font-size: 9px;"><strong>mariana.salas@gmail.com</strong></small>
+          </div>
+        </ion-col>
+        <ion-col size="4" style="padding-right: 0; padding-left: 0; text-align: center;" class="truncar">
+          <p style="margin: 0; font-size: 11px; color: #BD2121; font-weight: bold;"><strong style="color: black;">Saldo:</strong> Sin Saldo</p>
+        </ion-col>
+        <ion-col size="1" style="padding-bottom: 0;">
+          <ion-icon style="font-size: 22px;" name="ellipsis-vertical"></ion-icon>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div> -->
+  <ion-item *ngFor="let cliente of pseudo_table_asesors_lastmoves" class="card-item-d">
+    <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar">
+      <img alt="Silhouette of a person's head" [src]="cliente.evidencia[0].url" />
+    </ion-avatar>
+    <ion-label style="margin: 0px;">
+      <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">{{cliente.nombre}}</h5>
+      <p style=" margin-bottom: 0px; font-size: 11px;">{{cliente.email}}</p>
+    </ion-label>
+    <ion-label style="font-size: 11px; text-align: center; font-weight: bold;">
+      Saldo: <span style="color: #BD2121;">{{cliente.saldo_asignado==0?'Sin saldo': cliente.saldo_asignado}}</span>
+    </ion-label>
+    <ion-icon style="margin-left: 0px;" name="ellipsis-vertical" slot="end"></ion-icon>
+  </ion-item>
+
+  <h5 style="color: gray; text-align: center; font-size: 14px; font-weight: bold; margin: 16px 0px;">Ver más</h5>
+
+  <h5 style="font-size: 14px; font-weight: bold; margin-top: 30px; margin-bottom: 0px;">Listado de clientes</h5>
+  
+  <ion-item-group>
+    <ion-item-divider class="head-list">
+      <div class="ion-no-padding" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="padding: 5px;"><img src="https://i.pravatar.cc/300?u=6" referrerpolicy="no-referrer" class="image" width="42px" height="42px" /></div>
+        <div class="">
+          <h5 style="margin: 0px 8px; font-size: 14px;"><strong>Mariana Salas</strong></h5>
+        </div>
+      </div>
+    </ion-item-divider>
+    
+    <ion-item lines="none" class="card-item">
+      <ion-avatar slot="start" style="margin: 1px 8px 1px 0px;" class="item-avatar" (click)="setOpenClient(true)">
+        <img alt="Silhouette of a person's head" src="https://i.pravatar.cc/150?img=38" />
+      </ion-avatar>
+      <ion-label style="margin: 0px;" (click)="setOpenClient(true)">
+        <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
+        <p style=" margin-bottom: 0px; font-size: 11px;">rivera.alan.3m@gmail.com</p>
+      </ion-label>
+      <ion-label style="font-size: 11px; text-align: center; font-weight: bold;" (click)="setOpenClient(true)">
+        Saldo: <span style="color: #14BD4D;">$30,203.00</span>
+      </ion-label>
+      <ion-icon style="margin: 0px;" name="ellipsis-vertical" slot="end" (click)="setOpenOpts(true)"></ion-icon>
+    </ion-item>
+
+    <div class="" style="display: flex; justify-content: center; text-align: center; width: 100%; margin-left: 16px;"><ion-icon name="ellipsis-vertical" color="medium" style="font-size: 14px;"></ion-icon></div>
+    
+    <ion-item lines="none" class="card-item">
+      <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar">
+        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+      </ion-avatar>
+      <ion-label style="margin: 0px;">
+        <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
+        <p style=" margin-bottom: 0px; font-size: 11px;">rivera.alan.3m@gmail.com</p>
+      </ion-label>
+      <ion-label style="font-size: 11px; text-align: center; font-weight: bold;">
+        Saldo: <span style="color: #14BD4D;">$30,203.00</span>
+      </ion-label>
+      <ion-icon style="margin-left: 0px;" name="ellipsis-vertical" slot="end"></ion-icon>
+    </ion-item>
+
+    <div class="" style="display: flex; justify-content: center; text-align: center; width: 100%; margin-left: 16px;"><ion-icon name="ellipsis-vertical" color="medium" style="font-size: 14px;"></ion-icon></div>
+
+    <ion-item lines="none" class="card-item">
+      <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar">
+        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+      </ion-avatar>
+      <ion-label style="margin: 0px;">
+        <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
+        <p style=" margin-bottom: 0px; font-size: 11px;">rivera.alan.3m@gmail.com</p>
+      </ion-label>
+      <ion-label style="font-size: 11px; text-align: center; font-weight: bold;">
+        Saldo: <span style="color: #14BD4D;">$30,203.00</span>
+      </ion-label>
+      <ion-icon style="margin-left: 0px;" name="ellipsis-vertical" slot="end"></ion-icon>
+    </ion-item>
+
+  </ion-item-group>
+  
+  <ion-item-group>
+    <ion-item-divider class="head-list">
+      <div class="ion-no-padding" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="padding: 5px;"><img src="https://i.pravatar.cc/300?u=n" referrerpolicy="no-referrer" class="image" width="42px" height="42px" /></div>
+        <div class="">
+          <h5 style="margin: 0px 8px; font-size: 14px;"><strong>Karla Pinedo</strong></h5>
+        </div>
+      </div>
+    </ion-item-divider>
+  
+    <ion-item lines="none" class="card-item">
+      <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar">
+        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+      </ion-avatar>
+      <ion-label style="margin: 0px;">
+        <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
+        <p style=" margin-bottom: 0px; font-size: 11px;">rivera.alan.3m@gmail.com</p>
+      </ion-label>
+      <ion-label style="font-size: 11px; text-align: center; font-weight: bold;">
+        Saldo: <span style="color: #14BD4D;">$30,203.00</span>
+      </ion-label>
+      <ion-icon style="margin-left: 0px;" name="ellipsis-vertical" slot="end"></ion-icon>
+    </ion-item>
+
+    <div class="" style="display: flex; justify-content: center; text-align: center; width: 100%; margin-left: 16px;"><ion-icon name="ellipsis-vertical" color="medium" style="font-size: 14px;"></ion-icon></div>
+
+    <ion-item lines="none" class="card-item">
+      <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar">
+        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+      </ion-avatar>
+      <ion-label style="margin: 0px;">
+        <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
+        <p style=" margin-bottom: 0px; font-size: 11px;">rivera.alan.3m@gmail.com</p>
+      </ion-label>
+      <ion-label style="font-size: 11px; text-align: center; font-weight: bold;">
+        Saldo: <span style="color: #14BD4D;">$30,203.00</span>
+      </ion-label>
+      <ion-icon style="margin-left: 0px;" name="ellipsis-vertical" slot="end"></ion-icon>
+    </ion-item>
+    
+  </ion-item-group>
+
+
+
+
+
+  <!-- Modal to show information -->
+  <ion-modal class="ion-modal-ases" [isOpen]="isModalOpenClient" (willDismiss)="setOpenClient(false)">
+    <ng-template>
+      <ion-content>
+
+        <div class="ion-no-padding" style="display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 28px 16px 16px; ">
+          <ion-avatar class="head-avatar">
+            <img src="https://i.pravatar.cc/150?img=38" />
+          </ion-avatar>
+          <h5 style="margin: 14px 8px 0px 8px; font-size: 14px;"><strong>Monica Acevedo</strong></h5>
+          <h4 style="margin: 8px 0px 0px 0px; font-size: 11px; font-weight: bold; color: gray;"><strong>moni_acevedo@gmail.com</strong></h4>
+        </div>
+
+        <div class="ion-no-padding" style="display: flex; align-items: center; justify-content: space-around; padding: 8px 16px;">
+          <div class="" style="display: flex; flex-direction: column;align-items: center;">
+            <img style="" src="../../assets/🦆 icon _chat_.svg" width="24px" height="24px" />
+            <h4 style="margin: 10px 8px; font-size: 9px;"><strong>Mensaje texto</strong></h4>
+          </div>
+          <div class="" style="display: flex; flex-direction: column;align-items: center;">
+            <img style="" src="../../assets/🦆 icon _mail_.svg" width="24px" height="24px" />
+            <h4 style="margin: 10px 8px; font-size: 9px;"><strong>Enviar correo</strong></h4>
+          </div>
+          <div class="" style="display: flex; flex-direction: column;align-items: center;">
+            <img style="" src="../../assets/🦆 icon _call_.svg" width="24px" height="24px" />
+            <h4 style="margin: 10px 8px; font-size: 9px;"><strong>Hacer llamada</strong></h4>
+          </div>
+        </div>
+
+        <div class="ion-no-padding" style="display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 8px 16px;">
+          <div style="background-color: #0B5970; width: 85%; margin: 6px; border-radius: 10px; height: 35px; display: flex; align-items: center;">
+            <img style="margin-left: 8px;" src="../../assets/🦆 icon _money send_ solid.svg" width="24px" height="24px" />
+            <p style="margin: 0; margin-left: 14%; font-size: 12px; color: white;"><strong>Saldo:</strong> $14,000.00 - <strong>MX</strong></p>
+          </div>
+          <div style="background-color: rgba(224, 224, 224, 0.46); width: 85%; margin: 6px; border-radius: 10px; height: 35px; display: flex; align-items: center;">
+            <img style="margin-left: 8px;" src="../../assets/🦆 icon _trend down_.svg" width="24px" height="24px" />
+            <p style="margin: 0; margin-left: 12%; font-size: 12px; color: black;"><strong>Pendiente:</strong> $11,000.00 - <strong>MX</strong></p>
+          </div>
+        </div>
+
+
+        <ion-list style="padding: 10px 28px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Número telefónico:</p>
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">496 122 87 97</p>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Dirección:</p>
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Miguel Auza #206 Colonia Acevedo</p>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Estado del cliente:</p>
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Activo</p>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Asesor asignado:</p>
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Mariana Salas</p>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Ubicación en el mapa:</p>
+            <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">39.98.00.21 ; 87.22.86.09</p>
+          </div>
+        </ion-list>
+
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal to add a new Cliente -->
+  <ion-modal [isOpen]="isModalOpenAdd" >
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button size="small" style="color: gray;" [strong]="true" (click)="setOpenAdd(false,rollModal)">Cancelar</ion-button>
+          </ion-buttons>
+          <!-- <ion-title>Nuevo Cliente</ion-title> -->
+          <h5 style="text-align: center; font-size: 16px; font-weight: bold;">Nuevo Cliente</h5>
+          <ion-buttons slot="end">
+            <ion-button size="small" style="color: rgba(147, 191, 207, 1);" [strong]="true">{{rollModal}}</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+
+        <section class="ion-padding">
+          <!-- Pick file or take photo -->
+          <h5 style="font-size: 12px; font-weight: bold; margin:16px,0px; color:gray; text-align: center;">Foto del cliente</h5>
+          <div class="ion-activatable ripple-parent rectangle"
+            style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 120px; width: 120px; margin: auto; margin-bottom: 12px; display: flex; justify-content: center; align-items: center;">
+            <ion-icon style="font-size: 24px; color: #CACACA;" name="camera-outline"></ion-icon> <ion-icon
+              style="font-size: 24px; color: #CACACA;" name="image-outline"></ion-icon>
+            <ion-ripple-effect></ion-ripple-effect>
+          </div>
+          <!-- First part of formular -->
+          <div style="padding-top: 6%;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Nombre del cliente</h5>
+            <div class="ion-no-margin"><input class="input-form" type="text" 
+              placeholder="Ingresa un nombre"></div>
+          </div>
+          <div style="padding-top: 4%;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Teléfono</h5>
+            <div class="ion-no-margin"><input class="input-form" type="text"
+                placeholder="Ingresa un número de teléfono"></div>
+          </div>
+          <div style="padding-top: 4%;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Correo del cliente</h5>
+            <div class="ion-no-margin"><input class="input-form" type="text"
+                placeholder="Ingresa el correo electrónico"></div>
+          </div>
+          <div style="padding-top: 4%;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Dirección del cliente</h5>
+            <div class="ion-no-margin input-form" style="display: flex; align-items: center;">
+              <input class="input-form-map" style="width: 90%;" type="text" placeholder="Ingresa una ubicación">
+              <img style="display: flex;" src="../../assets/🦆 icon _map_.svg" alt="" width="22px" height="22px">
+            </div>
+          </div>
+          <h5 style="font-size: 12px; font-weight: bold; margin:16px,0px; color:gray;">Evidencia del cliente</h5>
+        </section>
+
+        <section style="display: flex; justify-content: space-around; margin: 0px 8px;">
+          <div class="ion-activatable ripple-parent rectangle" style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 85px; width: 45%; margin:0px; display: flex; justify-content: center; align-items: center;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px 24px; color:#CACACA; text-align: center;">Identificación Oficial Frontal</h5>
+            <ion-ripple-effect></ion-ripple-effect>
+          </div>
+          <div class="ion-activatable ripple-parent rectangle" style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 85px; width: 45%; margin:0px; display: flex; justify-content: center; align-items: center;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px 24px; color:#CACACA; text-align: center;">Identificación Oficial Trasera</h5>
+            <ion-ripple-effect></ion-ripple-effect>
+          </div>
+        </section>
+
+        <section style="display: flex; justify-content: space-around; margin: 16px 8px;">
+          <div class="ion-activatable ripple-parent rectangle" style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 120px; width: 95%; margin:0px; display: flex; justify-content: center; align-items: center;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px 24px; color:#CACACA; text-align: center;">Comprobante de <br> domicilio</h5>
+            <ion-ripple-effect></ion-ripple-effect>
+          </div>
+        </section>
+
+        <section style="display: flex; justify-content: space-around; margin: 16px 8px;">
+          <div class="ion-activatable ripple-parent rectangle" style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 120px; width: 95%; margin:0px; display: flex; justify-content: center; align-items: center;">
+            <h5 style="font-size: 12px; font-weight: bold; margin:0px 24px; color:#CACACA; text-align: center;">Comprobante de <br> cumplimiento aval</h5>
+            <ion-ripple-effect></ion-ripple-effect>
+          </div>
+        </section>
+
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal to show options of item -->
+  <ion-modal [isOpen]="isModalOpenOptns" [initialBreakpoint]="1" [breakpoints]="[0, 1]" class="ion-modal-opts" (willDismiss)="setOpenOpts(false)">
+    <ng-template>
+      <div class="block">
+        <ion-button fill="clear" expand="block" (click)="setOpenAdd(true,'ACTUALIZAR')" (click)="setOpenOpts(false)">
+          <ion-icon name="create" slot="start" style="color: gray;"></ion-icon>
+          <h5 style="font-size: 14px; text-transform: initial; color: gray;">Editar cliente</h5>
+        </ion-button>
+        <ion-button fill="clear" (click)="presentActionSheet()">
+          <ion-icon name="trash" slot="start" style="color: gray;"></ion-icon>
+          <h5 style="font-size: 14px; text-transform: initial; color: gray;">Eliminar cliente</h5>
+        </ion-button>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="setOpenAdd(true,'AGREGAR')">
+      <ion-icon size="large" name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

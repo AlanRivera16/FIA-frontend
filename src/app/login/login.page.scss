@@ -1,0 +1,175 @@
+small {
+    opacity: 0.8;
+}
+
+.bg{
+    --background: #0B5970;
+    text-align: center;
+    --color: white;
+}
+
+.t1{
+    font-size: 20px;
+    text-align: left;
+    font-weight: bold;
+    margin-left: 14px;
+}
+.heatlog{
+ display: flex;
+ align-items: center;
+//  justify-content: center;
+ margin: 24px;
+
+ position: absolute;
+ top:10%
+}
+
+.footerlog{
+    position: fixed; 
+    bottom: 0; 
+    width: 100%; 
+    padding-bottom: 8%;
+}
+
+
+.icon::part(native) {
+    background: none;
+    color: #fff;
+  
+  }
+
+.img{
+    width: 130px;
+    height: 130px;
+}
+.bodylog{
+    text-align: left;
+    margin: 35px;
+    //Para centrar verticalmente
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.t2{
+    font-weight: bold;
+}
+.t3{
+    font-size: 14px;
+    font-weight: 100;
+}
+
+// Estilos para input de mail
+.input-mail{
+    width: 100%;
+    border-radius: 5px;
+    padding: 14px;
+    margin-top: 16px;
+
+}
+.input-mail p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+}
+.input-mail input {
+    background-color: transparent;
+    border: none;
+    margin-left: 4px;
+    outline: none;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+}
+.input-mail input::placeholder {
+    color: white;
+    font-size: 13px;
+    font-weight: lighter;
+    opacity: 0.6;
+}
+
+// Estilos para input de password
+.input-pass{
+    width: 100%;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 16px;
+}
+.input-pass p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+}
+.input-pass input {
+    background-color: transparent;
+    border: none;
+    margin-left: 4px;
+    outline: none;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+}
+.input-pass input::placeholder {
+    color: white;
+    font-size: 13px;
+    font-weight: lighter;
+    opacity: 0.6;
+}
+
+
+// Estilo para botón login 
+.btn-log{
+    --background: #EEE9DA;
+    --border-radius: 12px;
+    font-weight: bold;
+    width: 55%;
+    height: 38px;
+    font-size: 18px;
+    color: #0B5970;
+}
+ion-toolbar {
+    --background: transparent;
+}
+ion-footer {
+    display: block;
+    text-align: center;
+}
+
+
+
+
+// Pruebas de transform, transition, animation MAIL
+.input-mail-click{
+    height: 64px;
+    background-color: rgba(147, 191, 207, 0.5);
+    transition: background-color 420ms;
+}
+.input-mail-p-click {
+    transform: translateY(-18px);
+    transition: transform 200ms;
+}
+.input-mail-placeh {
+    display: block;
+}
+.input-mail-value {
+    background-color: transparent;
+    transition: background-color 420ms;
+}
+
+// Pruebas de transform, transition, animation PASSWORD
+.input-pass-click{
+    height: 64px;
+    background-color: rgba(147, 191, 207, 0.5);
+    transition: background-color 420ms;
+}
+.input-pass-p-click {
+    transform: translateY(-18px);
+    transition: transform 200ms;
+}
+.input-pass-placeh {
+    display: block;
+}
+.input-pass-value {
+    background-color: transparent;
+    transition: background-color 420ms;
+}
+

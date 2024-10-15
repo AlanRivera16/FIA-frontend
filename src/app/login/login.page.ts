@@ -4,6 +4,8 @@ import { LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { LoginService } from '../services/login/login.service';
 
+const STORAGE_KEY = 'login-data-user'
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
@@ -87,21 +89,37 @@ export class LoginPage implements OnInit {
     const toast = await this.toastController.create({
       message: message,
       duration: 1500,
-      position: 'bottom',
+      position: 'top',
     });
 
     await toast.present();
   }
 
   async submitNow(){
-    await this.loginService.login(this.user).subscribe({
-      next(value) {
-        console.log(value);
-      },
-      error(err) {
-        console.log(err)
-      },
+    console.log("Cada uno de nosotros")
+    this.loginService.login(this.user).subscribe(async(value:any)=>{  
+      if(value.findUser){
+        await this.loginService.addData(STORAGE_KEY,value.findUser) //Agregamos una variable a nuestra login-storage con nuestro método
+        console.log(value.findUser)
+        this.navCtrl.navigateRoot(['/home/dashboard']);
+      } else if(value.error){
+        this.presentToast(value.error)
+      }   
+      console.log(value)
+    },error=>{
+      console.log(error)
+      this.presentToast(error);
     })
+
+    // this.loginService.login(this.user).subscribe({
+    //   next(value) {
+    //     console.log(value);
+    //   },
+    //   error(err) {
+    //     console.log(err)
+    //     this.presentToast(err);
+    //   }
+    // });  
   }
 
   async submit(){

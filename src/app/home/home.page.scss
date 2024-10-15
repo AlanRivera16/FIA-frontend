@@ -37,5 +37,10 @@ ion-toolbar {
   // --min-height: 80px;
   // --padding-top: 20px;
   // --padding-bottom: 20px;
-  --width:50%
+  // --width:50%
 }
+
+ion-item::part(native) {
+  background: transparent;
+}
+

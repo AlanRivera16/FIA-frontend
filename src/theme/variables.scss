@@ -74,6 +74,15 @@
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+
+  /** darkmain (ADDED)**/
+  --ion-color-darmain: #132634;
+	--ion-color-darmain-rgb: 19,38,52;
+	--ion-color-darmain-contrast: #ffffff;
+	--ion-color-darmain-contrast-rgb: 255,255,255;
+	--ion-color-darmain-shade: #11212e;
+	--ion-color-darmain-tint: #2b3c48;
+
 }
 
 // @media (prefers-color-scheme: dark) {
@@ -276,4 +285,14 @@ ion-action-sheet.my-custom-actsheet .action-sheet-button,
 ion-action-sheet.my-custom-actsheet .action-sheet-button.ion-focused {
   color: #CACACA;
   font-weight: bold;
+}
+
+
+ion-accordion-group{
+  ion-accordion {
+      .ion-accordion-toggle-icon {
+          font-size: 0px;
+          // color: red;
+      }
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { NavController, ToastController } from '@ionic/angular';
 import { LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
@@ -24,6 +24,7 @@ export class LoginPage implements OnInit {
   number=1000000000
   //Propiedades para input email
   mailFocuse = false
+  mailNeedsFocus = false;
   mailWillOpen = false
   mailValue = false
   //Propiedades para input email
@@ -37,9 +38,14 @@ export class LoginPage implements OnInit {
     private loadingCtrl: LoadingController,
     public navCtrl: NavController,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.data = await this.loginService.getData(STORAGE_KEY);
+    if(this.data){
+      this.navCtrl.navigateRoot(['/home/dashboard']);
+    }    
   }
 
   //Metodos para input mail
@@ -54,7 +60,7 @@ export class LoginPage implements OnInit {
     this.mailValue = false
   }
   mailFocusOut(event: FocusEvent){
-    // console.log(this.inputEmail.nativeElement.value);
+    console.log(event);
     if(this.inputEmail.nativeElement.value!=''){
       this.mailValue = true
     }else{

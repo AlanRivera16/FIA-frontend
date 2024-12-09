@@ -1,8 +1,8 @@
 <ion-content class="bg" [fullscreen]="true" style="width: 100%;">
 
   <div style="display: flex; justify-content: space-around; align-items: center; margin: 10%; margin-top: 25%;">
-    <img src="../../assets/icon/main-logo.png" class="img" />
-    <h1 class="t1">Financiera Independiente</h1>
+    <img src="../../assets/icon/logo 1 png.png" class="img" />
+    <!-- <h1 class="t1">Financiera Independiente</h1> -->
   </div>
 
   <div class="bodylog">
@@ -11,17 +11,18 @@
 
     <div class="input-mail" style="display: flex; align-items: end;" (click)="actvMail()" [ngClass]="{'input-mail-click': mailFocuse === true, 'input-mail-value':mailValue === true}">
       <div style="display: flex; align-items: center;">
-        <ion-icon name="mail-outline" style="font-size: 22px;"></ion-icon>
-        <p [ngClass]="{'input-mail-p-click': mailFocuse === true}" style="position: absolute; padding-left: 28px; font-size: 11px;">CORREO</p>
-        <input *ngIf="mailWillOpen===true" #email style="position: absolute; padding-left: 28px;" type="text" id="email" name="emial" maxlength="38" required placeholder="usuario123@dominio.com" (focus)="mailFocusIn($event)" (focusout)="mailFocusOut($event)" [(ngModel)]="user.email">
+        <ion-icon name="mail-outline" style="font-size: 22px; color: #5A5A5A;"></ion-icon>
+        <p [ngClass]="{'input-mail-p-click': mailFocuse === true}" style="position: absolute; padding-left: 28px; font-size: 11px; color:#5A5A5A;">CORREO</p>
+        <!-- <input [hidden]="mailWillOpen==false" #email style="position: absolute; padding-left: 28px; color:#5A5A5A;" type="text" id="email" name="emial" maxlength="38" required placeholder="usuario123@dominio.com" (focus)="mailFocusIn($event)" (focusout)="mailFocusOut($event)" [(ngModel)]="user.email"> -->
+        <input *ngIf="mailWillOpen" #email style="position: absolute; padding-left: 28px; color:#5A5A5A;" type="text" id="email" name="emial" maxlength="38" required placeholder="usuario123@dominio.com" (focus)="mailFocusIn($event)" (focusout)="mailFocusOut($event)" [(ngModel)]="user.email">
       </div>
     </div>
 
     <div class="input-pass" style="display: flex; align-items: end;" (click)="actvPassw()" [ngClass]="{'input-pass-click': passFocuse === true, 'input-pass-value':passValue === true}">
       <div style="display: flex; align-items: center;">
-        <ion-icon name="lock-closed-outline" style="font-size: 22px;"></ion-icon>
-        <p [ngClass]="{'input-pass-p-click': passFocuse === true}" style="position: absolute; padding-left: 28px; font-size: 11px;">PASSWORD</p>
-        <input *ngIf="passWillOpen===true" #password style="position: absolute; padding-left: 28px;" type="text" id="password" name="password" maxlength="38" required placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" (focus)="passFocusIn($event)" (focusout)="passFocusOut($event)" [(ngModel)]="user.password">
+        <ion-icon name="lock-closed-outline" style="font-size: 22px; color:#5A5A5A;"></ion-icon>
+        <p [ngClass]="{'input-pass-p-click': passFocuse === true}" style="position: absolute; padding-left: 28px; font-size: 11px; color:#5A5A5A;">CONTRASEÑA</p>
+        <input *ngIf="passWillOpen===true" #password style="position: absolute; padding-left: 28px; color:#5A5A5A;" type="text" id="password" name="password" maxlength="38" required placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" (focus)="passFocusIn($event)" (focusout)="passFocusOut($event)" [(ngModel)]="user.password">
       </div>
     </div>
 
@@ -29,10 +30,9 @@
 
   <div class="footerlog">
     <ion-button class="btn-log" size="10" expand="Ingresa" id="open-loading" (click)="submitNow()">LOG IN</ion-button>
-    <ion-button class="btn-log" size="10" expand="Ingresa" id="open-loading" (click)="presentToast('Test')">Toast</ion-button>
     <br/>
     <br/>
-    <small>¿Olvidaste tu contraseña?</small>
+    <small style="color:#5A5A5A;">¿Olvidaste tu contraseña?</small>
     <!-- <p>{{number}}</p> -->
   </div>
   

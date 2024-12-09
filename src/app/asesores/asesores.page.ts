@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, ModalController } from '@ionic/angular';
 import { LoginService } from '../services/login/login.service';
+import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
 
 @Component({
   selector: 'app-asesores',
@@ -177,8 +178,14 @@ export class AsesoresPage implements OnInit {
       __v: 0
     },
   ]
+
+  public results = [...this.pseudo_table_asesors]
   
-  constructor(private actionSheetCtrl: ActionSheetController, private loginService: LoginService) { }
+  constructor(
+    private actionSheetCtrl: ActionSheetController, 
+    private loginService: LoginService,
+    private modalCtrl: ModalController
+  ) { }
 
   ngOnInit() {
   }
@@ -234,4 +241,15 @@ export class AsesoresPage implements OnInit {
     this.loginService.takePicture()
   }
 
+  async openModal() {
+    const modal = await this.modalCtrl.create({
+      component: ProfileModalComponent,
+    });
+    modal.present();
+  }
+
+  handleInput(event:any) {
+    const query = event.target.value.toLowerCase();
+    this.results = this.pseudo_table_asesors.filter((d:any) => d.nombre.toLowerCase().indexOf(query) > -1);
+  }
 }

@@ -98,7 +98,8 @@
   
   // Searchbar
   ion-searchbar.custom {
-    --background: #BDCDD6;
+    // --background: #BDCDD6;
+    --background: #e0e0e0;
     --color: rgb(98, 98, 98);
     --placeholder-color: rgb(98, 98, 98);
     --icon-color: rgb(98, 98, 98);
@@ -112,7 +113,7 @@
   }
   
   ion-fab-button{
-    --background:#0B5970;
+    --background:#132634;
   }
   
   .avatar-ion-item::part(native) {

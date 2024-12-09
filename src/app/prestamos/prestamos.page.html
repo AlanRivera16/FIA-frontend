@@ -5,7 +5,7 @@
     </ion-col>
     <ion-col size="5">
       <ion-item lines="none">
-        <ion-avatar slot="end">
+        <ion-avatar slot="end" (click)="openModal()">
           <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
         </ion-avatar>
         <ion-label style="padding-left: 10px; color: black;">
@@ -207,20 +207,30 @@
               <ion-col size="3">Monto</ion-col>
               <ion-col size="3">Estado pago</ion-col>
             </ion-row>
-            <!-- <ion-row class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
-              <ion-col size="1"><ion-checkbox [checked]="true"></ion-checkbox></ion-col>
-              <ion-col size="2">1</ion-col>
-              <ion-col size="3">01/12/23</ion-col>
-              <ion-col size="3">$800</ion-col>
-              <ion-col size="3">Pagado</ion-col>
-            </ion-row> -->
+            
             <ion-row *ngFor="let li of dataTableMort" class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
-              <ion-col size="1"><ion-checkbox [checked]="li.pagado"></ion-checkbox></ion-col>
-              <ion-col size="2">{{li.num_pago}}</ion-col>
-              <ion-col size="3">{{li.fecha_pago}}</ion-col>
-              <ion-col size="3">{{li.monto}}</ion-col>
-              <ion-col size="3">{{li.status_pago}}</ion-col>
+              <ion-col button size="1"><ion-checkbox [checked]="li.estado_pago"></ion-checkbox></ion-col>
+              <ion-col size="11">
+                <ion-accordion-group>
+                  <ion-accordion value="first">
+                    <ion-item slot="header" color="none" class="ion-no-padding" style="--inner-padding-end: 0; text-align: center; font-size: 14px;">
+                      <ion-col size="2">{{li.num_pago}}</ion-col>
+                      <ion-col >{{li.fecha_pago | date: 'dd/MM/yyyy'}}</ion-col>
+                      <ion-col >{{li.cuota}}</ion-col>
+                      <ion-col >{{li.estado_pago?'Pagado':'No pagado'}}</ion-col>
+                    </ion-item>
+                    <div class="ion-padding" slot="content">First Content</div>
+                  </ion-accordion>
+                </ion-accordion-group>
+              </ion-col>
             </ion-row>
+            <!-- <ion-row *ngFor="let li of dataTableMort" class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
+              <ion-col button size="1"><ion-checkbox [checked]="li.estado_pago"></ion-checkbox></ion-col>
+              <ion-col size="2">{{li.num_pago}}</ion-col>
+              <ion-col size="3">{{li.fecha_pago | date: 'dd/MM/yyyy'}}</ion-col>
+              <ion-col size="3">{{li.cuota}}</ion-col>
+              <ion-col size="3">{{li.estado_pago?'Pagado':'No pagado'}}</ion-col>
+            </ion-row> -->
           </ion-grid>
         </ion-content>
       </ng-template>

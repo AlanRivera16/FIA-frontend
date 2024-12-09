@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, ModalController } from '@ionic/angular';
+import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
+
 
 @Component({
   selector: 'app-clientes',
@@ -80,7 +82,10 @@ export class ClientesPage implements OnInit {
     }
   ]
 
-  constructor(private actionSheetCtrl: ActionSheetController) { }
+  constructor(
+    private actionSheetCtrl: ActionSheetController,
+    private modalCtrl: ModalController
+  ) { }
 
   ngOnInit() {
   }
@@ -121,6 +126,13 @@ export class ClientesPage implements OnInit {
     });
 
     actionSheet.present();
+  }
+
+  async openModal() {
+    const modal = await this.modalCtrl.create({
+      component: ProfileModalComponent,
+    });
+    modal.present();
   }
 
 }

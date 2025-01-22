@@ -16,12 +16,186 @@ ion-progress-bar {
     overflow: hidden;
 }
 
+// For checkboxes
 ion-checkbox {
     --size: 16px;
-    --checkbox-background-checked: #14BD4D;
+    border-radius: 4px;
+    // --checkbox-background-checked: #14BD4D;
   }
   
   ion-checkbox::part(container) {
     border-radius: 4px;
-    border: 2px solid #14BD4D;
+    // border: 2px solid #14BD4D;
+  }
+
+.no-ripple {
+    --ripple-color: transparent;
+    --background-activated: transparent;
+}
+
+.checkSuccess {
+  --checkbox-background-checked: #14BD4D;
+}
+.ion-checkbox-success::part(container) {
+  border: 2px solid #14BD4D;
+}
+.checkRetrazo {
+  --checkbox-background-checked: var(--ion-color-danger);
+  background-color: var(--ion-color-danger);
+}
+.ion-checkbox-retrazo::part(container) {
+  border: 2px solid var(--ion-color-danger);
+}
+
+.checkPendiente {
+  --checkbox-background-checked: #fcd40d;
+  background-color: #fcd40d;
+}
+.ion-checkbox-pendiente::part(container) {
+  border: 2px solid #fcd40d;
+}
+
+ion-fab-button{
+--background: var(--ion-color-darkmain);
+}
+
+.ion-item-custom {
+  --min-height: 10px;
+}
+
+ion-item-divider{
+  margin-top: 0px;
+  min-height: 1px!important;
+}
+
+ion-textarea {
+  border: 1px var(--ion-color-medium) solid;
+  border-radius: 8px;
+  padding-top: 8px;
+  padding-bottom: 0px;
+  padding-left: 8px;
+  margin-top: 5px;
+  text-align: start; 
+  font-size: 12px; 
+  color: gray;
+
+  &.focused {
+    border-color: var(--ion-color-primary); /* Color de borde cuando está enfocado */
+  }
+}
+
+ion-select {
+  --placeholder-color: #9a9a9a;
+  font-size: 13px;
+  font-weight: bold;
+  color: #CACACA;
+  min-height: 0px !important;
+}
+.select-form{
+  margin: 6px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+}
+
+.bono {
+  border: 1px var(--ion-color-medium) solid;
+  border-radius: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 8px;
+  // margin-top: 5px;
+  // text-align: start; 
+  font-size: 12px; 
+  color: gray;
+}
+.bono:focus{
+  outline: #09b6eb;
+  border-color: var(--ion-color-primary);
+}
+
+//Estilos para input de formulario
+.input-form{
+    width: 100%;
+    height: 48px;
+    border-radius: 10px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: #CACACA;
+    padding: 4px 6px 4px 14px;
+    font-weight: bold;
+    // text-transform: capitalize;
+    box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+  }
+  .input-form::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: #CACACA;
+    margin-left: 6px;
+    text-transform: none;
+  }
+  .input-form:focus{
+    font-size: 12px;
+    font-weight: bold;
+    color: #0b587042;
+    box-shadow: 0px 2px 8px 1px rgba(147, 191, 207, 0.50);
+    transition: box-shadow 310ms, font-weight 1.5s ;
+  }
+  .input-form:focus::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(147, 191, 207, 0.80);
+    margin-left: 6px;
+    transition: color 310ms;
+  }
+
+  .input-form-map{
+    background-color: transparent;
+    border: none;
+    outline: none;
+  }
+  .input-form-map::placeholder{
+    font-size: 12px;
+    font-weight: bold;
+    color: #CACACA;
+  }
+
+  .invalid {
+    color: var(--ion-color-danger);
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  ion-item .input-wrapper {
+    display: block;
+  }
+
+  small {
+    font-weight: bold;
+    color: var(--ion-color-medium);
+   }
+
+  
+  // For badges
+  ion-badge {
+    --padding-end: 10px;
+    --padding-start: 10px;
+    border-radius: 25px;
+  }
+  .ion-badge-success {
+    --background: #14BD4D;
+    --color: white;
+  }
+  .ion-badge-nopaid {
+    --background: var(--ion-color-danger);
+    --color: white;
+  }
+  .ion-badge-pendig {
+    --background: #fcd40d;
+    --color: white;
+  }
+  .ion-badge-opened {
+    --background: var(--ion-color-light);
+    --color: gray;
   }

@@ -1,11 +1,12 @@
 <ion-content class="ion-padding">
+
   <ion-row>
     <ion-col size="7" style="display:flex; align-items: center; color: black;">
       <h2 style="font-size: 22px; font-weight: bold; margin: 0;">Prestamos</h2>
     </ion-col>
     <ion-col size="5">
       <ion-item lines="none">
-        <ion-avatar slot="end" (click)="openModal()">
+        <ion-avatar slot="end" (click)="openModalProfile()">
           <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
         </ion-avatar>
         <ion-label style="padding-left: 10px; color: black;">
@@ -20,9 +21,12 @@
     <ion-progress-bar [value]="progress"></ion-progress-bar>
   </div>
 
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  <h5 style="font-size: 13px; font-weight: bold; margin:16px 0px; color:gray;">Aprobados:</h5>
-  <div class="card-prestamo ion-activatable ripple-parent" (click)="setModalInfo(true)">
+  <!-- <h5 style="font-size: 13px; font-weight: bold; margin:16px 0px; color:gray;">Aprobados:</h5>
+  <div class="card-prestamo ion-activatable ripple-parent">
     <ion-grid style="padding: 1px 8px;">
       <ion-row>
         <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
@@ -158,82 +162,291 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </div>
+  </div> -->
+
+  <ion-item-group *ngFor="let data of prestamos">
+    <ion-item-divider lines="none">
+      <ion-label>{{data.titulo}}</ion-label>
+    </ion-item-divider>
+  
+    <div *ngFor="let p of data.prestamos" (click)="setModalInfo(true,p)" class="card-prestamo" [ngStyle]="{'border-color': p.estado === 'Pendiente' ? '#93BFCF' : p.estado === 'Rechazado' ? '#EEE9DA' : ''}">
+      <ion-grid style="padding: 1px 8px;">
+        <ion-row>
+          <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+            <img src="../../assets/🦆 icon _money prestamo_.svg" width="16px" height="16px">
+            <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Monto solicitado</h5>
+          </ion-col>
+          <ion-col class="ion-no-padding">          
+            <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">${{p.saldo | moneyTransform}}</h5>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class="ion-no-padding" style="display: flex; align-items: center;">
+            <img src="../../assets/🦆 icon _calendar prestamo_.svg" width="16px" height="16px">
+            <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px;">Fecha solicitada</h5>
+          </ion-col>
+          <ion-col class="ion-no-padding">
+            <h5 style="font-size: 11px; font-weight: bold; margin:7px 6px; text-align: end; color:gray;">{{p.createdAt | date: 'dd/MM/yyyy'}}</h5>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+    <!-- <ion-item lines="none">
+      <ion-label>Armenia</ion-label>
+    </ion-item> -->
+  </ion-item-group>
 
   <ion-modal
       #modal
-      [isOpen]="infoModel"
-      [initialBreakpoint]="0.80"
-      [breakpoints]="[0,0.80,1]"
+      [isOpen]="openModalInfo"
+      [initialBreakpoint]="0.45"
+      [breakpoints]="[0,0.35,0.60,1]"
       cssClass='custom-modal'
-      (willDismiss)="setModalInfo(false)"
+      (willDismiss)="onWillDismiss()"
+      (ionModalDidDismiss)="noPaymentChange = true"
+      [canDismiss]="canDismiss"
+      [backdropDismiss]="backdropDismiss"
+      (ionBreakpointDidChange) = "changeListener($event)"
     >
       <ng-template>
         <ion-content class="ion-padding modal-content" (click)="modal.setCurrentBreakpoint(1)">
-          <h5 style="font-size: 14px; font-weight: bold; text-align: center; margin-top: 32px;">Pendiente: $10,400.00 <span style="color: #CACACA;">| Aprobado</span></h5>
+          <h5 style="font-size: 14px; font-weight: bold; text-align: center; margin-top: 32px;">Pendiente: $10,400.00 <span style="color: #CACACA;">| {{modalInfo.estado}}</span></h5>
 
           <ion-list style="padding: 10px 28px;">
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
               <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Fecha de prestamo:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">01/12/23</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">{{modalInfo.createdAt | date:'dd/MM/yyyy'}}</p>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
               <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Monto solicitado:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">$11,200.00</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.saldo | moneyTransform}}.00</p>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
               <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Esquema de pago:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Quincenal</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">{{modalInfo.tipo_pago}}</p>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
               <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Número de pagos:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">14</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">{{modalInfo.periodo}}</p>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Pago acordado:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">$800.00</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Retrasos:</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">0</p>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
               <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Día de pago:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Miércoles</p>
+              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">Lunes</p>
             </div>
           </ion-list>
 
-          <ion-grid style="padding: 5px 0px;">
-            <ion-row style="font-size: 11px; font-weight: bold; text-align: center; border-top: 1px solid #CACACA; border-bottom: 1px solid #CACACA;">
-              <ion-col size="1"></ion-col>
-              <ion-col size="2"># Pago</ion-col>
-              <ion-col size="3">Fecha pago</ion-col>
-              <ion-col size="3">Monto</ion-col>
-              <ion-col size="3">Estado pago</ion-col>
-            </ion-row>
-            
-            <ion-row *ngFor="let li of dataTableMort" class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
-              <ion-col button size="1"><ion-checkbox [checked]="li.estado_pago"></ion-checkbox></ion-col>
-              <ion-col size="11">
-                <ion-accordion-group>
-                  <ion-accordion value="first">
-                    <ion-item slot="header" color="none" class="ion-no-padding" style="--inner-padding-end: 0; text-align: center; font-size: 14px;">
-                      <ion-col size="2">{{li.num_pago}}</ion-col>
-                      <ion-col >{{li.fecha_pago | date: 'dd/MM/yyyy'}}</ion-col>
-                      <ion-col >{{li.cuota}}</ion-col>
-                      <ion-col >{{li.estado_pago?'Pagado':'No pagado'}}</ion-col>
-                    </ion-item>
-                    <div class="ion-padding" slot="content">First Content</div>
-                  </ion-accordion>
-                </ion-accordion-group>
-              </ion-col>
-            </ion-row>
-            <!-- <ion-row *ngFor="let li of dataTableMort" class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
-              <ion-col button size="1"><ion-checkbox [checked]="li.estado_pago"></ion-checkbox></ion-col>
-              <ion-col size="2">{{li.num_pago}}</ion-col>
-              <ion-col size="3">{{li.fecha_pago | date: 'dd/MM/yyyy'}}</ion-col>
-              <ion-col size="3">{{li.cuota}}</ion-col>
-              <ion-col size="3">{{li.estado_pago?'Pagado':'No pagado'}}</ion-col>
-            </ion-row> -->
-          </ion-grid>
+          <ion-segment value="tabla" (ionChange)="checkSlides($event)">
+            <ion-segment-button value="tabla">
+              <ion-label>Default</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="historial">
+              <ion-label>Segment</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+
+          <!-- DIV PADRE -->
+          <!-- <div class="" id="segments" style="display: flex; align-items: center; justify-content: center;"> -->
+          <div [@slide]="segment" class="" id="segmentFirst">
+            <ion-grid style="padding: 5px 0px;" *ngIf="modalInfo?.tabla_amortizacion.length>0">
+              <ion-row style="font-size: 11px; font-weight: bold; text-align: center; border-top: 1px solid #CACACA; border-bottom: 1px solid #CACACA;">
+                <ion-col size="1"></ion-col>
+                <ion-col size="2"># Pago</ion-col>
+                <ion-col size="3">Fecha pago</ion-col>
+                <ion-col size="3">Monto</ion-col>
+                <ion-col size="3">Estado pago</ion-col>
+              </ion-row>
+              
+              <ion-row *ngFor="let pago of modalInfo.tabla_amortizacion; let i = index" class="ion-align-items-center" style="font-size: 11px; font-weight: bold; text-align: center; color: #CACACA; border-bottom: 1px solid #CACACA;">
+                <ion-col button size="1">
+                  <ion-checkbox class="checkSuccess ion-checkbox-success" 
+                  (ionChange)="setPagoEstado(pago, $event, 'Pagado', i)" 
+                  [disabled]="pago.retraso || pago.completed || pago.pendiente" 
+                  [ngClass]="{'checkRetrazo ion-checkbox-retrazo': pago.retraso , 'checkPendiente ion-checkbox-pendiente' : pago.estado_pago == 'Pendiente'}" 
+                  [indeterminate]="pago.retraso || pago.estado_pago == 'Pendiente'" 
+                  [checked]="pago.estado_pago == 'Pagado'? true : false"></ion-checkbox>
+                </ion-col>
+                <ion-col style="padding-right: 0px;" size="11">
+                  <ion-accordion-group>
+                    <ion-accordion value="first">
+                      <ion-item slot="header" color="none" class="ion-no-padding" style="--inner-padding-end: 0; text-align: center; font-size: 14px;">
+                        <ion-col size="2">{{pago.num_pago}}</ion-col>
+                        <ion-col >{{pago.fecha_pago | date: 'dd/MM/yyyy'}}</ion-col>
+                        <ion-col >${{pago.cuota | moneyTransform}}</ion-col>
+                        <ion-col >{{pago.estado_pago}}</ion-col>
+                      </ion-item>
+                      <div class="" slot="content">
+  
+                        <ion-item-divider></ion-item-divider>
+  
+                        <ion-list class="" style="padding-top: 0px;">
+                          
+                          <ion-list-header style="text-align: start;">
+                            <ion-label>Detalles de pago</ion-label>
+                          </ion-list-header>
+  
+                          <ion-item class="ion-item-custom" lines="none">
+                            <small>Estado modificación</small>
+                            <ion-badge slot="end" 
+                              [ngClass]=" pago.completed ? 'ion-badge-success' : pago.retraso ? 'ion-badge-nopaid' : pago.pendiente ? 'ion-badge-pendig' : 'ion-badge-opened' "
+                              >
+                              {{pago?.completed ? 'completo' : pago?.retraso ? 'retrasado' : pago?.pendiente ? 'pendiente' : 'abierto'}}
+                            </ion-badge>
+                          </ion-item>
+                          <ion-item *ngIf="pago?.retraso || pago?.pendiente" class="ion-item-custom" lines="none">
+                            <small>Saldo pediente</small>
+                            <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">$ 00.00</ion-note>
+                          </ion-item>
+                          <ion-item class="ion-item-custom" lines="none">
+                            <small>{{pago?.completed || pago?.retraso || pago?.pendiente ? 'Expiró' : 'Expira'}}</small>
+                            <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">{{pago.fecha_pago | date: 'mediumDate':locale}} (08:00pm)</ion-note>
+                          </ion-item>
+                          <ion-item *ngIf="pago.pendiente && pago.abono_pago" class="ion-item-custom" lines="none">
+                            <small>Abono recibido</small>
+                            <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">${{pago.abono_pago | moneyTransform}}</ion-note>
+                          </ion-item>
+                          <ion-item *ngIf="pago?.completed || pago?.pendiente" class="ion-item-custom" lines="none">
+                              <small style="margin-right: 65px;" slot="start">Notas</small>
+                              <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px; text-align: end;" slot="end">{{pago.notas ? pago.notas : 'Sin notas'}}</ion-note>
+                          </ion-item>
+                          <ion-item *ngIf="!pago?.completed && !pago?.retraso && !pago?.pendiente && pago.estado_pago != 'Pagado'" style="min-height: 10px;" class="no-ripple" lines="none">
+                            <ion-checkbox 
+                              (ionChange)="setPagoEstado(pago, $event, 'Pendiente', i)" 
+                              [checked]="pago.abono_pago"  
+                              style="margin-right: 10px;" 
+                              class="checkNormal ion-checkbox-normal" 
+                              slot="start">
+                            </ion-checkbox>
+                            <small slot="start" style="margin-right: 28px;">¿Permitir abono?</small>
+                            <input *ngIf="bonoCheck[i] || pago.abono_pago" [(ngModel)]="pago.abono_pago" class="bono" type="Number" placeholder="$00.00">
+                          </ion-item>
+                          
+                          <ion-item *ngIf="!pago?.completed && !pago?.retraso && !pago?.pendiente" class="ion-item-custom" lines="none">
+                            <ion-label style="margin-bottom: 0px;">
+                              <small style="margin-bottom: 5px;">Notas</small>
+                              <ion-textarea [(ngModel)]="pago.notas" (ionFocus)="textAreaFocused = i" (ionBlur)="textAreaFocused = null" [ngClass]="{'focused': textAreaFocused === i}" class="ion-no-padding" aria-label="Comments" placeholder="Escribe tus comentarios aquí..."></ion-textarea>
+                            </ion-label>
+                          </ion-item>
+  
+                        </ion-list>
+                      </div>
+                    </ion-accordion>
+                  </ion-accordion-group>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            <div *ngIf="modalInfo.estado == 'Pendiente' " style="margin-top: 20px;">
+              <ion-button expand="block" color="darkmain" (click)="aceptarPrestamo(modalInfo._id)">Aceptar prestamo</ion-button> 
+              <ion-button expand="block" color="darkmain" fill="outline" (click)="rechazarPrestamo(modalInfo._id)">Rechazar prestamo</ion-button>
+            </div>
+            <!-- <div class="" style="background-color: aqua; height: 15px; width: 15px; margin-top: 50px;"></div> -->
+          </div>
+
+          
+          <div [@slide2]="segment2" id="segmentSecond" style=" position: relative; height: 100px; width: 100%; background-color: rebeccapurple;">
+            <div class="" style="background-color: aqua; height: 15px; width: 15px;"></div>
+          </div>
+
+          <!-- </div> -->
+
         </ion-content>
+        <ion-progress-bar *ngIf="updatingPago" type="indeterminate" color="darkmain"></ion-progress-bar>
+        <ion-footer *ngIf="!noPaymentChange">
+          <ion-toolbar>
+            <ion-title style="margin-top: 10px;"><small>¿Guardar cambios realizados?</small></ion-title>
+            <ion-row>
+              <ion-col><ion-button expand="block" color="darkmain" [disabled]="updatingPago"
+                  (click)="updateTablaAmortz(modalInfo)">Guardar</ion-button></ion-col>
+              <ion-col><ion-button expand="block" color="darkmain" [disabled]="updatingPago" fill="outline"
+                  (click)="cancelPut()">Cancelar</ion-button></ion-col>
+              </ion-row>
+            </ion-toolbar>
+        </ion-footer>
+        <ion-progress-bar *ngIf="accept_reject" type="indeterminate" color="darkmain"></ion-progress-bar>
       </ng-template>
-    </ion-modal>
+  </ion-modal>
+  
+  <!-- Modal to add a new Prestamo -->
+  <ion-modal [isOpen]="isModalOpenAdd" >
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button size="small" style="color: gray;" [strong]="true" [disabled]="postingPrestamo" (click)="setOpenAdd(false,rollModal)">Cancelar</ion-button>
+          </ion-buttons>
+          <!-- <ion-title>Nuevo Asesor</ion-title> -->
+          <h5 style="text-align: center; font-size: 16px; font-weight: bold;">Solicitar Prestamo</h5>
+          <ion-buttons slot="end">
+            <ion-button size="small" style="color: rgba(147, 191, 207, 1);" [strong]="true" [disabled]="postingPrestamo" (click)="submitAddPrestamo()">{{rollModal}}</ion-button>
+          </ion-buttons>
+          <ion-progress-bar *ngIf="postingPrestamo" type="indeterminate"></ion-progress-bar>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+
+        <form [formGroup]="formInputPOST" #formDirective="ngForm">
+          <section class="ion-padding">
+            <!-- First part of formular -->
+            <div style="padding-top: 6%;">
+              <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Monto solicitado</h5>
+              <div class="ion-no-margin"><input class="input-form" type="number" formControlName="saldo" placeholder="Máx. cantidad $24,000.00"></div>
+              <small class="invalid" *ngIf="formSubmit && formInputPOST.get('saldo')?.status == 'INVALID'">Ingresa un monto valido</small>
+            </div>
+            <div style="padding-top: 4%;">
+              <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Periodo del prestamo</h5>
+              <ion-list class="ion-no-padding">
+                <ion-item class="select-form" lines="none">
+                  <ion-select formControlName="periodo" aria-label="periodos" placeholder="Selecciona el periodo">
+                    <ion-select-option value="14">14 semanas</ion-select-option>
+                    <ion-select-option value="6">6 meses</ion-select-option>
+                    <ion-select-option value="3">3 meses</ion-select-option>
+                  </ion-select>
+                </ion-item>
+              </ion-list>
+              <small class="invalid" *ngIf="formSubmit && formInputPOST.get('periodo')?.status == 'INVALID'">Ingresa un monto valido</small>
+            </div>
+            <div style="padding-top: 4%;">
+              <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Cliente asignado</h5>
+            </div>
+            <ion-list class="select-form ion-no-padding" [inset]="true">
+              <ion-item [button]="true" [detail]="false" id="select-clientes">
+                <ion-label style="font-size: 16px;">Beneficiario</ion-label>
+                <div slot="end" id="selected-clientes" style="color: #CACACA;font-size: 14px;font-weight: bold;">{{ selectedClientesText }}</div>
+              </ion-item>
+            </ion-list>
+            <small class="invalid" *ngIf="formSubmit && formInputPOST.get('id_cliente')?.status == 'INVALID'">Ingresa un monto valido</small>
+
+  
+            <ion-modal trigger="select-clientes" #modal_cli>
+              <ng-template>
+                <app-cliente-modal
+                  class="ion-page"
+                  title="MIS CLIENTES"
+                  [items]="clientes"
+                  [selectedItems]="selectedClientes"
+                  (selectionChange)="clienteSelectionChanged($event)"
+                  (selectionCancel)="this.modal_cli.dismiss()"
+                ></app-cliente-modal>
+              </ng-template>
+            </ion-modal>
+  
+          </section>
+        </form>
+
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- <ion-datetime presentation="date" value="2023-01-01"></ion-datetime> -->
+  
+  
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="setOpenAdd(true,'AGREGAR')">
+      <ion-icon size="large" name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
 </ion-content>

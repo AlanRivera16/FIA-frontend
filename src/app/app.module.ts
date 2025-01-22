@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
@@ -8,12 +8,18 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HomePageModule } from './home/home.module';
 import { LoginPageModule } from './login/login.module';
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { MoneyTransformPipe } from './Pipes/money-transform.pipe';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { Drivers, Storage } from '@ionic/storage';
 import { ProfileModalComponent } from './profile-modal/profile-modal.component'
+import { ClienteModalComponent } from './cliente-modal/cliente-modal.component'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import localEs from '@angular/common/locales/es-MX'
+registerLocaleData(localEs, 'es-MX')
+
 @NgModule({
   declarations: [AppComponent, ProfileModalComponent],
   imports: [
@@ -24,12 +30,13 @@ import { ProfileModalComponent } from './profile-modal/profile-modal.component'
     HomePageModule,
     LoginPageModule,
     HttpClientModule,
+    BrowserAnimationsModule,
     IonicStorageModule.forRoot({
       name: 'Login-Session-DB',
       driverOrder: [Drivers.IndexedDB,Drivers.LocalStorage]
     })
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, {provide: LOCALE_ID, useValue: 'es-MX'}],
   bootstrap: [AppComponent],
   exports: []
 })

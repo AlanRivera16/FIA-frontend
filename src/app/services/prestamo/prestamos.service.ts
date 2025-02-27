@@ -30,6 +30,10 @@ export class PrestamosService {
     return this.http.patch(`${this.api_test}/update_tabla/pago/${id}`, body)
   }
 
+  pagarMulta(id:string, pago:number, body:{}){
+    return this.http.patch(`${this.api_test}/prestamo/pago/multa/${id}/${pago}`, body)
+  }
+
   rechazarPrestamo(id:string){
     return this.http.patch(`${this.api_test}/rechazar/prestamo/${id}`, {})
   }

@@ -9,6 +9,7 @@ import { PrestamosPageRoutingModule } from './prestamos-routing.module';
 import { PrestamosPage } from './prestamos.page';
 import { PipesModule } from '../Pipes/pipes.module';
 import { ClienteModalComponent } from '../cliente-modal/cliente-modal.component'
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { ClienteModalComponent } from '../cliente-modal/cliente-modal.component'
     PrestamosPageRoutingModule,
     PipesModule,
   ],
-  declarations: [PrestamosPage, ClienteModalComponent]
+  declarations: [PrestamosPage, ClienteModalComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class PrestamosPageModule {}

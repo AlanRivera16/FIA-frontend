@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, LOCALE_ID, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, LOCALE_ID, Inject, ElementRef } from '@angular/core';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
 import { ModalController, IonModal, AlertController, AlertInput, ToastController } from '@ionic/angular';
 import { PrestamosService } from '../services/prestamo/prestamos.service';
@@ -6,6 +6,7 @@ import { Cliente, Item } from '../types'
 import { LoginService } from '../services/login/login.service';
 import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import Swiper from 'swiper';
 
 const STORAGE_KEY = 'login-data-user'
 
@@ -30,6 +31,9 @@ export class PrestamosPage implements OnInit {
   @ViewChild('modal_cli') modal_cli!: IonModal;
   // @ViewChild('formDirective') formDirective : FormGroupDirective;
   @ViewChild('formDirective') formDirective!: NgForm;
+  @ViewChild('swiper')
+  swiperRef: ElementRef | undefined;
+  swiper?:Swiper
 
   dataUser:any = []
 
@@ -39,8 +43,8 @@ export class PrestamosPage implements OnInit {
   isModalClientes = false
 
   //SEGMENT
-  segment = true
-  segment2 = false
+  segmentValue = 'tabla'
+  
   //FORM
   rollModal = ''
   editedAsesor:any = {};
@@ -91,21 +95,25 @@ export class PrestamosPage implements OnInit {
     this.formInputPOST = this.formPrest.group({
       'saldo' : new FormControl("", Validators.required),
       'periodo' :  new FormControl("", Validators.required),
+      'dia_pago' :  new FormControl(""),
       'id_cliente' :  new FormControl("", Validators.required),
       'id_asesor' :  new FormControl(),
     })
   }
 
-  checkSlides(event:any){
-    console.log(event.detail.value)
-    if(event.detail.value == 'tabla') {
-      this.segment = true
-      this.segment2 = false
-    }else if(event.detail.value == 'historial'){
-      this.segment2 = true
-      this.segment = false
-    }
-
+  swiperReady(){
+    this.swiper = this.swiperRef?.nativeElement.swiper;
+  }
+  goSlide(){ this.swiperRef?.nativeElement.swiper.slideNext() }
+  backSlide(){ this.swiperRef?.nativeElement.swiper.slidePrev() }
+  // logActiveIndex() {
+  //   console.log(this.swiperRef?.nativeElement.swiper.activeIndex);
+  // }
+  swiperSlideChanged(e:any){
+    const swiper = this.swiperRef?.nativeElement.swiper.activeIndex
+    // console.log('slide:', swiper) 
+    swiper == 0 ? this.segmentValue = 'tabla' : this.segmentValue = 'historial';
+    // console.log(e)
   }
 
   submitAddPrestamo(){
@@ -114,11 +122,18 @@ export class PrestamosPage implements OnInit {
 
     if(! this.formInputPOST.valid){
       console.log("not valid"); return
-    }else{
+    }else if(this.formInputPOST.valid && this.formInputPOST.value.periodo == 14 && this.formInputPOST.value.dia_pago == ""){
+      console.log("not valid"); return
+    }
+    else{
+      console.log("valid")
+      this.formInputPOST.value.dia_pago == "" ? delete this.formInputPOST.value.dia_pago : ''
       this.postingPrestamo = true
+
       setTimeout(() => {
         this.prestService.postPrestamos(this.formInputPOST.value).subscribe((res: any) => {
           this.addItemPendientes(res)
+          this.postingPrestamo = false
           this.isModalOpenAdd = false
           console.log(res)
           this.presentToast('bottom', 'Prestamo registrado exitosamente',2500)
@@ -144,38 +159,21 @@ export class PrestamosPage implements OnInit {
 
   async setAllData(){
     await this.prestService.getPrestamos().subscribe((res:any)=>{
-      console.log(res)
-
-      // for(let i of res){
-      //   switch (i.estado) {
-      //     case "Aceptado":
-      //       this.prestamos[0].prestamos.push(i)
-      //       break;
-      //     case "Pendiente":
-      //       this.prestamos[1].prestamos.push(i)
-      //       break;
-      //     case "Rechazado":
-      //       this.prestamos[2].prestamos.push(i)
-      //       break;
-        
-      //     default:
-      //       break;
-      //   }
-      // }
+      // console.log(res)
 
       this.prestamos[0].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Aceptado'}))
       this.prestamos[1].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Pendiente'}))
       this.prestamos[2].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Rechazado'}))
-      console.log(this.prestamos);
+      // console.log(this.prestamos);
     })
     await this.prestService.getClientes().subscribe((res:any)=>{
-      console.log(res)
+      // console.log(res)
       this.clientes = res
     })
     this.dataUser = await this.loginService.getData(STORAGE_KEY);
     this.formInputPOST.patchValue({'id_asesor': this.dataUser._id})
     // this.editedAsesor.id_asesor = this.dataUser._id
-    console.log(this.dataUser)
+    console.log(this.dataUser, this.formInputPOST.value)
   }
 
   setModalInfo(isOpen: boolean, data:any){
@@ -198,14 +196,14 @@ export class PrestamosPage implements OnInit {
     //   }
     //   // console.log(this.prestService.compareDates(f.fecha_pago))
     // }
-    console.log(data.tabla_amortizacion)
+    // console.log(data.tabla_amortizacion)
     
     if(isOpen){
       this.copyData = JSON.parse(JSON.stringify(data.tabla_amortizacion)) //Copia en estado base que nunca será modificada
       this.modalInfo = JSON.parse(JSON.stringify(data)) // Copia en estado base que sí puede ser modificada
     }
     // console.log(this.copyData, this.modalInfo.tabla_amortizacion)
-    console.log(data._id)
+    console.log(data)
   }
 
   setEstados(array:any[]){
@@ -377,10 +375,10 @@ onWillDismiss() {
   this.openModalInfo = false
 }
 
-async aceptarPrestamo(id:string) {
+async aceptarPrestamo(infoPrestamo:any) {
   const alert = await this.alertController.create({
     header: 'Atención',
-    subHeader:'Al APROBAR este prestamo se creará la tabla de amortización calculando la fecha seleccionada.',
+    subHeader:'Al APROBAR este prestamo se creará la tabla de amortización calculando la fecha seleccionada en que se dió el prestamo.',
     inputs: [
       {
         name:'fecha',
@@ -402,11 +400,13 @@ async aceptarPrestamo(id:string) {
         text:'Aprobar',
         handler: (alertData) => {
           if(alertData.fecha){
-            console.log(id)
+            console.log(infoPrestamo)
+            let body = infoPrestamo.dia_pago? {'fecha_prestamo': alertData.fecha, 'dia_pago':infoPrestamo.dia_pago} : {'fecha_prestamo': alertData.fecha}
+            console.log(body)
             this.accept_reject = true
-            this.prestService.aceptarPrestamo(id, {'fecha_prestamo': alertData.fecha}).subscribe((res:any)=>{
+            this.prestService.aceptarPrestamo(infoPrestamo._id, body).subscribe((res:any)=>{
               setTimeout(() => {
-                this.removeItemPendientes(id)
+                this.removeItemPendientes(infoPrestamo._id)
                 this.addItemAceptados(res)
                 this.accept_reject = false
 
@@ -462,6 +462,33 @@ async rechazarPrestamo(id:string) {
 
   await alert.present();
 }
+async pagarMultaPago(id:string, pago:number, monto:number, index:number) {
+  const alert = await this.alertController.create({
+    header: 'Atención',
+    subHeader:`¿Segura que quieres continuar con esta operación?. Multa a pagar: ${monto}`,
+    buttons: [
+      {
+        text:'Cancelar',
+        handler:()=>{return true}
+      },
+      {
+        text:'Pagar',
+        handler: () => {
+          console.log('Data: ', this.modalInfo, index)
+          
+          this.prestService.pagarMulta(id, pago, {}).subscribe((res:any) =>{
+            console.log(res)
+            this.updatePagoMulta(this.modalInfo, pago, res.multa)
+            this.presentToast("bottom", res.message, 3000)
+
+          })
+        }
+      },
+    ],
+  });
+
+  await alert.present();
+}
 async presentToast(position: 'top' | 'middle' | 'bottom', message:string, time:number) {
   const toast = await this.toastController.create({
     message: message,
@@ -487,6 +514,15 @@ removeItemPendientes(id:string){
   })
   this.prestamos[1].prestamos = pendientes
   console.log(this.prestamos[1].prestamos)
+}
+updatePagoMulta(pago:any, pagoNum:number, res:any){
+  console.log(pago, pagoNum)
+  pago.tabla_amortizacion[pagoNum-1].multa = res
+
+  const index = this.prestamos[0].prestamos.findIndex((item:any) => item._id === pago._id)
+  console.log(index)
+  this.prestamos[0].prestamos[index].tabla_amortizacion[pagoNum-1].multa = res
+  console.log(this.prestamos[0].prestamos[index])
 }
 
 

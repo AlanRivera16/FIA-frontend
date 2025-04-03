@@ -210,7 +210,7 @@
     >
       <ng-template>
         <ion-content class="ion-padding modal-content" (click)="modal.setCurrentBreakpoint(1)">
-          <h5 style="font-size: 14px; font-weight: bold; text-align: center; margin-top: 32px;">Pendiente: $10,400.00 <span style="color: #CACACA;">| {{modalInfo.estado}}</span></h5>
+          <h5 style="font-size: 14px; font-weight: bold; text-align: center; margin-top: 32px;">Pendiente: ${{ (modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente) - (modalInfo.totalPagado) | moneyTransform}}.00 <span style="color: #CACACA;">| {{modalInfo.estado}}</span></h5>
 
           <ion-list style="padding: 10px 28px;">
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
@@ -245,7 +245,7 @@
               <ion-label>Tabla</ion-label>
             </ion-segment-button>
             <ion-segment-button value="historial" (click)="goSlide()">
-              <ion-label>Historial</ion-label>
+              <ion-label>Actividad</ion-label>
             </ion-segment-button>
           </ion-segment>
           <ion-item-divider></ion-item-divider>
@@ -308,13 +308,21 @@
                               <small>{{pago?.completed || pago?.retraso || pago?.pendiente ? 'Expiró' : 'Expira'}}</small>
                               <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">{{pago.fecha_pago | date: 'mediumDate':locale}} (08:00pm)</ion-note>
                             </ion-item>
-                            <ion-item *ngIf="pago?.retraso || pago?.pendiente" class="ion-item-custom" lines="none">
-                              <small>Saldo pediente</small>
-                              <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">${{pago.multa.monto_pendiente | moneyTransform}}</ion-note>
+                            <ion-item *ngIf="pago?.retraso" class="ion-item-custom" lines="none">
+                              <small>Saldo pediente</small> <!-- MULTAS -->
+                              <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">${{pago.multa.saldado ? 0 : pago.multa.monto_pendiente + pago.cuota | moneyTransform}}</ion-note>
                             </ion-item>
-                            <ion-item *ngIf="pago?.retraso || pago?.pendiente" class="ion-item-custom" lines="none">
+                            <ion-item *ngIf="pago.abono_pago" class="ion-item-custom" lines="none">
+                              <small>Saldo pediente</small> <!-- ABONO MALO -->
+                              <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">${{pago.saldo_pendiente | moneyTransform}}</ion-note>
+                            </ion-item>
+                            <ion-item *ngIf="pago?.retraso" class="ion-item-custom" lines="none">
                               <small>Dias de retraso</small>
                               <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">{{pago.multa.dia_retraso}}</ion-note>
+                            </ion-item>
+                            <ion-item *ngIf="pago.multa?.fecha_pago" class="ion-item-custom" lines="none">
+                              <small>Fecha en que se saldo</small>
+                              <ion-note color="dark" class="ion-no-margin ion-no-padding" style="margin-top: 10px; margin-bottom: 10px;" slot="end">{{pago.multa?.fecha_pago | date: 'mediumDate':locale}}</ion-note>
                             </ion-item>
                             <ion-item *ngIf="pago.pendiente && pago.abono_pago" class="ion-item-custom" lines="none">
                               <small>Abono recibido</small>
@@ -333,13 +341,13 @@
                                 slot="start">
                               </ion-checkbox>
                               <small slot="start" style="margin-right: 28px;">¿Permitir abono?</small>
-                              <input *ngIf="bonoCheck[i] || pago.abono_pago" [(ngModel)]="pago.abono_pago" class="bono" type="Number" placeholder="$00.00">
+                              <input (input)="checarBono($event, pago)" *ngIf="bonoCheck[i] || pago.abono_pago" [(ngModel)]="pago.abono_pago" class="bono" type="Number" placeholder="$00.00">
                             </ion-item>
                             
                             <ion-item *ngIf="!pago?.completed && !pago?.retraso && !pago?.pendiente" class="ion-item-custom" lines="none">
                               <ion-label style="margin-bottom: 0px;">
                                 <small style="margin-bottom: 5px;">Notas</small>
-                                <ion-textarea [(ngModel)]="pago.notas" (ionFocus)="textAreaFocused = i" (ionBlur)="textAreaFocused = null" [ngClass]="{'focused': textAreaFocused === i}" class="ion-no-padding" aria-label="Comments" placeholder="Escribe tus comentarios aquí..."></ion-textarea>
+                                <ion-textarea [(ngModel)]="pago.notas" (ionInput)="checarNotas()" (ionFocus)="textAreaFocused = i" (ionBlur)="textAreaFocused = null" [ngClass]="{'focused': textAreaFocused === i}" class="ion-no-padding" aria-label="Comments" placeholder="Escribe tus comentarios aquí..."></ion-textarea>
                               </ion-label>
                             </ion-item>
 
@@ -349,7 +357,7 @@
                                 <ion-note>Dias de retraso: </ion-note>
                                 <ion-note>{{pago.multa.dia_retraso}}</ion-note>
                               </ion-label> -->
-                              <ion-button *ngIf="!pago.multa.saldado && pago.retraso" [disabled]="pago.multa.saldado" size="small" expand="block" color="medium" (click)="pagarMultaPago(modalInfo._id,pago.num_pago, pago.multa.monto_pendiente, i)">Pagar multa</ion-button>
+                              <ion-button *ngIf="!pago.multa.saldado && pago.retraso" [disabled]="pago.multa.saldado" size="small" expand="block" color="medium" (click)="pagarMultaPago(modalInfo._id,pago.num_pago, pago.multa.monto_pendiente + pago.cuota, i)">Pagar multa</ion-button>
                             <!-- </ion-item> -->
     
                           </ion-list>
@@ -364,7 +372,155 @@
                 <ion-button expand="block" color="darkmain" fill="outline" (click)="rechazarPrestamo(modalInfo._id)">Rechazar prestamo</ion-button>
               </div>
             </swiper-slide>
-            <swiper-slide></swiper-slide>
+            <swiper-slide>
+              <ion-label *ngIf="modalInfo?.tabla_amortizacion.length>0" class="ion-padding" style="padding: 16px; margin-top: 8px; display: block;">
+                Historial de pagos
+                <!-- <p>Administrador</p> -->
+              </ion-label>
+
+              <ion-list [inset]="true">
+                <div *ngFor="let pago of modalInfo.tabla_amortizacion.slice(0,4); let i = index">
+                  <ion-item *ngIf="!pago.hasOwnProperty('abierto') || pago.estado_pago == 'Pagado' || pago.abono_pago " [button]="true" detail="false">
+                    <ion-label>
+                      <strong>Pago {{pago.num_pago}}</strong><br/>
+                      <ion-text>Estado: {{pago.estado_pago}}</ion-text><br/>
+                      <ion-note color="medium" class="ion-text-wrap">
+                        <span *ngIf="pago.estado_pago == 'Pagado' || pago.estado_pago == 'Pendiente'">+</span>
+                        <span *ngIf="pago.estado_pago == 'No pagado'">-</span>
+                        ${{pago.estado_pago == 'Pendiente'? pago.abono_pago : pago.cuota | moneyTransform}}.00
+                      </ion-note>
+                      <div *ngIf="pago.multa.dia_retraso > 0">
+                        <ion-text>Multas</ion-text><br/>
+                        <div *ngIf="pago.multa.multasArray.length > 4">
+                          <ion-note color="medium" class="ion-text-wrap">- ${{pago.multa.multasArray[0] | moneyTransform}}.00 (x{{pago.multa.multasArray.length}})</ion-note><br/>
+                        </div>
+                        <div *ngIf="pago.multa.dia_retraso <= 4">
+                          <span *ngFor="let m of pago.multa.multasArray">
+                            <ion-note color="medium" class="ion-text-wrap">- ${{m | moneyTransform}}.00</ion-note><br/>
+                          </span>
+                        </div>
+
+                        <!-- <ion-accordion-group>
+                          <ion-accordion value="first">
+                            <ion-item slot="header">
+                              <ion-label>Ver mas...</ion-label>
+                            </ion-item>
+                            <div slot="content">
+                              <span *ngFor="let m of pago.multa.multasArray">
+                                <ion-note color="medium" class="ion-text-wrap">- ${{m | moneyTransform}}.00</ion-note><br/>
+                              </span>
+                            </div>
+                          </ion-accordion> 
+                        </ion-accordion-group> -->
+                        <ion-text *ngIf="pago.multa.saldado">Liquidacion de multas: </ion-text> <ion-note color="medium" class="ion-text-wrap"> {{pago.multa.fecha_pago | date: 'dd/MM/yyyy'}}</ion-note>
+                      </div>
+                      <div *ngIf="pago.saldo_pendiente">
+                        <br/><ion-text>Pendiente</ion-text><br/>
+                        <ion-note color="medium" class="ion-text-wrap">- ${{pago.saldo_pendiente | moneyTransform}}.00</ion-note><br/>
+                      </div>
+                    </ion-label>
+                    <div class="metadata-end-wrapper" slot="end">
+                      <ion-note color="medium">{{pago.fecha_pago | date: 'dd/MM/yyyy'}}</ion-note>
+                      <ion-icon color="medium" name="chevron-forward"></ion-icon>
+                    </div>
+                  </ion-item>
+                </div>
+                <div *ngIf="showMore">
+                  <div *ngFor="let pago of modalInfo.tabla_amortizacion.slice(4); let i = index">
+                    <ion-item *ngIf="!pago.hasOwnProperty('abierto') || pago.estado_pago == 'Pagado' || pago.abono_pago " [button]="true" detail="false">
+                      <ion-label>
+                        <strong>Pago {{pago.num_pago}}</strong><br/>
+                        <ion-text>Estado: {{pago.estado_pago}}</ion-text><br/>
+                        <ion-note color="medium" class="ion-text-wrap">
+                          <span *ngIf="pago.estado_pago == 'Pagado' || pago.estado_pago == 'Pendiente'">+</span>
+                          <span *ngIf="pago.estado_pago == 'No pagado'">-</span>
+                          ${{pago.estado_pago == 'Pendiente'? pago.abono_pago : pago.cuota | moneyTransform}}.00
+                        </ion-note>
+                        <div *ngIf="pago.multa.dia_retraso > 0">
+                          <ion-text>Multas</ion-text><br/>
+                          <div *ngIf="pago.multa.multasArray.length > 4">
+                            <ion-note color="medium" class="ion-text-wrap">- ${{pago.multa.multasArray[0] | moneyTransform}}.00 (x{{pago.multa.multasArray.length}})</ion-note><br/>
+                          </div>
+                          <div *ngIf="pago.multa.dia_retraso <= 4">
+                            <span *ngFor="let m of pago.multa.multasArray">
+                              <ion-note color="medium" class="ion-text-wrap">- ${{m | moneyTransform}}.00</ion-note><br/>
+                            </span>
+                          </div>
+  
+                          <!-- <ion-accordion-group>
+                            <ion-accordion value="first">
+                              <ion-item slot="header">
+                                <ion-label>Ver mas...</ion-label>
+                              </ion-item>
+                              <div slot="content">
+                                <span *ngFor="let m of pago.multa.multasArray">
+                                  <ion-note color="medium" class="ion-text-wrap">- ${{m | moneyTransform}}.00</ion-note><br/>
+                                </span>
+                              </div>
+                            </ion-accordion> 
+                          </ion-accordion-group> -->
+                          <ion-text *ngIf="pago.multa.saldado">Liquidacion de multas: </ion-text> <ion-note color="medium" class="ion-text-wrap"> {{pago.multa.fecha_pago | date: 'dd/MM/yyyy'}}</ion-note>
+                        </div>
+                        <div *ngIf="pago.saldo_pendiente">
+                          <br/><ion-text>Pendiente</ion-text><br/>
+                          <ion-note color="medium" class="ion-text-wrap">- ${{pago.saldo_pendiente | moneyTransform}}.00</ion-note><br/>
+                        </div>
+                      </ion-label>
+                      <div class="metadata-end-wrapper" slot="end">
+                        <ion-note color="medium">{{pago.fecha_pago | date: 'dd/MM/yyyy'}}</ion-note>
+                        <ion-icon color="medium" name="chevron-forward"></ion-icon>
+                      </div>
+                    </ion-item>
+                  </div>
+                </div>
+
+                <!-- Show More / Show Less Button -->
+                <ion-button *ngIf="modalInfo.tabla_amortizacion.length > 4" expand="block" color="darkmain" fill="outline" (click)="toggleShowMore()">
+                  {{ showMore ? 'Mostrar menos' : 'Mostrar más' }}
+                </ion-button>
+
+
+                <!-- <ion-item [button]="true" detail="false">
+                  <ion-label>
+                    <strong>Pago 1</strong><br/>
+                    <ion-text>Estado: Pagado</ion-text><br/>
+                    <ion-note color="medium" class="ion-text-wrap">
+                      + $2,500.00
+                    </ion-note>
+                  </ion-label>
+                  <div class="metadata-end-wrapper" slot="end">
+                    <ion-note color="medium">03/25/2025</ion-note>
+                    <ion-icon color="medium" name="chevron-forward"></ion-icon>
+                  </div>
+                </ion-item> -->
+              </ion-list>
+              <ion-label *ngIf="modalInfo?.tabla_amortizacion.length>0" class="ion-padding" style="padding: 16px; margin-top: 8px; display: block;">
+                Metricas
+              </ion-label>
+
+              <ion-list style="padding: 10px 28px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 0px;">Subtotal:</p>
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.totalCuota | moneyTransform}}.00</p>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 0px;">Multas:</p>
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.totalMultas | moneyTransform}}.00</p>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 0px;">Pagos pendientes:</p>
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.totalPendiente | moneyTransform}}.00</p>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 0px;">Total Pagado:</p>
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.totalPagado | moneyTransform}}.00</p>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                  <p style="font-size: 16px; font-weight: bold; margin: 8px 0px 0px 0px;">Deuda Total:</p>
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente | moneyTransform}}.00</p>
+                </div>
+              </ion-list>
+            </swiper-slide>
           </swiper-container>
 
           <!-- DIV PADRE -->

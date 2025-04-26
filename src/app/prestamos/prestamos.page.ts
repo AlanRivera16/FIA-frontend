@@ -75,6 +75,10 @@ export class PrestamosPage implements OnInit {
     {
       titulo:"Rechazado",
       prestamos: []
+    },
+    {
+      titulo:"Cerrados",
+      prestamos: []
     }
   ]
   modalInfo:any = {}
@@ -212,6 +216,7 @@ export class PrestamosPage implements OnInit {
       this.prestamos[0].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Aceptado'}))
       this.prestamos[1].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Pendiente'}))
       this.prestamos[2].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Rechazado'}))
+      this.prestamos[3].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Cerrado'}))
       // console.log(this.prestamos);
     })
     await this.prestService.getClientes().subscribe((res:any)=>{
@@ -520,6 +525,39 @@ async aceptarPrestamo(infoPrestamo:any) {
 
   await alert.present();
 }
+async cerrarPrestamo(infoPrestamo:any) {
+  const alert = await this.alertController.create({
+    header: 'Atención',
+    subHeader:'Para continuar con la operacion por favor ingrese su contraseña.',
+    buttons: [
+      {
+        text:'Cancelar',
+        handler:()=>{return true}
+      },
+      {
+        text:'Aceptar',
+        handler: () => {
+          this.prestService.cerrarPrestamo(infoPrestamo._id).subscribe((res:any)=>{
+            setTimeout(() => {
+              this.removeItemAceptado(infoPrestamo._id)
+              this.addItemCerrados(res)
+            }, 1200);
+            this.presentToast('bottom', 'Prestamo completado', 1500)
+               setTimeout(() => {
+                 this.openModalInfo = false
+               }, 1200);
+            console.log(res)  
+          });
+          return true
+          
+        }
+      },
+    ],
+  });
+
+  await alert.present();
+}
+
 async rechazarPrestamo(id:string) {
   const alert = await this.alertController.create({
     header: 'Atención',
@@ -603,12 +641,22 @@ addItemPendientes(item:{}){
 addItemRechazados(item:{}){
   this.prestamos[2].prestamos.push(item)
 }
+addItemCerrados(item:{}){
+  this.prestamos[3].prestamos.push(item)
+}
 removeItemPendientes(id:string){
   let pendientes = this.prestamos[1].prestamos.filter((prest:any)=>{
     return prest._id !== id;
   })
   this.prestamos[1].prestamos = pendientes
   console.log(this.prestamos[1].prestamos)
+}
+removeItemAceptado(id:string){
+  let aceptados = this.prestamos[0].prestamos.filter((prest:any)=>{
+    return prest._id !== id;
+  })
+  this.prestamos[0].prestamos = aceptados
+  console.log(this.prestamos[0].prestamos)
 }
 updatePagoMulta(pago:any, pagoNum:number, res:any){
   console.log(pago, pagoNum)

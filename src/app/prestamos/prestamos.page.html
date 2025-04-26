@@ -523,19 +523,6 @@
             </swiper-slide>
           </swiper-container>
 
-          <!-- DIV PADRE -->
-          <!-- <div class="" id="segments" style="display: flex; align-items: center; justify-content: center;"> -->
-          <!-- <div [@slide]="segment" class="" id="segmentFirst">
-            <div class="" style="background-color: aqua; height: 15px; width: 15px; margin-top: 50px;"></div>
-          </div> -->
-
-          
-          <!-- <div [@slide2]="segment2" id="segmentSecond" style=" position: relative; height: 100px; width: 100%; background-color: rebeccapurple;">
-            <div class="" style="background-color: aqua; height: 15px; width: 15px;"></div>
-          </div> -->
-
-          <!-- </div> -->
-
         </ion-content>
         <ion-progress-bar *ngIf="updatingPago" type="indeterminate" color="darkmain"></ion-progress-bar>
         <ion-footer *ngIf="!noPaymentChange">
@@ -550,6 +537,12 @@
             </ion-toolbar>
         </ion-footer>
         <ion-progress-bar *ngIf="accept_reject" type="indeterminate" color="darkmain"></ion-progress-bar>
+
+        <ion-footer class="ion-padding" *ngIf="(modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente) - (modalInfo.totalPagado) == 0 && modalInfo.estado != 'Cerrado'">
+          <ion-toolbar>
+            <ion-button expand="block" color="darkmain" size="large" (click)="cerrarPrestamo(modalInfo)">Cerrar pago</ion-button>
+          </ion-toolbar>
+        </ion-footer>
       </ng-template>
   </ion-modal>
   
@@ -636,12 +629,42 @@
     </ng-template>
   </ion-modal>
 
+  <!-- Modal for filter -->
+  <ion-modal #modal_filter trigger="filter-modal" [initialBreakpoint]="0.35" [breakpoints]="[0, 0.25, 0.5, 0.8]">
+    <ng-template>
+      <ion-content class="ion-padding">
+
+        <div style="display: block;">
+          <ion-checkbox labelPlacement="end">Aceptados</ion-checkbox><br>
+          <ion-checkbox labelPlacement="end">Pendientes</ion-checkbox><br>
+          <ion-checkbox labelPlacement="end">Rechazados</ion-checkbox><br>
+          <ion-checkbox labelPlacement="end">Cerrados</ion-checkbox><br>
+        </div>
+        <div>
+          <div class="ion-padding">Monto</div>
+          <ion-text>$4,000 - $ 20,000</ion-text>
+          <ion-range aria-label="Range with ticks" [ticks]="true" [snaps]="true" [min]="0" [max]="10"></ion-range>
+          <div class="ion-padding">Fecha</div>
+        </div>
+        <div class="">
+          <ion-datetime></ion-datetime>
+        </div>
+        
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
   <!-- <ion-datetime presentation="date" value="2023-01-01"></ion-datetime> -->
   
   
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button (click)="setOpenAdd(true,'AGREGAR')">
       <ion-icon size="large" name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-fab style="margin-bottom: 60px;" slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button style="--background: #EEE9DA" size="small" id="filter-modal">
+      <ion-icon style="color: black;" size="large" name="filter-circle-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 

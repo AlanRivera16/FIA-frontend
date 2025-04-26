@@ -23,33 +23,6 @@
 
     <h5 class="barlow-bold" style="font-size: 14px; font-weight: bold;">Últimos movimientos</h5>
 
-    <!-- <ion-card class="ion-no-margin ion-activatable ripple-parent" style="margin-bottom: 3%;">
-      <ion-card-content class="ion-no-padding" style="display: flex; align-items: center; justify-content: space-around;">
-        <ion-grid style="padding: 0;">
-          <ion-row class="ion-align-items-center ion-justify-content-around">
-            <ion-col size="2" style="padding-bottom: 0;" (click)="setOpenEllip(true)">
-              <div>
-                <img style="border-radius: 50%;" src="https://i.pravatar.cc/300?u=6" referrerpolicy="no-referrer" width="40px" height="40px" />
-              </div> 
-            </ion-col>
-            <ion-col size="4.5" style=" padding-bottom: 0; padding-left: 0;" (click)="setOpenEllip(true)">
-              <div class="truncar">
-                <h5 style="margin: 0; font-size: 12px; font-weight: 800;">{{data[0].nombre}}</h5>
-                <small><strong>{{data[0].email}}</strong></small>
-              </div>
-            </ion-col>
-            <ion-col size="4.5" style="padding-right: 0; padding-left: 0;" class="truncar" (click)="setOpenEllip(true)">
-              <p style="margin: 0; font-size: 12px; color: rgba(20, 189, 77, 1);"><strong style="color: black;">Prestamo:</strong> ${{data[0].saldo_asignado | moneyTransform}}.00</p>
-            </ion-col>
-            <ion-col size="1" style="padding-bottom: 0;">
-              <ion-icon style="font-size: 22px;" name="ellipsis-vertical" (click)="setOpenOpts(true)"></ion-icon>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-card-content>
-      <ion-ripple-effect></ion-ripple-effect>
-    </ion-card> -->
-
     <ion-item *ngFor="let asesor of pseudo_table_asesors_lastmoves" class="card-item-d" lines="none" button>
       <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar" (click)="setOpenEllip(true, asesor)">
         <img alt="Silhouette of a person's head" [src]="asesor.evidencia[0].url" />
@@ -181,54 +154,20 @@
           </div>
 
           <ion-list style="padding: 18px 22px 5px 24px;">
-
-            <!-- <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-              <div style="display: flex; align-items: center;">
-                <img src="https://ionicframework.com/docs/img/demos/avatar.svg" referrerpolicy="no-referrer" class="image-circule" width="35px" height="35px" />
-                <h5 style="margin: 0; margin-left: 12px; font-weight: bold; font-size: 12px;">Erika Gutiérrez</h5>
-              </div>
-              <div style="text-align: center;">
-                <p style="margin: 0; font-size: 12px; color: rgba(20, 189, 77, 1);"><strong style="color: black;">Saldo:</strong> $4,593.00</p>
-              </div>
-            </div> -->
-
-            <ion-item lines="none" class="card-item-client">
+            <ion-item *ngFor="let cliente of dataSingleAsesor.clientes" lines="none" class="card-item-client">
               <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar-client">
                 <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
               </ion-avatar>
               <ion-label style="margin: 0px;">
-                <h5 style="margin-bottom: 0px; margin-left: 5px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
+                <h5 style="margin-bottom: 0px; margin-left: 5px; font-size: 12px; font-weight: bold;">{{cliente.nombre}}</h5>
               </ion-label>
               <ion-label style="font-size: 11px; text-align: end; font-weight: bold; margin: 0;">
-                Saldo: <span style="color: #14BD4D;">$30,203.00</span>
+                Saldo: <span style="color: #14BD4D;">${{cliente.saldo_asignado}}.00</span>
               </ion-label>
             </ion-item>
-            <ion-item lines="none" class="card-item-client">
-              <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar-client">
-                <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-              </ion-avatar>
-              <ion-label style="margin: 0px;">
-                <h5 style="margin-bottom: 0px; margin-left: 5px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
-              </ion-label>
-              <ion-label style="font-size: 11px; text-align: end; font-weight: bold; margin: 0;">
-                Saldo: <span style="color: #14BD4D;">$30,203.00</span>
-              </ion-label>
-            </ion-item>
-            <ion-item lines="none" class="card-item-client">
-              <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar-client">
-                <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-              </ion-avatar>
-              <ion-label style="margin: 0px;">
-                <h5 style="margin-bottom: 0px; margin-left: 5px; font-size: 12px; font-weight: bold;">Alan Rivera</h5>
-              </ion-label>
-              <ion-label style="font-size: 11px; text-align: end; font-weight: bold; margin: 0;">
-                Saldo: <span style="color: #14BD4D;">$30,203.00</span>
-              </ion-label>
-            </ion-item>
-
           </ion-list>
 
-          <h5 style="color: gray; text-align: center; font-size: 12px; font-weight: bold; margin: 0;">Ver todos los clientes</h5>
+          <h5 *ngIf="dataSingleAsesor.clientes?.length > 3" style="color: gray; text-align: center; font-size: 12px; font-weight: bold; margin: 0;">Ver todos los clientes</h5>
 
           <div style="display: flex; align-items: center; justify-content: center; margin-top: 22px;">
             <div style="background-color: #132634; width: 60%; margin: 6px; border-radius: 10px; height: 35px; display: flex; align-items: center;">
@@ -237,7 +176,7 @@
             </div>
             <div style="background-color: #132634; color: white; width: 30%; margin: 6px; border-radius: 10px; height: 35px; display: flex; align-items: center; justify-content: center;">
               <ion-icon style="font-size: 18px;" name="person"></ion-icon>
-              <p style="margin: 0; margin-left: 4px; font-size: 12px;">Clientes: 6</p>
+              <p style="margin: 0; margin-left: 4px; font-size: 12px;">Clientes: {{dataSingleAsesor.clientes?.length}}</p>
             </div>
 
           </div>
@@ -272,47 +211,49 @@
             <!-- <ion-title>Nuevo Asesor</ion-title> -->
             <h5 style="text-align: center; font-size: 16px; font-weight: bold;">Nuevo Asesor</h5>
             <ion-buttons slot="end">
-              <ion-button size="small" style="color: rgba(147, 191, 207, 1);" [strong]="true" (click)="infoModalEdited()">{{rollModal}}</ion-button>
+              <ion-button size="small" style="color: rgba(147, 191, 207, 1);" [strong]="true" (click)="submitAddAsesor()">{{rollModal}}</ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
         <ion-content>
-
-          <section class="ion-padding">
-            <!-- Pick file or take photo -->
-            <h5 style="font-size: 12px; font-weight: bold; margin:16px,0px; color:gray; text-align: center;">Foto del asesor</h5>
-            <div class="ion-activatable ripple-parent rectangle"
-              style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 120px; width: 120px; margin: auto; margin-bottom: 12px; display: flex; justify-content: center; align-items: center;" (click)="takePicture()">
-              <ion-icon style="font-size: 24px; color: #CACACA;" name="camera-outline"></ion-icon> <ion-icon
-                style="font-size: 24px; color: #CACACA;" name="image-outline"></ion-icon>
-              <ion-ripple-effect *ngIf="!editedAsesor.evidencia"></ion-ripple-effect>
-              <img *ngIf="editedAsesor.evidencia" [src]="editedAsesor.evidencia[0].url" alt="">
-              <ion-button class="small" size="small" style="position: absolute; bottom: 0; right: 0;" *ngIf="editedAsesor.evidencia"><ion-icon slot="icon-only" size="small" name="brush"></ion-icon></ion-button>
-            </div>
-            <!-- First part of formular -->
-            <div style="padding-top: 6%;">
-              <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Nombre del asesor</h5>
-              <div class="ion-no-margin"><input class="input-form" type="text" placeholder="Ingresa un nombre" [(ngModel)]="editedAsesor.nombre"></div>
-            </div>
-            <div style="padding-top: 4%;">
-              <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Teléfono</h5>
-              <div class="ion-no-margin"><input class="input-form" type="text"
-                  placeholder="Ingresa un número de teléfono" [(ngModel)]="editedAsesor.telefono"></div>
-            </div>
-            <div style="padding-top: 4%;">
-              <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Correo del asesor</h5>
-              <div class="ion-no-margin"><input class="input-form" type="text"
-                  placeholder="Ingresa el correo electrónico" [(ngModel)]="editedAsesor.email"></div>
-            </div>
-            <div style="padding-top: 4%;">
-              <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Dirección del asesor</h5>
-              <div class="ion-no-margin input-form" style="display: flex; align-items: center;">
-                <input class="input-form-map" style="width: 90%;" type="text" placeholder="Ingresa una ubicación" [(ngModel)]="editedAsesor.direccion">
-                <img style="display: flex;" src="../../assets/🦆 icon _map_.svg" alt="" width="22px" height="22px">
+          <form [formGroup]="formInputPOST" #formDirective="ngForm"> 
+            <section class="ion-padding">
+              <!-- Pick file or take photo -->
+              <h5 style="font-size: 12px; font-weight: bold; margin:16px,0px; color:gray; text-align: center;">Foto del asesor</h5>
+              <div class="ion-activatable ripple-parent rectangle"
+                style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 120px; width: 120px; margin: auto; margin-bottom: 12px; display: flex; justify-content: center; align-items: center;" (click)="isModalOpenPicture = true">
+                <ion-icon style="font-size: 24px; color: #CACACA;" name="camera-outline"></ion-icon> <ion-icon
+                  style="font-size: 24px; color: #CACACA;" name="image-outline"></ion-icon>
+                <ion-ripple-effect *ngIf="!editedAsesor.evidencia"></ion-ripple-effect>
+                <img *ngIf="editedAsesor.evidencia" [src]="editedAsesor.evidencia[0].url" alt="">
+                <ion-button class="small" size="small" style="position: absolute; bottom: 0; right: 0;" *ngIf="editedAsesor.evidencia"><ion-icon slot="icon-only" size="small" name="brush"></ion-icon></ion-button>
               </div>
-            </div>
-            <h5 style="font-size: 12px; font-weight: bold; margin:16px,0px; color:gray;">Evidencia del asesor</h5>
-          </section>
+              <!-- First part of formular -->
+              <div style="padding-top: 6%;">
+                <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Nombre del asesor</h5>
+                <div class="ion-no-margin"><input class="input-form" type="text" formControlName="nombre" placeholder="Ingresa un nombre" [(ngModel)]="editedAsesor.nombre"></div>
+                <small class="invalid" *ngIf="formSubmit && formInputPOST.get('nombre')?.status == 'INVALID'">Ingresa un monto valido</small>
+              </div>
+              <div style="padding-top: 4%;">
+                <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Teléfono</h5>
+                <div class="ion-no-margin"><input class="input-form" type="number"
+                    placeholder="Ingresa un número de teléfono" formControlName="telefono" [(ngModel)]="editedAsesor.telefono"></div>
+              </div>
+              <div style="padding-top: 4%;">
+                <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Correo del asesor</h5>
+                <div class="ion-no-margin"><input class="input-form" type="email"
+                    placeholder="Ingresa el correo electrónico" formControlName="correo" [(ngModel)]="editedAsesor.email"></div>
+              </div>
+              <div style="padding-top: 4%;">
+                <h5 style="font-size: 12px; font-weight: bold; margin:0px; padding-bottom: 6px; color:gray;">Dirección del asesor</h5>
+                <div class="ion-no-margin input-form" style="display: flex; align-items: center;">
+                  <input class="input-form-map" style="width: 90%;" type="text" placeholder="Ingresa una ubicación" formControlName="direccion" [(ngModel)]="editedAsesor.direccion">
+                  <img style="display: flex;" src="../../assets/🦆 icon _map_.svg" alt="" width="22px" height="22px">
+                </div>
+              </div>
+              <h5 style="font-size: 12px; font-weight: bold; margin:16px,0px; color:gray;">Evidencia del asesor</h5>
+            </section>
+          </form>
 
           <section style="display: flex; justify-content: space-around; margin: 0px 8px;">
             <div class="ion-activatable ripple-parent rectangle" style="border-radius: 8px; border: 2px solid #CACACA; border-style: dashed; height: 85px; width: 45%; margin:0px; display: flex; justify-content: center; align-items: center;">
@@ -354,6 +295,26 @@
           <ion-button fill="clear" (click)="presentActionSheet()">
             <ion-icon name="trash" slot="start" style="color: gray;"></ion-icon>
             <h5 style="font-size: 14px; text-transform: initial; color: gray;">Eliminar asesor</h5>
+          </ion-button>
+        </div>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Modal to select picture or take one -->
+    <ion-modal 
+      [isOpen]="isModalOpenPicture" 
+      [initialBreakpoint]="0.2"
+      [showBackdrop]="false" 
+      (willDismiss)="isModalOpenPicture=false">
+      <ng-template>
+        <div class="block">
+          <ion-button fill="clear" expand="block" (click)="takePicture()">
+            <ion-icon name="create" slot="start" style="color: gray;"></ion-icon>
+            <h5 style="font-size: 14px; text-transform: initial; color: gray;">Tomar Foto</h5>
+          </ion-button>
+          <ion-button fill="clear" (click)="selectPicture()">
+            <ion-icon name="trash" slot="start" style="color: gray;"></ion-icon>
+            <h5 style="font-size: 14px; text-transform: initial; color: gray;">Elegir foto</h5>
           </ion-button>
         </div>
       </ng-template>

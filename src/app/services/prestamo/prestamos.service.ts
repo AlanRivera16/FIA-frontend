@@ -38,6 +38,10 @@ export class PrestamosService {
     return this.http.patch(`${this.api_test}/rechazar/prestamo/${id}`, {})
   }
 
+  cerrarPrestamo(id:string){
+    return this.http.patch(`${this.api_test}/cerrar/prestamo/${id}`, {})
+  }
+
   restarDías(fecha1:Date, fecha2:Date){
 
     console.log(fecha1, fecha2)

@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActionSheetController, ModalController } from '@ionic/angular';
 import { LoginService } from '../services/login/login.service';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
+import { UsuariosService } from '../services/usuarios/usuarios.service';
+import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+
 
 @Component({
   selector: 'app-asesores',
@@ -9,6 +12,8 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
   styleUrls: ['./asesores.page.scss'],
 })
 export class AsesoresPage implements OnInit {
+@ViewChild('formDirective') formDirective!: NgForm;
+  
 
   dataSingleAsesor:any = {};
   editedAsesor:any = {};
@@ -16,25 +21,13 @@ export class AsesoresPage implements OnInit {
   isModalOpenAdd = false;
   isModalOpenItem = false;
   isModalOpenOptns = false;
+  isModalOpenPicture = false;
 
   rollModal = ''
-  data=[
-    {
-      _id: "6463debc096500b73df445b5",
-      nombre: "Alan Rivera",
-      email: "rivera.alan.3m@gmail.com",
-      password: "rivera#2021",
-      role: "ADMINISTRADOR",
-      deleteStatus: false,
-      saldo_asignado: 21000,
-      telefono: 4961208795,
-      direccion: "San Rafael #338 - San Cayetano",
-      evidencia: [],
-      createdAt: "2023-05-16T19:51:24.939Z",
-      updatedAt: "2023-05-16T20:04:09.596Z",
-      __v: 0
-    },
-  ]
+  // Para form 
+  formInputPOST: FormGroup;
+  formSubmit = false;
+  postingPrestamo = false
 
   pseudo_table_asesors_lastmoves= [
     {
@@ -184,10 +177,28 @@ export class AsesoresPage implements OnInit {
   constructor(
     private actionSheetCtrl: ActionSheetController, 
     private loginService: LoginService,
-    private modalCtrl: ModalController
-  ) { }
+    private usuariosService: UsuariosService,
+    private modalCtrl: ModalController,
+    public formPrest : FormBuilder,
+  ) { 
+    this.formInputPOST = this.formPrest.group({
+      nombre : new FormControl("", Validators.required),
+      telefono :  new FormControl("", Validators.required),
+      correo :  new FormControl("", Validators.required),
+      direccion :  new FormControl("", Validators.required),
+    })
+   }
 
   ngOnInit() {
+    this.getData()
+  }
+
+  async getData(){
+    this.usuariosService.getAsesores().subscribe((data:any) => {
+      console.log(data)
+      this.pseudo_table_asesors = data
+      this.results = data
+    })
   }
   
   setOpenAdd(isOpen: boolean, roll:string) {
@@ -196,9 +207,15 @@ export class AsesoresPage implements OnInit {
 
     this.rollModal == 'AGREGAR'? this.editedAsesor = {}: ''
   }
-  setOpenEllip(isOpen: boolean, data:any){
-    this.isModalOpenItem = isOpen;
+  async setOpenEllip(isOpen: boolean, data:any){
     this.dataSingleAsesor = data
+  
+    await this.usuariosService.getClientes(this.dataSingleAsesor._id).subscribe((data:any) => {
+      this.dataSingleAsesor.clientes = data
+      this.isModalOpenItem = isOpen;
+    })
+
+    console.log(this.dataSingleAsesor)
   }
   setOpenOpts(isOpen: boolean, data:any){
     this.isModalOpenOptns = isOpen;
@@ -240,6 +257,9 @@ export class AsesoresPage implements OnInit {
   takePicture(){
     this.loginService.takePicture()
   }
+  selectPicture(){
+    this.loginService.selectPicture()
+  }
 
   async openModal() {
     const modal = await this.modalCtrl.create({
@@ -251,5 +271,25 @@ export class AsesoresPage implements OnInit {
   handleInput(event:any) {
     const query = event.target.value.toLowerCase();
     this.results = this.pseudo_table_asesors.filter((d:any) => d.nombre.toLowerCase().indexOf(query) > -1);
+  }
+
+  showMore = false; 
+  toggleShowMore() {
+    this.showMore = !this.showMore; // Toggle the value of showMore
+  }
+
+  async submitAddAsesor(){
+    this.formSubmit = true
+    console.log(this.formInputPOST.value)
+
+    if(! this.formInputPOST.valid){
+      console.log("not valid"); return
+    }else if(this.formInputPOST.valid && this.formInputPOST.value.periodo == 14 && this.formInputPOST.value.dia_pago == ""){
+      console.log("not valid"); return
+    }
+  }
+
+  setEvidencia(evidenciaTyp:string, ){
+
   }
 }

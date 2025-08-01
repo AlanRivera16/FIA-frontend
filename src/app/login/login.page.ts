@@ -42,6 +42,7 @@ export class LoginPage implements OnInit {
   ) { }
 
   async ngOnInit() {
+    this.mailFocuse = true
     this.data = await this.loginService.getData(STORAGE_KEY);
     if(this.data){
       this.navCtrl.navigateRoot(['/home/dashboard']);
@@ -91,30 +92,34 @@ export class LoginPage implements OnInit {
   }
 
   
-  async presentToast(message:string) {
+  async presentToast(message:string, position: 'top' | 'bottom') {
     const toast = await this.toastController.create({
       message: message,
       duration: 1500,
-      position: 'top',
+      position: position,
     });
 
     await toast.present();
   }
 
   async submitNow(){
-    console.log("Cada uno de nosotros")
     this.loginService.login(this.user).subscribe(async(value:any)=>{  
       if(value.findUser){
         await this.loginService.addData(STORAGE_KEY,value.findUser) //Agregamos una variable a nuestra login-storage con nuestro método
         console.log(value.findUser)
-        this.navCtrl.navigateRoot(['/home/dashboard']);
+        this.presentToast('Bienvenido ' + value.findUser.nombre, 'bottom');         
+
+        setTimeout(() => {
+          this.navCtrl.navigateRoot(['/home/prestamos']);
+        }, 1500);
+        
       } else if(value.error){
-        this.presentToast(value.error)
+        this.presentToast(value.error, 'top');
       }   
       console.log(value)
     },error=>{
       console.log(error)
-      this.presentToast(error);
+      this.presentToast(error, 'top');;
     })
 
     // this.loginService.login(this.user).subscribe({

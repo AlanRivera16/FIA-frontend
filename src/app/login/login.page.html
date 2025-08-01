@@ -1,8 +1,8 @@
-<ion-content class="bg" [fullscreen]="true" style="width: 100%;">
+<!-- <ion-content class="bg" [fullscreen]="true" style="width: 100%;">
 
   <div style="display: flex; justify-content: space-around; align-items: center; margin: 10%; margin-top: 25%;">
     <img src="../../assets/icon/logo 1 png.png" class="img" />
-    <!-- <h1 class="t1">Financiera Independiente</h1> -->
+    //-<h1 class="t1">Financiera Independiente</h1>
   </div>
 
   <div class="bodylog">
@@ -13,7 +13,7 @@
       <div style="display: flex; align-items: center;">
         <ion-icon name="mail-outline" style="font-size: 22px; color: #5A5A5A;"></ion-icon>
         <p [ngClass]="{'input-mail-p-click': mailFocuse === true}" style="position: absolute; padding-left: 28px; font-size: 11px; color:#5A5A5A;">CORREO</p>
-        <!-- <input [hidden]="mailWillOpen==false" #email style="position: absolute; padding-left: 28px; color:#5A5A5A;" type="text" id="email" name="emial" maxlength="38" required placeholder="usuario123@dominio.com" (focus)="mailFocusIn($event)" (focusout)="mailFocusOut($event)" [(ngModel)]="user.email"> -->
+        //-<input [hidden]="mailWillOpen==false" #email style="position: absolute; padding-left: 28px; color:#5A5A5A;" type="text" id="email" name="emial" maxlength="38" required placeholder="usuario123@dominio.com" (focus)="mailFocusIn($event)" (focusout)="mailFocusOut($event)" [(ngModel)]="user.email">
         <input *ngIf="mailWillOpen" #email style="position: absolute; padding-left: 28px; color:#5A5A5A;" type="text" id="email" name="emial" maxlength="38" required placeholder="usuario123@dominio.com" (focus)="mailFocusIn($event)" (focusout)="mailFocusOut($event)" [(ngModel)]="user.email">
       </div>
     </div>
@@ -33,9 +33,69 @@
     <br/>
     <br/>
     <small style="color:#5A5A5A;">¿Olvidaste tu contraseña?</small>
-    <!-- <p>{{number}}</p> -->
   </div>
   
+</ion-content> -->
+
+<ion-content class="login-content">
+  <div class="logo-container">
+    <img src="../../assets/icon/logo 1 png.png" alt="Luxinmar Logo" class="logo-img" />
+  </div>
+
+  <div class="form-container">
+
+    <ion-label>
+      <h1 style="font-weight: bold; margin-bottom: 14px;">Login</h1>
+      <p style="margin-bottom: 30px;">Por favor ingresa tus credenciales</p>
+    </ion-label>
+
+    <ion-item class="custom-input" lines="none" [color]="mailFocuse? 'light' : ''">
+      <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+      <ion-label color="darkmain" position="floating">
+        <strong>CORREO</strong>
+      </ion-label>
+      <ion-input
+        type="email"
+        placeholder="usuario123@dominio.com"
+        fill="solid"
+        required
+        (ionFocus)="mailFocuse = true"
+        (ionBlur)="mailFocuse = false"
+        class="input-styled"
+        [(ngModel)]="user.email">
+      </ion-input>
+    </ion-item>
+
+    <ion-item class="custom-input" lines="none" [color]="passFocuse? 'light' : ''">
+      <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+      <ion-label color="darkmain" position="floating">
+        <strong>CONTRASEÑA</strong>
+      </ion-label>
+      <ion-input
+        type="password"
+        placeholder="*************"
+        fill="solid"
+        required
+        (ionFocus)="passFocuse = true"
+        (ionBlur)="passFocuse = false"
+        class="input-styled"
+        [(ngModel)]="user.password">
+      </ion-input>
+    </ion-item>
+
+    
+  </div>
+
+  <div class="footerlog">
+      <ion-button expand="block" class="login-button" (click)="submitNow()">
+        LOG IN
+      </ion-button>
+      
+      <p style="text-align: center;">
+        ¿Olvidaste tu contraseña?
+      </p>
+  </div>
 </ion-content>
+
 
 

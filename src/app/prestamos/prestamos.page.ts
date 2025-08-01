@@ -1,13 +1,14 @@
 import { Component, OnInit, ViewChild, LOCALE_ID, Inject, ElementRef } from '@angular/core';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
-import { ModalController, IonModal, AlertController, AlertInput, ToastController } from '@ionic/angular';
+import { ModalController, IonModal, AlertController, AlertInput, ToastController, RangeCustomEvent } from '@ionic/angular';
 import { PrestamosService } from '../services/prestamo/prestamos.service';
-import { Cliente, Item } from '../types'
+import { Asesor, Cliente, Item } from '../types'
 import { LoginService } from '../services/login/login.service';
 import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import Swiper from 'swiper';
 import { HistorialService } from '../services/historial/historial.service';
+import { UsuariosService } from '../services/usuarios/usuarios.service';
 
 const STORAGE_KEY = 'login-data-user'
 
@@ -30,11 +31,16 @@ const STORAGE_KEY = 'login-data-user'
 })
 export class PrestamosPage implements OnInit {
   @ViewChild('modal_cli') modal_cli!: IonModal;
+  @ViewChild('modal_ase') modal_ase!: IonModal;
   // @ViewChild('formDirective') formDirective : FormGroupDirective;
   @ViewChild('formDirective') formDirective!: NgForm;
   @ViewChild('swiper')
   swiperRef: ElementRef | undefined;
   swiper?:Swiper
+
+  pinFormatter(value: number) {
+    return `${value}0K`;
+  }
 
   dataUser:any = []
 
@@ -63,6 +69,16 @@ export class PrestamosPage implements OnInit {
   textAreaFocused: number | null = null;
   bonoCheck: boolean[] = []
 
+  // FILTRO
+  selectedEstados: string[] = [];
+  filters = {
+    estados: [] as string[],
+    saldoMin: 0,
+    clienteId: '',
+    asesorId: '',
+    tipoPago: '' // 'mensual' o 'semanal'
+  }
+
   prestamos:any = [
     {
       titulo:"Aceptado",
@@ -81,18 +97,23 @@ export class PrestamosPage implements OnInit {
       prestamos: []
     }
   ]
+  public results : any = []
   modalInfo:any = {}
   copyData:any = {}
 
   selectedClientesText = 'No se ha asignado cliente';
   selectedClientes: string[] = [];
+  selectedAsesoresText = 'No se ha asignado asesor';
+  selectedAsesores: string[] = [];
   clientes: Cliente[] = [];
+  asesores: Asesor[] = [];
 
   constructor(
     private modalCtrl: ModalController,
     private prestService: PrestamosService,
     private historialService: HistorialService,
     private loginService: LoginService,
+    private usuerService: UsuariosService,
     private alertController: AlertController,
     private toastController: ToastController,
     public formPrest : FormBuilder,
@@ -138,6 +159,13 @@ export class PrestamosPage implements OnInit {
     // console.log('slide:', swiper) 
     swiper == 0 ? this.segmentValue = 'tabla' : this.segmentValue = 'historial';
     // console.log(e)
+  }
+
+  async openModal() {
+    const modal = await this.modalCtrl.create({
+      component: ProfileModalComponent,
+    });
+    modal.present();
   }
 
   showMore = false; 
@@ -218,11 +246,16 @@ export class PrestamosPage implements OnInit {
       this.prestamos[2].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Rechazado'}))
       this.prestamos[3].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Cerrado'}))
       // console.log(this.prestamos);
+      this.results = [...this.prestamos]
     })
     await this.prestService.getClientes().subscribe((res:any)=>{
-      // console.log(res)
+      console.log('Clientes para buscar', res)
       this.clientes = res
-    })
+    });
+    await this.usuerService.getAsesores().subscribe((res:any)=>{
+      console.log('Asesores para buscar', res)
+      this.asesores = res
+    });
     this.dataUser = await this.loginService.getData(STORAGE_KEY);
     this.formInputPOST.patchValue({'id_asesor': this.dataUser._id})
     // this.editedAsesor.id_asesor = this.dataUser._id
@@ -234,10 +267,10 @@ export class PrestamosPage implements OnInit {
     this.bonoCheck = new Array(data.tabla_amortizacion.length).fill(false); 
     const estados = this.setEstados(data.tabla_amortizacion);
     data.tabla_amortizacion = estados.array;
-    data.totalPagado = estados.totalPagado; //Pago total de cuotas pagadas
-    data.totalCuota = estados.totalCuota; //Pago total del prestamo con los intereses (con ganancia)
-    data.totalMultas = estados.totalMultas; //Pago total de multas (solo multas)
-    data.totalPendiente = estados.totalPendiente; //Pagos que no se han pagado (multas y abonos malos)
+    //data.totalPagado = estados.totalPagado; //Pago total de cuotas pagadas
+    //data.totalCuota = estados.totalCuota; //Pago total del prestamo con los intereses (con ganancia)
+    //data.totalMultas = estados.totalMultas; //Pago total de multas (solo multas)
+    //data.totalPendiente = estados.totalPendiente; //Pagos que no se han pagado (multas y abonos malos)
     //data.multa = estados.multasArray;
     console.log()
     
@@ -250,10 +283,10 @@ export class PrestamosPage implements OnInit {
   }
 
   setEstados(array:any[]){ // array es tabla_amortizacion
-    let totalPagado = 0; // Initialize a variable to store the sum of pagado values
-    let totalCuota = 0; // Initialize a variable to store the sum of cuota values
-    let totalMultas = 0; // Initialize a variable to store the sum of multa values
-    let totalPendiente = 0; // Initialize a variable to store the sum of pendiente values (multas y pagos abonos)
+    //let totalPagado = 0; // Initialize a variable to store the sum of pagado values
+    //let totalCuota = 0; // Initialize a variable to store the sum of cuota values
+    //let totalMultas = 0; // Initialize a variable to store the sum of multa values
+    //let totalPendiente = 0; // Initialize a variable to store the sum of pendiente values (multas y pagos abonos)
     let multasArray = [];
 
     for(let pago of array){
@@ -280,11 +313,11 @@ export class PrestamosPage implements OnInit {
         //pago.saldo_pendiente = saldo_pendiente < 0 ? 0 : saldo_pendiente
           if(saldo_pendiente > 0){
             pago.saldo_pendiente = saldo_pendiente
-            totalPendiente += saldo_pendiente
-            totalPagado += pago.abono_pago //Calcular el total pagado
+            //totalPendiente += saldo_pendiente
+            //totalPagado += pago.abono_pago //Calcular el total pagado
           }else{
             pago.saldo_pendiente = 0
-            totalPagado += pago.abono_pago //Calcular el total pagado
+            //totalPagado += pago.abono_pago //Calcular el total pagado
           }
         //console.log(saldo_pendiente)
       }
@@ -293,13 +326,13 @@ export class PrestamosPage implements OnInit {
         const montoPorDia = pago.multa.monto_pendiente / pago.multa.dia_retraso;
         multasArray = Array(pago.multa.dia_retraso).fill(montoPorDia);
         pago.multa.multasArray = multasArray;
-        totalPendiente += pago.cuota
+        //totalPendiente += pago.cuota
       }else if (pago.estado_pago == 'No pagado' && pago.multa.monto_pendiente > 0 && pago.multa.saldado) {
         console.log("Ya me pagaron la multa")
-        totalPagado += pago.cuota //Calcular el total pagado
-        totalPagado += pago.multa.monto_pendiente //Calcular el total pagado
+        //totalPagado += pago.cuota //Calcular el total pagado
+        //totalPagado += pago.multa.monto_pendiente //Calcular el total pagado
       }else if (pago.estado_pago == 'Pagado') { //no borrar el monto_pendiente en el backend para poder tener el historia
-        totalPagado += pago.cuota //Calcular el total pagado
+        //totalPagado += pago.cuota //Calcular el total pagado
         // const montoPorDia = pago.multa.monto_pendiente / pago.multa.dia_retraso;
         // multasArray = Array(pago.multa.dia_retraso).fill(montoPorDia);
         // console.log(montoPorDia, multasArray, "NO")
@@ -308,14 +341,15 @@ export class PrestamosPage implements OnInit {
       
 
     // Add the cuota value to the total
-    totalCuota += pago.cuota;
-    totalMultas += pago.multa.monto_pendiente;
+    //totalCuota += pago.cuota;
+    //totalMultas += pago.multa.monto_pendiente;
 
     //console.log(`Current cuota: ${pago.cuota}, Total cuota so far: ${totalCuota}`);
     //console.log(`Pendientes de no pagos o abonos total: ${totalPendiente}`);
     }
     //console.log(multasArray)
-    return {array, totalCuota, totalMultas, totalPendiente, totalPagado}
+    // return {array, totalCuota, totalMultas, totalPendiente, totalPagado}
+    return {array}
   }
 
   async openModalProfile() {
@@ -381,25 +415,48 @@ setOpenCleinteModal(isOpen:boolean){
   this.isModalClientes = isOpen
 }
 
-formatData(data: string[]) {
-  if (data.length === 1) {
+formatData(data: string[], type:'cliente' | 'asesor') {
+  if (data.length === 1 && type === 'cliente') {
     const cliente = this.clientes.find((cliente:Cliente) => cliente._id === data[0]);
     return cliente? cliente.nombre : '';
     // console.log(cliente)
+  }else if (data.length === 1 && type === 'asesor') {
+    const asesor = this.asesores.find((asesor:Asesor) => asesor._id === data[0]);
+    return asesor? asesor.nombre : '';
   }
 
-  return `${data.length} items`;
+  return `No selected`;
 }
 
 clienteSelectionChanged(clientes: string[]) {
   this.selectedClientes = clientes;
-  this.selectedClientesText = this.formatData(this.selectedClientes);
+  console.log('Sle', this.selectedClientes)
+  this.selectedClientesText = this.formatData(this.selectedClientes, 'cliente');
   console.log(clientes, this.selectedClientesText)
 
   // this.formInputPOST.setValue({'id_cliente': clientes[0]})
   this.formInputPOST.patchValue({'id_cliente': clientes[0]})
-  this.editedAsesor.id_cliente = clientes[0]
+  this.filters.clienteId = clientes[0] // Para filtro de prestamos
   this.modal_cli.dismiss();
+}
+removeCliSelection(){
+  this.selectedClientes = [];
+  this.selectedClientesText = 'No se ha asignado asesor';
+}
+asesorSelectionChanged(asesores: string[]) {
+  this.selectedAsesores = asesores;
+  console.log('Sle', this.selectedAsesores)
+  this.selectedAsesoresText = this.formatData(this.selectedAsesores, 'asesor');
+  console.log(asesores, this.selectedAsesoresText)
+
+  // this.formInputPOST.setValue({'id_cliente': clientes[0]})
+  //this.formInputPOST.patchValue({'id_cliente': asesores[0]})
+  this.filters.asesorId = asesores[0] // Para filtro de prestamos
+  this.modal_ase.dismiss();
+}
+removeAseSelection(){
+  this.selectedAsesores = [];
+  this.selectedAsesoresText = 'No se ha asignado asesor';
 }
 
 updateTablaAmortz(infoPrestamo:any){
@@ -634,15 +691,19 @@ async presentToast(position: 'top' | 'middle' | 'bottom', message:string, time:n
 
 addItemAceptados(item:{}){
   this.prestamos[0].prestamos.push(item)
+  //this.results[0].prestamos.push(item) // Para resultados
 }
 addItemPendientes(item:{}){
   this.prestamos[1].prestamos.push(item)
+  //this.results[0].prestamos.push(item) // Para resultados
 }
 addItemRechazados(item:{}){
   this.prestamos[2].prestamos.push(item)
+  //this.results[0].prestamos.push(item) // Para resultados
 }
 addItemCerrados(item:{}){
   this.prestamos[3].prestamos.push(item)
+  //this.results[0].prestamos.push(item) // Para resultados
 }
 removeItemPendientes(id:string){
   let pendientes = this.prestamos[1].prestamos.filter((prest:any)=>{
@@ -669,6 +730,109 @@ updatePagoMulta(pago:any, pagoNum:number, res:any){
   console.log(this.prestamos[0].prestamos[index])
 }
 
+srcImageName(images: { originalname: string }[], name: string): any {
+  if(images && images.length > 0) {
+    return images.find(img => img.originalname === name + '.jpeg');
+  }
+}
+
+//FILTRO PARA PRESTAMOS
+
+toggleEstado(estado: string) { //Para ESTADOS (chips)
+  const idx = this.selectedEstados.indexOf(estado);
+  if (idx > -1) {
+    this.selectedEstados.splice(idx, 1); // Quita si ya estaba seleccionado
+  } else {
+    this.selectedEstados.push(estado);   // Agrega si no estaba seleccionado
+  }
+  console.log(this.selectedEstados)
+  this.filters.estados = this.selectedEstados;
+  console.log(this.filters)
+}
+
+catchRange(event: Event){
+  console.log((event as RangeCustomEvent).detail)
+  const value = (event as RangeCustomEvent).detail.value;
+  this.filters.saldoMin = typeof value === 'number' ? value : value.lower;
+  //this.filters.saldoMin = (event as RangeCustomEvent).detail.value;
+}
+
+refreshFilter() {
+  this.filters = {
+    estados: [],
+    saldoMin: 0,
+    clienteId: '',
+    asesorId: '',
+    tipoPago: ''
+  };
+  this.selectedEstados = [];
+  this.selectedClientes = [];
+  this.selectedClientesText = 'No se ha asignado cliente';
+  this.selectedAsesores = []; 
+  this.selectedAsesoresText = 'No se ha asignado asesor';
+  console.log('Filtros reiniciados', this.filters)
+  setTimeout(() => {
+    this.filterPrestamos(this.filters); // Actualiza los resultados con los filtros reiniciados
+  }, 1000);
+}
+
+filterPrestamos({
+  estados = [],
+  saldoMin = 0,
+  clienteId = '',
+  clienteNombre = '',
+  asesorId = '',
+  asesorNombre = '',
+  tipoPago = ''
+}: {
+  estados?: string[],
+  saldoMin?: number,
+  clienteId?: string,
+  clienteNombre?: string,
+  asesorId?: string,
+  asesorNombre?: string,
+  tipoPago?: string
+}) {
+  const saldoMinReal = saldoMin * 1000;
+
+  console.log('saldo minimo: ', saldoMin)
+  console.log('Filtrando prestamos con: ', this.filters)
+  // Filtra los grupos por estado (titulo)
+  let filtrados = this.prestamos.filter((grupo: any) => 
+    estados.length === 0 || estados.includes(grupo.titulo)
+  ).map((grupo: any) => {
+    // Filtra los prestamos dentro de cada grupo
+    let prestamosFiltrados = grupo.prestamos.filter((p: any) => {
+      // Saldo mínimo
+      if (saldoMin && p.saldo < saldoMinReal) return false;
+
+      // Cliente (por id o nombre)
+      //if (clienteId && (!p.id_cliente || p.id_cliente._id !== clienteId)) return false;
+      // Asesor (por id o nombre)
+      //if (asesorId && (!p.id_asesor || p.id_asesor._id !== asesorId)) return false;
+      if (clienteId || asesorId) {
+        const matchCliente = clienteId && p.id_cliente && p.id_cliente._id === clienteId;
+        const matchAsesor = asesorId && p.id_asesor && p.id_asesor._id === asesorId;
+        // Si ambos están presentes, debe coincidir al menos uno
+        if (!(matchCliente || matchAsesor)) return false;
+      }
+
+      // Tipo de pago
+      if (tipoPago && p.tipo_pago !== tipoPago) return false;
+
+      return true;
+    });
+
+    // Devuelve el grupo solo si tiene prestamos filtrados
+    return { ...grupo, prestamos: prestamosFiltrados };
+  });
+
+  // Elimina los grupos vacíos
+  filtrados = filtrados.filter((grupo: any) => grupo.prestamos.length > 0);
+  console.log(filtrados)
+  this.results = filtrados; // Actualiza los resultados
+  return filtrados;
+}
 
 }
 

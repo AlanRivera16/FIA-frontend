@@ -211,3 +211,53 @@ ion-select {
     --background: var(--ion-color-light);
     --color: gray;
   }
+
+  .personal-item::part(native){
+    background: var(--ion-color-darkmain);
+    color: #ffff;
+  }
+
+
+
+// Ion ran  
+ion-range::part(tick) {
+  background: #132634;
+}
+
+ion-range::part(tick-active) {
+  background: #698192;
+}
+
+ion-range::part(pin) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--ion-color-darkmain);
+  color: #fff;
+
+  border-radius: 50%;
+  transform: scale(1.01);
+
+  top: -10px;
+
+  min-width: 28px;
+  height: 28px;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+ion-range::part(pin)::before {
+  content: none;
+}
+
+ion-range::part(knob) {
+  background: #203d51;
+}
+
+ion-range::part(bar) {
+  background: #132634;
+}
+
+ion-range::part(bar-active) {
+  background: #698192;
+}

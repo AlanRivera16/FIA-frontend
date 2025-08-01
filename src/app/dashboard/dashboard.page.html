@@ -1,7 +1,7 @@
 <div class="ion-page">
   
   <ion-content>
-    <ion-row class="ion-padding">
+    <!-- <ion-row class="ion-padding">
       <ion-col size="7" style="align-items: left; justify-content: left;">
         <h5 style="font-size: 16px; font-weight: bold; color:white;">Bienvenido</h5>
         <h2 style="font-size: 22px; font-weight: bold; margin: 0; color:white;">Administrador</h2>
@@ -16,7 +16,22 @@
           </ion-label>
         </ion-item>
       </ion-col>
-    </ion-row>
+    </ion-row> -->
+
+    <ion-header class="ion-no-border ion-padding">
+      <ion-toolbar color="darkmain">
+        <ion-label style="color: white;">
+          <h2 style="font-weight: bold;">Bienvenido</h2>
+          <h1 style="font-weight: bold;">Administrador</h1>
+        </ion-label>
+        <ion-icon style="font-size: 24px; color: white;" slot="end" name="notifications-outline"></ion-icon>
+        <ion-item slot="end" lines="none">
+          <ion-avatar slot="end" (click)="openModal()">
+            <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
+          </ion-avatar>
+        </ion-item>
+      </ion-toolbar>
+    </ion-header>
 
     <div class="ion-padding modal-content">
       <h5 style="font-size: 16px; font-weight: bold; ">Actividad</h5>

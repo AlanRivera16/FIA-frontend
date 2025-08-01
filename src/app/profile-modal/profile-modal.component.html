@@ -5,7 +5,8 @@
 <ion-content class="ion-padding">
   <ion-item detail="true" lines="none">
     <ion-avatar slot="start">
-      <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
+      <ion-img *ngIf="!srcImageName(data?.evidencia_aval, 'foto-perfil')" src="https://ionicframework.com/docs/img/demos/avatar.svg"></ion-img>
+      <ion-img *ngIf="srcImageName(data?.evidencia_aval, 'foto-perfil') as image" [src]="image.url"></ion-img>
     </ion-avatar>
     <ion-label>
       <h2 style="font-weight: bold;">{{data?.nombre}}</h2>

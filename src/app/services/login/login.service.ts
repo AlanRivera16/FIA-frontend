@@ -3,9 +3,14 @@ import { HttpClient } from "@angular/common/http";
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Storage } from '@ionic/storage-angular';
 import { LoadingController, Platform } from '@ionic/angular';
-//import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 const IMAGE_DIR = 'asesores/imgs';
+const IMAGE_DIRS = {
+  asesor: 'asesores/imgs',
+  cliente: 'clientes/imgs'
+};
 
 export interface LocalFile {
   name: string;
@@ -17,11 +22,18 @@ export interface LocalFile {
   providedIn: 'root'
 })
 export class LoginService {
+  private imagesSubject = new BehaviorSubject<LocalFile[]>([]);
+  private imagesClientesSubject = new BehaviorSubject<LocalFile[]>([]);
+  public images$: Observable<LocalFile[]> = this.imagesSubject.asObservable();
+  public imagesClientes$: Observable<LocalFile[]> = this.imagesClientesSubject.asObservable();
+
   local_url = 'http://localhost:3000';
+  api_prod = 'https://fia-backend-production.up.railway.app';
   mySessionStorage : Storage | null = null;
 
-  url:any = '';
+  //url:any = '';
   images: LocalFile[] = [];
+  imagesClientes: LocalFile[] = [];
 
 
   constructor(
@@ -35,84 +47,110 @@ export class LoginService {
 
 
   login(credenciales:{}){
-    return this.http.patch(`${this.local_url}/login`, credenciales)
+    return this.http.patch(`${this.api_prod}/login`, credenciales)
   }
 
-  // async loadFiles(){
-  //   this.images = [];
+  async loadFiles() {
+    this.images = [];
+    try {
+      const result = await Filesystem.readdir({
+        path: IMAGE_DIR,
+        directory: Directory.Data,
+      });
 
-  
-  //   const loading = await this.loadingCtrl.create({
-  //     message: "Cargando los datos..."
-  //   })
-  //   await loading.present();
+      await this.loadFileData(result.files.map((x: any) => x.name));
+      this.imagesSubject.next(this.images); // Emitir el cambio
+    } catch (err) {
+      await Filesystem.mkdir({
+        path: IMAGE_DIR,
+        directory: Directory.Data,
+        recursive: true,
+      });
+      console.log('Error encontrado con LocalFile' ,err)
+    }
+  }
 
-  //   Filesystem.readdir({
-  //     directory:Directory.Data,
-  //     path: IMAGE_DIR
-  //   }).then((result:any) => {
-  //     this.loadFileData(result.files);
-  //   }, async err => {
-  //     await Filesystem.mkdir({
-  //       directory:Directory.Data,
-  //       path:IMAGE_DIR
-  //     });
-  //   }).then(_ =>{
-  //     loading.dismiss();
-  //   })
-  // }
+  async loadFilesEntity(tipo: 'asesor' | 'cliente') {
+    const dir = IMAGE_DIRS[tipo];
+    const arr = tipo === 'asesor' ? this.images : this.imagesClientes;
+    const subject = tipo === 'asesor' ? this.imagesSubject : this.imagesClientesSubject;
+    arr.length = 0;
+    try {
+      const result = await Filesystem.readdir({
+        path: dir,
+        directory: Directory.Data,
+      });
+      for (let f of result.files.map((x: any) => x.name)) {
+        const filePath = `${dir}/${f}`;
+        const readFile = await Filesystem.readFile({
+          path: filePath,
+          directory: Directory.Data,
+        });
+        arr.push({
+          name: f,
+          path: filePath,
+          data: `data:image/jpeg;base64,${readFile.data}`
+        });
+      }
+      subject.next(arr);
+    } catch (err) {
+      await Filesystem.mkdir({
+        path: dir,
+        directory: Directory.Data,
+        recursive: true,
+      });
+      console.log(`Error encontrado con LocalFile ${tipo}`, err);
+    }
+  }
 
-  // async loadFileData(fileNames: string[]){
-  //   for (let f of fileNames){
-  //     const filePath = `${IMAGE_DIR}/${f}`
+  async loadFileData(fileNames: string[]){
+    for (let f of fileNames){
+      const filePath = `${IMAGE_DIR}/${f}`
 
-  //     const readFile = await Filesystem.readFile({
-  //       directory: Directory.Data,
-  //       path: filePath
-  //     });
+      const readFile = await Filesystem.readFile({
+        path: filePath,
+        directory: Directory.Data,
+      });
 
-  //     this.images.push({
-  //       name: f,
-  //       path: filePath,
-  //       data: `data:image/jpg;base64,${readFile.data}`
-  //     });     
+      this.images.push({
+        name: f,
+        path: filePath,
+        data: `data:image/jpeg;base64,${readFile.data}`
+      });     
       
-      
-  //   }
-  // }
+      console.log(this.images)
+    }
+  }
 
-  async takePicture() {
-    const image = await Camera.getPhoto({
-      quality: 90,
-      allowEditing: false,
-      resultType: CameraResultType.Uri
-    });
-  
-    var imageUrl = image.webPath;
-  
-    // Can be set to the src of an image now
-    // imageElement.src = imageUrl;
-    console.log(imageUrl)
-    if(image){
-      //this.saveImage(image);
+  async takePicture(fileName:string, tipo: 'asesor' | 'cliente') {
+    if (fileName === 'foto-perfil') {
+      const image = await Camera.getPhoto({
+        quality: 100,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        width: 600,
+        height: 600,
+      });
+      if(image){
+        await this.saveImageEntity(image, fileName, tipo);
+      }
+    } else {
+      const image = await Camera.getPhoto({
+        quality: 100,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        correctOrientation: true,
+        width: 100,
+        height: 100,
+      });
 
-      //this.loadFiles(); //Los parámetros se vuelven a pasar 
-
+      if (image) {
+        await this.saveImageEntity(image, fileName, tipo);
+      }
     }
   };
-
-  // async saveImage(photo: Photo){
-  //   const base64Data = await this.readAsBase64(photo);
-
-  //   const fileName = new Date().getTime() + '.jpg'
-  //   const savedFile = await Filesystem.writeFile({
-  //     directory: Directory.Data,
-  //     path: `${IMAGE_DIR}/${fileName}`,
-  //     data: base64Data
-  //   });
-  // }
-
-  async selectPicture(){
+  
+  async selectPicture(fileName:string, tipo: 'asesor' | 'cliente') {
     const image = await Camera.getPhoto({
       quality: 90,
       allowEditing: false,
@@ -120,29 +158,97 @@ export class LoginService {
       source: CameraSource.Photos
     });
 
-    var imageUrl = image.webPath;
-  
-    // Can be set to the src of an image now
-    // imageElement.src = imageUrl;
-    console.log(imageUrl)
+    if (image) {
+      await this.saveImageEntity(image, fileName, tipo)
+    }
+
   }
 
-  // async readAsBase64(photo: Photo) {
-  //   if (this.platform.is('hybrid')) {
-  //     const file = await Filesystem.readFile({
-  //       path: photo.path || ''
-  //     });
+  // Actualiza el método saveImage para emitir cambios
+  async saveImage(photo: Photo, nombreArchivo: string) {
+    try {
+      let base64Data = await this.readAsBase64(photo);
+
+      // Si base64Data ya es un DataURL, extrae solo la parte base64
+      if (base64Data.startsWith('data:')) {
+        base64Data = base64Data.split(',')[1];
+      }
+
+      const fileName = nombreArchivo + '.jpeg';
+      const filePath = `${IMAGE_DIR}/${fileName}`;
+
+      // Guardar la imagen en el sistema de archivos
+      await Filesystem.writeFile({
+        path: filePath,
+        data: base64Data,
+        directory: Directory.Data,
+      });
+
+      // Agregar directamente al array `images`
+      this.images.push({
+        name: fileName,
+        path: filePath,
+        data: `data:image/jpeg;base64,${base64Data}`,
+      });
+
+      // Emitir el cambio
+      this.imagesSubject.next(this.images);
+
+      console.log('Imagen guardada y agregada al array:', fileName);
+    } catch (error) {
+      console.error('Error al guardar la imagen:', error);
+    }
+  }
   
-  //     return file.data;
+  async saveImageEntity(photo: Photo, nombreArchivo: string, tipo: 'asesor' | 'cliente') {
+    try {
+      let base64Data = await this.readAsBase64(photo);
+      if (base64Data.startsWith('data:')) {
+        base64Data = base64Data.split(',')[1];
+      }
+      const fileName = nombreArchivo + '.jpeg';
+      const filePath = `${IMAGE_DIRS[tipo]}/${fileName}`;
+      await Filesystem.writeFile({
+        path: filePath,
+        data: base64Data,
+        directory: Directory.Data,
+      });
+
+      const fileObj: LocalFile = {
+        name: fileName,
+        path: filePath,
+        data: `data:image/jpeg;base64,${base64Data}`,
+      };
+
+      if (tipo === 'asesor') {
+        this.images.push(fileObj);
+        this.imagesSubject.next(this.images);
+      } else {
+        this.imagesClientes.push(fileObj);
+        this.imagesClientesSubject.next(this.imagesClientes);
+      }
+      console.log(`Imagen guardada para ${tipo}:`, fileName);
+    } catch (error) {
+      console.error(`Error al guardar la imagen para ${tipo}:`, error);
+    }
+  }
+
+  async readAsBase64(photo: Photo) {
+    if (this.platform.is('hybrid')) {
+      const file = await Filesystem.readFile({
+        path: photo.path || ''
+      });
+  
+      return file.data;
       
-  //   }
-  //   else {
-  //     const response = await fetch(photo.webPath ?? '');
-  //     const blob = await response.blob();
+    }
+    else {
+      const response = await fetch(photo.webPath ?? '');
+      const blob = await response.blob();
   
-  //     return await this.convertBlobToBase64(blob) as string;
-  //   }
-  // }
+      return await this.convertBlobToBase64(blob) as string;
+    }
+  }
 
   convertBlobToBase64 = (blob:Blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
@@ -152,6 +258,25 @@ export class LoginService {
     };
     reader.readAsDataURL(blob);
   });
+
+  async deleteImage(file: LocalFile){
+    await Filesystem.deleteFile({
+      directory: Directory.Data,
+      path: file.path
+    });
+    this.loadFiles();
+  }
+  async deleteImageEntity(file: LocalFile, tipo: 'asesor' | 'cliente') {
+    await Filesystem.deleteFile({
+      directory: Directory.Data,
+      path: file.path
+    });
+    await this.loadFilesEntity(tipo);
+  }
+  async deleteFolder(imagenes: LocalFile[], tipo: 'asesor' | 'cliente') {
+    await Promise.all(imagenes.map(file => this.deleteImageEntity(file, tipo)));
+  }
+
 
   //------------------- METODOS PARA STORAGE -------------------------
   init(){

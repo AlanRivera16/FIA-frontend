@@ -29,7 +29,7 @@ small {
     position: fixed; 
     bottom: 0; 
     width: 100%; 
-    padding-bottom: 8%;
+    padding: 55px;
 }
 
 
@@ -174,4 +174,86 @@ ion-footer {
 .input-pass-value {
     background-color: transparent;
     transition: background-color 420ms;
+}
+
+
+// Pruebas de GPT sugerencia
+
+.login-content {
+    --background: #ffffff;
+
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+        margin-bottom: 50px;
+
+        .logo-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .form-container {
+        padding: 24px;
+
+        .login-title {
+            text-align: left;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #2a2a2a;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: #7d7d7d;
+            margin-bottom: 24px;
+        }
+
+        .custom-input {
+            --background: #ffffff;
+            // --background: #e8e8e8;
+            border-radius: 12px;
+            margin-bottom: 20px;
+
+            ion-input {
+                color: #2a2a2a;
+            }
+
+            .input-icon {
+                color: #4b4b4b;
+                --ionicon-stroke-width: 46px;
+            }
+        }
+
+        .login-button {
+            --background: #0f1e2d;
+            --color: #ffffff;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #7d7d7d;
+        }
+    }
+
+    .login-button {
+            --background: var(--ion-color-darkmain);
+            --color: #ffffff;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            height: 60px;
+            font-size: 22px;
+        }
 }

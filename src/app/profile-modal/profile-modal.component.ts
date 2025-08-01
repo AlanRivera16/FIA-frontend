@@ -69,4 +69,10 @@ export class ProfileModalComponent  implements OnInit {
     }
     return
   };
+
+  srcImageName(images: { originalname: string }[], name: string): any {
+    if(images && images.length > 0) {
+      return images.find(img => img.originalname === name + '.jpeg');
+    }
+  }
 }

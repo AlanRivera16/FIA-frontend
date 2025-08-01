@@ -1,6 +1,6 @@
 <ion-content class="ion-padding">
 
-  <ion-row>
+  <!-- <ion-row>
     <ion-col size="7" style="display:flex; align-items: center; color: black;">
       <h2 style="font-size: 22px; font-weight: bold; margin: 0;">Prestamos</h2>
     </ion-col>
@@ -14,7 +14,21 @@
         </ion-label>
       </ion-item>
     </ion-col>
-  </ion-row>
+  </ion-row> -->
+  <ion-header class="ion-no-border">
+    <ion-toolbar>
+      <ion-label>
+        <!-- <h2 style="font-weight: bold;">Mis</h2> -->
+        <h1 style="font-weight: bold;">Prestamos</h1>
+      </ion-label>
+      <ion-icon style="font-size: 24px;" color="dark" slot="end" name="notifications-outline"></ion-icon>
+      <ion-item slot="end" lines="none">
+        <ion-avatar slot="end" (click)="openModal()">
+          <ion-img src="https://ionicframework.com/docs/img/demos/avatar.svg"></ion-img>
+        </ion-avatar>
+      </ion-item>
+    </ion-toolbar>
+  </ion-header>
 
   <div class="" style="padding: 10px 32px 20px;">
     <h5 style="font-size: 13px; font-weight: bold; margin:16px 0px; color:gray; text-align: center;">Aprobados 3 / 6</h5>
@@ -164,7 +178,7 @@
     </ion-grid>
   </div> -->
 
-  <ion-item-group *ngFor="let data of prestamos">
+  <ion-item-group *ngFor="let data of results">
     <ion-item-divider lines="none">
       <ion-label>{{data.titulo}}</ion-label>
     </ion-item-divider>
@@ -208,36 +222,87 @@
       [backdropDismiss]="backdropDismiss"
       (ionBreakpointDidChange) = "changeListener($event)"
     >
-      <ng-template>
-        <ion-content class="ion-padding modal-content" (click)="modal.setCurrentBreakpoint(1)">
-          <h5 style="font-size: 14px; font-weight: bold; text-align: center; margin-top: 32px;">Pendiente: ${{ (modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente) - (modalInfo.totalPagado) | moneyTransform}}.00 <span style="color: #CACACA;">| {{modalInfo.estado}}</span></h5>
+    <ng-template>
+      <ion-content class="ion-padding modal-content" (click)="modal.setCurrentBreakpoint(1)">
+          <h5 style="font-size: 18px; font-weight: bold; text-align: center; margin-top: 32px; margin-bottom: 20px;">Detalle de Prestamo</h5>
+          <ion-item style="margin-top: 15px;">
+            <ion-avatar slot="end">
+              <img *ngIf="srcImageName(modalInfo.id_cliente?.evidencia_aval, 'foto-perfil') as image" alt="Silhouette of a person's head" [src]="image.url ? image.url : 'https://ionicframework.com/docs/img/demos/avatar.svg'" />
+            </ion-avatar>
+            <ion-label>
+              <h4 style="font-weight: bold;">{{modalInfo.id_cliente.nombre}}</h4>
+              <p>Prestatario / Cliente</p>
+            </ion-label>
+          </ion-item>
+          <ion-label>
+            <p style="margin-left: 12px; margin-top: 10px; font-size: 12px; font-weight: bold; color: var(--ion-color-darkmain);">
+              <ion-icon name="woman" color="darkmain"></ion-icon>
+               Prestamista: {{modalInfo.id_asesor.nombre}}
+            </p> 
+          </ion-label>
+          <!-- <ion-item lines="full" style="margin-top: 10px;">
+            <ion-avatar slot="start">
+              <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+            </ion-avatar>
+            <ion-label>
+              <h4>Guadalupe Pichardo Zapata</h4>
+              <p>Prestatario / Cliente</p>
+              <p style="font-size: 12px; font-weight: bold; color: #93BFCF;">
+                <ion-icon name="woman" style="color: #93BFCF;"></ion-icon>
+                Prestamista: Marco Young Rivera Reyes
+              </p>
+            </ion-label>
+          </ion-item> -->
 
-          <ion-list style="padding: 10px 28px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Fecha de prestamo:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">{{modalInfo.fecha_prestamo? modalInfo.fecha_prestamo : modalInfo.createdAt | date:'dd/MM/yyyy'}}</p>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Monto solicitado:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.saldo | moneyTransform}}.00</p>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Esquema de pago:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">{{modalInfo.tipo_pago}}</p>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Número de pagos:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">{{modalInfo.periodo}}</p>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Retrasos:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">0</p>
-            </div>
-            <div *ngIf="modalInfo.periodo == 14" style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Día de pago:</p>
-              <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">{{modalInfo.dia_pago == 'lunes' ? 'Lunes' : modalInfo.dia_pago == 'sabado' ? 'Sábado' : ''}}</p>
-            </div>
-          </ion-list>
+          <!-- <h5 style="font-size: 14px; font-weight: bold; text-align: center; margin-top: 32px;">Pendiente: ${{ (modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente) - (modalInfo.totalPagado) | moneyTransform}}.00 <span style="color: #CACACA;">| {{modalInfo.estado}}</span></h5> -->
+
+
+          <ion-accordion-group style="margin-top: 25px; border: solid 1px #CACACA; border-radius: 10px;" [multiple]="true" [value]="['first', 'second', 'third']">
+            <ion-accordion style="border-radius: 10px;" value="first">
+              <ion-item slot="header">
+                <ion-label style="margin: 0px;"><p style="font-weight: bold;">Informacion general</p></ion-label>
+              </ion-item>
+              <div class="ion-padding" style="padding-top: 0px;" slot="content">
+                <ion-list>
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Fecha de prestamo:</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">
+                      {{modalInfo.fecha_prestamo? modalInfo.fecha_prestamo : modalInfo.createdAt | date:'dd/MM/yyyy'}}</p>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Monto solicitado:</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">
+                      ${{modalInfo.saldo | moneyTransform}}.00</p>
+                  </div>
+                  <!-- <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Esquema de pago:</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">
+                      {{modalInfo.tipo_pago}}</p>
+                  </div> -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Esquema de pago:</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">
+                      {{modalInfo.tipo_pago}} a {{modalInfo.periodo}} pagos</p>
+                  </div>
+                  <!-- <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Número de pagos:</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">
+                      {{modalInfo.periodo}}</p>
+                  </div> -->
+                  <!-- <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Retrasos:</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">0</p>
+                  </div> -->
+                  <div *ngIf="modalInfo.periodo == 14"
+                    style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Día de pago:</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">
+                      {{modalInfo.dia_pago == 'lunes' ? 'Lunes' : modalInfo.dia_pago == 'sabado' ? 'Sábado' : ''}}</p>
+                  </div>
+                </ion-list>
+              </div>
+            </ion-accordion>
+          </ion-accordion-group>
 
           
           <ion-segment color="darkmain" [value]="segmentValue">
@@ -255,10 +320,13 @@
             (swiperslidechange)="swiperSlideChanged($event)"
           >
             <swiper-slide>
-              <ion-label *ngIf="modalInfo?.tabla_amortizacion.length>0" class="ion-padding" style="padding: 16px; margin-top: 8px; display: block;">
+              <!-- <ion-item>
+                <ion-label *ngIf="modalInfo?.tabla_amortizacion.length>0" class="ion-padding" style="padding: 16px; margin-top: 8px; display: block;">
                 Tabla amortización
                 <p>Administrador</p>
-              </ion-label>
+                </ion-label>
+                <ion-note slot="end">Retrasos(0)</ion-note>
+              </ion-item> -->
               <ion-grid style="padding: 5px 0px;" *ngIf="modalInfo?.tabla_amortizacion.length>0">
                 <ion-row style="font-size: 11px; font-weight: bold; text-align: center; border-top: 1px solid #CACACA; border-bottom: 1px solid #CACACA;">
                   <ion-col size="1"></ion-col>
@@ -517,7 +585,7 @@
                 </div>
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
                   <p style="font-size: 16px; font-weight: bold; margin: 8px 0px 0px 0px;">Deuda Total:</p>
-                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente | moneyTransform}}.00</p>
+                  <p style="font-size: 14px; font-weight: bold; margin: 8px 0px 0px 8px; color: gray; text-align: right;">${{modalInfo.totalMultas + modalInfo.totalPendiente | moneyTransform}}.00</p>
                 </div>
               </ion-list>
             </swiper-slide>
@@ -538,7 +606,7 @@
         </ion-footer>
         <ion-progress-bar *ngIf="accept_reject" type="indeterminate" color="darkmain"></ion-progress-bar>
 
-        <ion-footer class="ion-padding" *ngIf="(modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente) - (modalInfo.totalPagado) == 0 && modalInfo.estado != 'Cerrado'">
+        <ion-footer class="ion-padding" *ngIf="(modalInfo.totalCuota + modalInfo.totalMultas + modalInfo.totalPendiente) - (modalInfo.totalPagado) == 0 && modalInfo.estado != 'Cerrado' && modalInfo.estado != 'Pendiente'">
           <ion-toolbar>
             <ion-button expand="block" color="darkmain" size="large" (click)="cerrarPrestamo(modalInfo)">Cerrar pago</ion-button>
           </ion-toolbar>
@@ -630,25 +698,126 @@
   </ion-modal>
 
   <!-- Modal for filter -->
-  <ion-modal #modal_filter trigger="filter-modal" [initialBreakpoint]="0.35" [breakpoints]="[0, 0.25, 0.5, 0.8]">
+  <ion-modal #modal_filter trigger="filter-modal" [initialBreakpoint]="0.7" [breakpoints]="[0, 0.4, 0.7]">
     <ng-template>
       <ion-content class="ion-padding">
 
-        <div style="display: block;">
-          <ion-checkbox labelPlacement="end">Aceptados</ion-checkbox><br>
-          <ion-checkbox labelPlacement="end">Pendientes</ion-checkbox><br>
-          <ion-checkbox labelPlacement="end">Rechazados</ion-checkbox><br>
-          <ion-checkbox labelPlacement="end">Cerrados</ion-checkbox><br>
-        </div>
-        <div>
+        <ion-accordion-group style="margin-top: 15px;" [multiple]="true" [value]="['first', 'second', 'third', 'forth']">
+          <ion-accordion value="first">
+            <ion-item slot="header">
+              <ion-label><p>Estados</p></ion-label>
+            </ion-item>
+            <div class="" slot="content">
+              <ion-chip color="darkmain" (click)="toggleEstado('Aceptado')">
+                Aceptado <ion-icon *ngIf="selectedEstados.includes('Aceptado')" name="checkmark-outline"></ion-icon>
+              </ion-chip>
+              <ion-chip color="darkmain" (click)="toggleEstado('Pendientes')">
+                Pendientes <ion-icon *ngIf="selectedEstados.includes('Pendientes')" name="checkmark-outline"></ion-icon>
+              </ion-chip>
+              <ion-chip color="darkmain" (click)="toggleEstado('Rechazados')">
+                Rechazados <ion-icon *ngIf="selectedEstados.includes('Rechazados')" name="checkmark-outline"></ion-icon>
+              </ion-chip>
+              <ion-chip color="darkmain" (click)="toggleEstado('Cerrados')">
+                Cerrados <ion-icon *ngIf="selectedEstados.includes('Cerrados')" name="checkmark-outline"></ion-icon>
+              </ion-chip>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="second">
+            <ion-item slot="header">
+              <ion-label><p>Monto de prestamo</p></ion-label>
+            </ion-item>
+            <div class="ion-padding" slot="content">
+              <ion-range 
+                aria-label="Temperature"
+                [min]="1"
+                [max]="5"
+                [value]="2"
+                [pin]="true"
+                [ticks]="true"
+                [snaps]="true"
+                [pinFormatter]="pinFormatter"
+                (ionChange)="catchRange($event)"
+              >
+              </ion-range>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="third">
+            <ion-item slot="header">
+              <ion-label><p>Presonal</p></ion-label>
+            </ion-item>
+            <div class="" slot="content">
+
+              <ion-list class="ion-no-padding" style="margin: 6px; border-radius: 10px;" [inset]="true">
+                <ion-item [button]="true" [detail]="false" [color]="selectedClientes.length == 0? 'light' : 'darkmain'">
+                  <ion-icon name="cash-outline" *ngIf="selectedClientes.length == 0" slot="start"></ion-icon>
+                  <ion-icon name="close-circle" *ngIf="selectedClientes.length > 0" slot="start" (click)="removeCliSelection()"></ion-icon>
+                  <ion-label style="font-size: 14px;">Cliente</ion-label>
+                  <div id="select-clientes" slot="end" style="color: #CACACA;font-size: 14px;font-weight: bold;">
+                    <p>{{selectedClientesText }}</p></div>
+                  <ion-icon *ngIf="selectedClientes.length > 0" slot="end" name="checkmark-outline"></ion-icon>
+                </ion-item>
+              </ion-list>
+              
+              <ion-modal trigger="select-clientes" #modal_cli>
+                <ng-template>
+                  <app-cliente-modal class="ion-page" title="MIS CLIENTES" [items]="clientes" [selectedItems]="selectedClientes"
+                    (selectionChange)="clienteSelectionChanged($event)" (selectionCancel)="this.modal_cli.dismiss()">
+                  </app-cliente-modal>
+                </ng-template>
+              </ion-modal>
+
+              <!-- id="select-asesores" es el trigger para abrir asesores modal component -->
+              <ion-list class="ion-no-padding" style="margin: 6px; border-radius: 10px;" [inset]="true">
+                <ion-item [button]="true" [detail]="false" [color]="selectedAsesores.length == 0? 'light' : 'darkmain'">
+                  <ion-icon name="woman-outline" *ngIf="selectedAsesores.length == 0" slot="start"></ion-icon>
+                  <ion-icon name="close-circle" *ngIf="selectedAsesores.length > 0" slot="start" (click)="removeAseSelection()"></ion-icon>
+                  <ion-label style="font-size: 14px;">Asesor</ion-label>
+                  <div id="select-asesores" slot="end" style="color: #CACACA;font-size: 14px;font-weight: bold;">
+                    {{selectedAsesoresText}}</div>
+                  <ion-icon *ngIf="selectedAsesores.length > 0" slot="end" name="checkmark-outline"></ion-icon>
+                </ion-item>
+              </ion-list>
+              
+              <ion-modal trigger="select-asesores" #modal_ase>
+                <ng-template>
+                  <app-cliente-modal class="ion-page" title="MIS ASESORES" [items]="asesores" [selectedItems]="selectedAsesores"
+                    (selectionChange)="asesorSelectionChanged($event)" (selectionCancel)="this.modal_ase.dismiss()">
+                  </app-cliente-modal>
+                </ng-template>
+              </ion-modal>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="forth">
+            <ion-item slot="header">
+              <ion-label><p>Tipo de pago</p></ion-label>
+            </ion-item>
+            <div class="" slot="content">
+              <ion-item lines="none">
+                <ion-select label="Mensual / Semanal" placeholder="Selecciona una opcion" [(ngModel)]="filters.tipoPago">
+                  <ion-select-option value="Mensual">Mensual</ion-select-option>
+                  <ion-select-option value="Semanal">Semanal</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+          </ion-accordion>
+
+        </ion-accordion-group>
+
+        <ion-item class="" lines="none">
+          <ion-icon slot="end" name="reload-outline" (click)="refreshFilter()"></ion-icon>
+          <ion-button (click)="filterPrestamos(filters)" slot="end" fill="solid" color="darkmain" size="default">Filtrar</ion-button>
+        </ion-item>
+        
+
+        <!-- <div>
           <div class="ion-padding">Monto</div>
           <ion-text>$4,000 - $ 20,000</ion-text>
           <ion-range aria-label="Range with ticks" [ticks]="true" [snaps]="true" [min]="0" [max]="10"></ion-range>
           <div class="ion-padding">Fecha</div>
-        </div>
-        <div class="">
+        </div> -->
+        <!-- <div class="">
           <ion-datetime></ion-datetime>
-        </div>
+        </div> -->
         
       </ion-content>
     </ng-template>

@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActionSheetController, ModalController, ToastController } from '@ionic/angular';
+import { ActionSheetController, IonInput, ModalController, ToastController } from '@ionic/angular';
 import { LocalFile, LoginService } from '../services/login/login.service';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
 import { UsuariosService } from '../services/usuarios/usuarios.service';
 import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 
+declare var google: any; // Importar Google Maps
 
 @Component({
   selector: 'app-asesores',
@@ -13,6 +14,7 @@ import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Valida
 })
 export class AsesoresPage implements OnInit {
 @ViewChild('formDirective') formDirective!: NgForm;
+  @ViewChild('autocomplete') autocomplete!: IonInput;
   images: LocalFile[] = [];
 
   dataSingleAsesor:any = {};
@@ -207,6 +209,21 @@ export class AsesoresPage implements OnInit {
     await this.loginService.loadFilesEntity('asesor');
     this.getData()
   }
+  // ionViewDidEnter() {
+  //   this.autocomplete.getInputElement().then((ref: any) => {
+  //     const autocomplete = new google.maps.places.Autocomplete(ref);
+  //     autocomplete.addListener('place_changed', () => {
+  //       console.log('Lugar seleccionado:', autocomplete.getPlace());
+  //     })
+  //   });
+  // }
+
+  handleRefresh(event:any) {
+    setTimeout(() => {
+      this.getData();
+      event.target.complete();
+    }, 2000);
+  }
 
   async getData(){
     this.usuariosService.getAsesores().subscribe((data:any) => {
@@ -260,24 +277,36 @@ export class AsesoresPage implements OnInit {
   }
 
   async presentActionSheet() {
+    const asesor = this.dataSingleAsesor;
     const actionSheet = await this.actionSheetCtrl.create({
       header: '¡Atención!',
-      subHeader: '¿Seguro que quieres eliminar un asesor?',
+      subHeader: '¿Seguro que quieres eliminar este asesor?',
       cssClass: 'my-custom-actsheet',
       buttons: [
         {
           text: 'Eliminar',
           role: 'destructive',
-          data: {
-            action: 'delete',
-          },
+          handler: async () => {
+            this.usuariosService.deleteUsuario(asesor._id).subscribe(async (res: any) => {
+              // Elimina del array principal de asesores
+              const idx = this.results.findIndex((a: any) => a._id === asesor._id);
+              if (idx !== -1) {
+                this.results.splice(idx, 1);
+              }
+              // Si tienes otro array como pseudo_table_asesors, también actualízalo si es necesario
+              const idxPseudo = this.pseudo_table_asesors.findIndex((a: any) => a._id === asesor._id);
+              if (idxPseudo !== -1) {
+                this.pseudo_table_asesors.splice(idxPseudo, 1);
+              }
+              await this.presentToast('bottom', 'Asesor eliminado correctamente', 2000);
+              this.isModalOpenOptns = false;
+            });
+          }
         },
         {
-          text: 'Cancel',
+          text: 'Cancelar',
           role: 'cancel',
-          data: {
-            action: 'cancel',
-          },
+          data: { action: 'cancel' },
         },
       ],
     });

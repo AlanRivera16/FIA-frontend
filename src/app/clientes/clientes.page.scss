@@ -7,7 +7,7 @@ ion-searchbar.custom {
     --clear-button-color: rgb(98, 98, 98);
     --box-shadow:none;
     --border-radius: 20px;
-    margin-top: 10%;
+    margin-top: 2%;
     margin-bottom: 10%;
 }
 
@@ -155,6 +155,12 @@ ion-fab-button{
   }
 
 
+  .my-label-badge{
+    display: flex;
+    align-items: center;
+  }
+
+
 
   .ripple-parent {
     position: relative;
@@ -216,4 +222,96 @@ ion-fab-button{
 
 .fotos-gallery{
   --ion-grid-columns: 3;
+}
+.pagos-calendar{
+  --ion-grid-columns: 5;
+}
+
+.item-border::part(native){
+  border-radius: 8px;
+  border-left: solid 8px #0B5970;
+  margin-bottom: 11px;
+  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+}
+.item-border-danger::part(native){
+  border-radius: 5px;
+  border-left: solid 8px var(--ion-color-danger);
+  margin-bottom: 11px;
+  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+}
+
+        .horizontal-scroll-container {
+          display: flex;
+          /* or inline-flex */
+          overflow-x: auto;
+          white-space: nowrap;
+          /* Prevents content from wrapping to the next line */
+          -webkit-overflow-scrolling: touch;
+          /* Improves scrolling performance on iOS */
+        }
+    
+        /* Optional: Style for ion-col within the horizontal scroll */
+        .horizontal-scroll-container ion-col {
+          flex-shrink: 0;
+          /* Prevents columns from shrinking to fit the container */
+        }
+
+.metadata-end-wrapper {
+  position: absolute;
+
+  top: 10px;
+  inset-inline-end: 10px;
+
+  font-size: 0.8rem;
+
+  display: flex;
+  align-items: center;
+}
+
+.custom-item strong{
+  display: block;
+  max-width: calc(100% - 60px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.custom-item ion-note{
+  font-size: 0.9rem;
+}
+
+ion-card {
+  // --background: #00000088;
+  // --color: #9efff0;
+  box-shadow: none !important;
+}
+
+.no-left-padding{
+  --padding-start: 0;
+}
+
+//Long press
+.long-pressed{
+  --background: #0B5970;
+  color: #E0E0E0;
+}
+.ripple-parent {
+  position: relative;
+  overflow: hidden;
+
+  border: 1px solid #ddd;
+}
+.block-asesor {
+  width: 100%;
+  height: 380px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.footerlog {
+  width: 100%;
+  padding: 25px;
+  background: #fff; // Opcional, para que no se vea transparente
+  z-index: 10;
 }

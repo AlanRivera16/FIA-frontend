@@ -261,3 +261,10 @@ ion-range::part(bar) {
 ion-range::part(bar-active) {
   background: #698192;
 }
+
+.item-border::part(native){
+  border-radius: 8px;
+  border-left: solid 8px #0B5970;
+  margin-bottom: 11px;
+  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+}

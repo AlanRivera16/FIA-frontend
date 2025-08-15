@@ -86,16 +86,23 @@
     
   </div>
 
+  <!-- <ion-footer>
   <div class="footerlog">
-      <ion-button expand="block" class="login-button" (click)="submitNow()">
-        LOG IN
-      </ion-button>
-      
-      <p style="text-align: center;">
-        ¿Olvidaste tu contraseña?
-      </p>
+    <ion-button expand="block" class="login-button" (click)="submitNow()">
+      LOG IN
+    </ion-button>
+    <p style="text-align: center;">¿Olvidaste tu contraseña?</p>
   </div>
+  </ion-footer> -->
 </ion-content>
+<ion-footer no-border>
+  <div class="footerlog">
+    <ion-button color="darkmain" expand="block" size="large" class="login-button" (click)="submitNow()">
+      LOG IN
+    </ion-button>
+    <p style="text-align: center;">¿Olvidaste tu contraseña?</p>
+  </div>
+</ion-footer>
 
 
 

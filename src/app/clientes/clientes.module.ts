@@ -8,6 +8,7 @@ import { ClientesPageRoutingModule } from './clientes-routing.module';
 
 import { ClientesPage } from './clientes.page';
 import { PipesModule } from '../Pipes/pipes.module';
+import { SharedComponentsModule } from '../shared-components/shared-components.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { PipesModule } from '../Pipes/pipes.module';
     ReactiveFormsModule,
     IonicModule,
     ClientesPageRoutingModule,
-    PipesModule
+    PipesModule,
+    SharedComponentsModule
   ],
   declarations: [ClientesPage]
 })

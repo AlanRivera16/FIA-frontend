@@ -11,6 +11,7 @@ import { PipesModule } from '../Pipes/pipes.module';
 import { ClienteModalComponent } from '../cliente-modal/cliente-modal.component'
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AsesorModalComponent } from '../asesor-modal/asesor-modal.component';
+import { SharedComponentsModule } from '../shared-components/shared-components.module';
 
 @NgModule({
   imports: [
@@ -20,8 +21,9 @@ import { AsesorModalComponent } from '../asesor-modal/asesor-modal.component';
     IonicModule,
     PrestamosPageRoutingModule,
     PipesModule,
+    SharedComponentsModule
   ],
-  declarations: [PrestamosPage, ClienteModalComponent, AsesorModalComponent],
+  declarations: [PrestamosPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class PrestamosPageModule {}

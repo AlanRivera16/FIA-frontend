@@ -25,11 +25,19 @@ small {
  top:10%
 }
 
-.footerlog{
-    position: fixed; 
-    bottom: 0; 
-    width: 100%; 
-    padding: 55px;
+.footerlog {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  padding: 25px;
+  background: #fff; // Opcional, para que no se vea transparente
+  z-index: 10;
+}
+
+ion-footer {
+  &.footer-md::before { /* Targets the top border in MD mode */
+    background-image: none;
+  }
 }
 
 

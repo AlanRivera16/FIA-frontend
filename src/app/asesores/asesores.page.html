@@ -36,6 +36,18 @@
     
     <ion-searchbar class="custom ion-no-padding" (ionInput)="handleInput($event)"></ion-searchbar>
 
+    <!-- Pruebas para obtener direccion de google maps -->
+    <!-- <form [formGroup]="formInputPOST" #formDirective="ngForm">
+      <ion-item>
+        <ion-label>Direccion</ion-label>
+        <ion-input type="text" formControlName="direccion" #autocomplete></ion-input>
+      </ion-item>
+    </form> -->
+
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
     <h5 class="barlow-bold" style="font-size: 14px; font-weight: bold;">Últimos movimientos</h5>
 
     <ion-item *ngFor="let asesor of pseudo_table_asesors_lastmoves" class="card-item-d" lines="none" button>
@@ -169,8 +181,19 @@
             </div>
           </div>
 
-          <ion-list *ngIf="dataSingleAsesor.clientes" style="padding: 18px 22px 5px 24px;">
-            <ion-item *ngFor="let cliente of dataSingleAsesor.clientes" lines="none" class="card-item-client">
+          <ion-list style="padding: 18px 22px 5px 24px;">
+            <ion-item lines="none" color="darkmain" style="border-radius: 12px;">
+              <img slot="start" style="margin-left: 8px;" src="../../assets/🦆 icon _money send_ solid.svg" width="24px"
+                height="24px" />
+              <ion-label>Saldo: {{dataSingleAsesor.saldo_asignado | moneyTransform}}.00 - MX</ion-label>
+            </ion-item>
+          </ion-list>
+
+          <ion-list *ngIf="dataSingleAsesor.clientes" style="padding: 18px 22px 25px 24px;">
+            <ion-list-header class="ion-no-padding">
+              <ion-label>Clientes asignados ({{dataSingleAsesor.clientes?.length}})</ion-label>
+            </ion-list-header>
+            <ion-item *ngFor="let cliente of dataSingleAsesor.clientes" lines="full" class="card-item-client">
               <ion-avatar slot="start" style="margin: 4px 8px 4px 0px;" class="item-avatar-client">
                 <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
               </ion-avatar>
@@ -184,9 +207,9 @@
           </ion-list>
 
           <h5 *ngIf="dataSingleAsesor.clientes?.length > 3" style="color: gray; text-align: center; font-size: 12px; font-weight: bold; margin: 0;">Ver todos los clientes</h5>
-          <h5 *ngIf="dataSingleAsesor.clientes?.length === 0" style="color: gray; text-align: center; font-size: 12px; font-weight: bold; margin: 0;">No clietes asiganados aun</h5>
+          <h5 *ngIf="dataSingleAsesor.clientes?.length === 0" style="color: gray; text-align: center; font-size: 12px; font-weight: bold; margin: 0;">No clientes asiganados aun</h5>
 
-          <div style="display: flex; align-items: center; justify-content: center; margin-top: 22px;">
+          <!-- <div style="display: flex; align-items: center; justify-content: center; margin-top: 22px;">
             <div style="background-color: #132634; width: 60%; margin: 6px; border-radius: 10px; height: 35px; display: flex; align-items: center;">
               <img style="margin-left: 8px;" src="../../assets/🦆 icon _money send_ solid.svg" width="24px" height="24px" />
               <p style="margin: 0; margin-left: 8px; font-size: 12px; color: white;"><strong>Saldo:</strong> {{dataSingleAsesor.saldo_asignado | moneyTransform}}.00 - <strong>MX</strong></p>
@@ -195,10 +218,19 @@
               <ion-icon style="font-size: 18px;" name="person"></ion-icon>
               <p style="margin: 0; margin-left: 4px; font-size: 12px;">Clientes: {{dataSingleAsesor.clientes?.length}}</p>
             </div>
-
           </div>
+          <div style="display: flex; align-items: center; justify-content: center; margin-top: 22px;">
+            <ion-item lines="none" color="darkmain" style="border-radius: 12px;">
+              <img slot="start" style="margin-left: 8px;" src="../../assets/🦆 icon _money send_ solid.svg" width="24px" height="24px" />
+              <ion-label>Saldo: {{dataSingleAsesor.saldo_asignado | moneyTransform}}.00 - MX</ion-label>
+            </ion-item>
+            <ion-item lines="none" color="darkmain" style="border-radius: 12px;">
+              <ion-icon slot="start" style="font-size: 18px;" name="person"></ion-icon>
+              <ion-label>Clientes: {{dataSingleAsesor.clientes?.length}}</ion-label>
+            </ion-item>
+          </div> -->
 
-          <ion-list style="padding: 10px 28px;">
+          <ion-list style="padding: 25px 28px;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Número telefónico:</p>
               <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px; color: gray; text-align: right;">{{dataSingleAsesor.telefono}}</p>
@@ -214,7 +246,7 @@
             <div class="">
               <ion-grid class="fotos-gallery ion-padding-vertical" style="padding-left: 0; padding-right: 0;">
                 <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 8px 0px;">Evidencia:</p>
-                
+                <h5 *ngIf="dataSingleAsesor.evidencia_aval?.length === 0 || !dataSingleAsesor.evidencia_aval" style="color: gray; text-align: center; font-size: 12px; font-weight: bold; margin: 15px 0px;">Sin evidencia</h5>
                 <ion-row class="ion-justify-content-start">
                   <ion-col size="1" class="ion-no-padding" style="padding: 1px; height: 80px; width: 80px;" *ngFor="let img of dataSingleAsesor.evidencia_aval">
                     <img alt="Silhouette of mountains" [src]="img.url" style="width: 100%; height: 100%; object-fit: cover;" />

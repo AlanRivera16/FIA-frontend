@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, LOCALE_ID, Inject, ElementRef } from '@angular/core';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
-import { ModalController, IonModal, AlertController, AlertInput, ToastController, RangeCustomEvent } from '@ionic/angular';
+import { ModalController, IonModal, AlertController, AlertInput, ToastController, RangeCustomEvent, IonAccordionGroup } from '@ionic/angular';
 import { PrestamosService } from '../services/prestamo/prestamos.service';
 import { Asesor, Cliente, Item } from '../types'
 import { LoginService } from '../services/login/login.service';
@@ -9,6 +9,9 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import Swiper from 'swiper';
 import { HistorialService } from '../services/historial/historial.service';
 import { UsuariosService } from '../services/usuarios/usuarios.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 const STORAGE_KEY = 'login-data-user'
 
@@ -38,6 +41,9 @@ export class PrestamosPage implements OnInit {
   swiperRef: ElementRef | undefined;
   swiper?:Swiper
 
+  @ViewChild('accordionGroup') accordionGroup!: IonAccordionGroup;
+
+
   pinFormatter(value: number) {
     return `${value}0K`;
   }
@@ -48,6 +54,7 @@ export class PrestamosPage implements OnInit {
   openModalInfo = false
   isModalOpenAdd = false
   isModalClientes = false
+  isModalFilter = false
 
   //SEGMENT
   segmentValue = 'tabla'
@@ -108,6 +115,8 @@ export class PrestamosPage implements OnInit {
   clientes: Cliente[] = [];
   asesores: Asesor[] = [];
 
+  modalAccordionIndex: string | null = null;
+
   constructor(
     private modalCtrl: ModalController,
     private prestService: PrestamosService,
@@ -117,6 +126,9 @@ export class PrestamosPage implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     public formPrest : FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private changeDetector: ChangeDetectorRef,
     @Inject(LOCALE_ID) public locale: string, // Variable local para configurar dates en Español
   ) { 
     this.formInputPOST = this.formPrest.group({
@@ -227,7 +239,61 @@ export class PrestamosPage implements OnInit {
 
   async ngOnInit() {  
     this.setAllData();
-    console.log(new Date().toISOString())
+    
+    this.route.queryParams.subscribe(params => {
+      if (params['id_prestamo']) {
+        // Espera a que los datos estén cargados
+        setTimeout(() => {
+          this.openPrestamoModalById(params['id_prestamo']);
+          console.log('Soy params de url:', params)
+          // Si viene index_pago, abre el accordion
+          if (params['index_pago'] !== undefined) {
+            this.modalAccordionIndex = params['index_pago']; // Guarda el índice del accordion
+            // setTimeout(() => {
+            //   this.toggleAccordion((params['index_pago']));
+            // }, 500); // Espera a que el modal esté abierto
+          }
+          // Elimina los params
+          this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        }, 800);
+      } else if (params['post_prestamo']) {
+        console.log('Holaaaaaa');
+        setTimeout(() => {
+          this.setOpenAdd(true,'AGREGAR')
+          this.router.navigate([], { queryParams: {}, replaceUrl: true });
+          }, 500);
+        }
+    });
+  }
+
+  openPrestamoModalById(idPrestamo: string) {
+    // Busca el préstamo en tus datos
+    let prestamoEncontrado: any = null;
+    for (const grupo of this.prestamos) {
+      prestamoEncontrado = grupo.prestamos.find((p: any) => p._id === idPrestamo);
+      if (prestamoEncontrado) break;
+    }
+    if (prestamoEncontrado) {
+      this.setModalInfo(true, prestamoEncontrado);
+    }
+  }
+
+  toggleAccordion = (index: string) => {
+    //console.log('Ya me cliquearin soy inex: ' , index)
+    const nativeEl = this.accordionGroup;
+    nativeEl.value = index; // Cambia el valor del acordeón al índice proporcionado
+  };
+  accordionGroupChange = (ev: any) => {
+    //console.log(ev.detail.value) // value es un array de los expandidos
+  };
+  onModalPresented() {
+    this.changeDetector.detectChanges();
+    setTimeout(() => {
+      if (this.modalAccordionIndex !== null && this.accordionGroup) {
+        this.toggleAccordion(this.modalAccordionIndex!);
+        this.modalAccordionIndex = null;
+      }
+    }, 300);
   }
 
   handleRefresh(event:any) {
@@ -695,15 +761,15 @@ addItemAceptados(item:{}){
 }
 addItemPendientes(item:{}){
   this.prestamos[1].prestamos.push(item)
-  //this.results[0].prestamos.push(item) // Para resultados
+  //this.results[1].prestamos.push(item) // Para resultados
 }
 addItemRechazados(item:{}){
   this.prestamos[2].prestamos.push(item)
-  //this.results[0].prestamos.push(item) // Para resultados
+  //this.results[2].prestamos.push(item) // Para resultados
 }
 addItemCerrados(item:{}){
   this.prestamos[3].prestamos.push(item)
-  //this.results[0].prestamos.push(item) // Para resultados
+  //this.results[3].prestamos.push(item) // Para resultados
 }
 removeItemPendientes(id:string){
   let pendientes = this.prestamos[1].prestamos.filter((prest:any)=>{
@@ -831,6 +897,7 @@ filterPrestamos({
   filtrados = filtrados.filter((grupo: any) => grupo.prestamos.length > 0);
   console.log(filtrados)
   this.results = filtrados; // Actualiza los resultados
+  this.isModalFilter = false; 
   return filtrados;
 }
 

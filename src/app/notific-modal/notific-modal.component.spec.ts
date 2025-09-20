@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { AsesorModalComponent } from './asesor-modal.component';
+import { AsesorModalComponent } from './notific-modal.component';
 
 describe('AsesorModalComponent', () => {
   let component: AsesorModalComponent;

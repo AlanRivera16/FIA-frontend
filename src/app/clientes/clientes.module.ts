@@ -9,6 +9,7 @@ import { ClientesPageRoutingModule } from './clientes-routing.module';
 import { ClientesPage } from './clientes.page';
 import { PipesModule } from '../Pipes/pipes.module';
 import { SharedComponentsModule } from '../shared-components/shared-components.module';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { SharedComponentsModule } from '../shared-components/shared-components.m
     PipesModule,
     SharedComponentsModule
   ],
-  declarations: [ClientesPage]
+  declarations: [ClientesPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ClientesPageModule {}

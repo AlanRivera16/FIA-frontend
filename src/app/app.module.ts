@@ -16,8 +16,11 @@ import { Drivers, Storage } from '@ionic/storage';
 import { ProfileModalComponent } from './profile-modal/profile-modal.component'
 import { ClienteModalComponent } from './cliente-modal/cliente-modal.component'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgChartsModule } from 'ng2-charts';
+
 
 import localEs from '@angular/common/locales/es-MX'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 registerLocaleData(localEs, 'es-MX')
 
 @NgModule({
@@ -31,6 +34,9 @@ registerLocaleData(localEs, 'es-MX')
     LoginPageModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgChartsModule,
     IonicStorageModule.forRoot({
       name: 'Login-Session-DB',
       driverOrder: [Drivers.IndexedDB,Drivers.LocalStorage]

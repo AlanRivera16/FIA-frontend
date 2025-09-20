@@ -11,9 +11,6 @@ ion-searchbar.custom {
     margin-bottom: 10%;
 }
 
-ion-fab-button{
-    --background: var(--ion-color-darkmain);
-}
 
 .truncar{
     width: 130px;
@@ -43,24 +40,13 @@ ion-fab-button{
 
 //Card client
 .card-item::part(native){
-    background: #E0E0E0;
+    // background: #E0E0E0;
+    background: var(--ion-color-light);
     border-radius: 8px;
     padding-inline-start:7px;
 }
 .card-item{
     margin-left: 10px;
-    // margin-top: 10px;
-    --inner-padding-end: 0px;
-}
-
-//Card client
-.card-item-d::part(native){
-    background: transparent;
-    border-radius: 8px;
-    padding-inline-start:7px;
-}
-.card-item-d{
-    // margin-left: 16px;
     // margin-top: 10px;
     --inner-padding-end: 0px;
 }
@@ -72,8 +58,8 @@ ion-fab-button{
 .item-avatar {
     width: 100% !important;
     height: 100% !important;
-    max-width: 32px !important;    
-    max-height: 32px !important;    
+    max-width: 32px !important;
+    max-height: 32px !important;
 }
 
 
@@ -82,7 +68,7 @@ ion-fab-button{
     box-shadow: 1px 2px 4px #00000076;
     width: 100% !important;
     height: 100% !important;
-    max-width: 48px !important;    
+    max-width: 48px !important;
     max-height: 48px !important;
 }
 
@@ -174,6 +160,23 @@ ion-fab-button{
      pointer-events: none;
    }
 
+.unread-indicator {
+  background: var(--ion-color-danger);
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  position: absolute;
+  inset-inline-end: 8px;
+  top: 8px;
+  z-index: 1;
+}
+
+.tool-button{
+  --background: transparent;
+  // display: flex; 
+  // flex-direction: column;
+  // align-items: center;
+}
 
 
 .invalid {
@@ -182,42 +185,42 @@ ion-fab-button{
 }
 
 .bord-picture-user{
-  border-radius: 8px; 
-  border: 2px solid #CACACA; 
-  border-style: dashed; 
-  height: 120px; 
-  width: 120px; 
-  margin: auto; 
-  margin-bottom: 12px; 
-  display: flex; 
-  justify-content: center; 
+  border-radius: 8px;
+  border: 2px solid #CACACA;
+  border-style: dashed;
+  height: 120px;
+  width: 120px;
+  margin: auto;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 .bord-INE{
-  border-radius: 8px; 
-  border: 2px solid #CACACA; 
-  border-style: dashed; 
-  height: 105px; 
-  width: 45%; 
-  margin: 0px; 
-  display: flex; 
-  justify-content: center; 
+  border-radius: 8px;
+  border: 2px solid #CACACA;
+  border-style: dashed;
+  height: 105px;
+  width: 45%;
+  margin: 0px;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 .bord-domicilio{
-  border-radius: 8px; 
-  border: 2px solid #CACACA; 
-  border-style: dashed; 
-  height: 160px; 
-  width: 95%; 
-  margin:0px; 
-  display: flex; 
-  justify-content: center; 
+  border-radius: 8px;
+  border: 2px solid #CACACA;
+  border-style: dashed;
+  height: 160px;
+  width: 95%;
+  margin:0px;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 .bord-picture-invalid{
   border: 2px solid var(--ion-color-danger);
-  border-style: dashed; 
+  border-style: dashed;
 }
 
 .fotos-gallery{
@@ -239,22 +242,6 @@ ion-fab-button{
   margin-bottom: 11px;
   box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
 }
-
-        .horizontal-scroll-container {
-          display: flex;
-          /* or inline-flex */
-          overflow-x: auto;
-          white-space: nowrap;
-          /* Prevents content from wrapping to the next line */
-          -webkit-overflow-scrolling: touch;
-          /* Improves scrolling performance on iOS */
-        }
-    
-        /* Optional: Style for ion-col within the horizontal scroll */
-        .horizontal-scroll-container ion-col {
-          flex-shrink: 0;
-          /* Prevents columns from shrinking to fit the container */
-        }
 
 .metadata-end-wrapper {
   position: absolute;

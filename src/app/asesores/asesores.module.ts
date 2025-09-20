@@ -8,6 +8,8 @@ import { AsesoresPageRoutingModule } from './asesores-routing.module';
 
 import { AsesoresPage } from './asesores.page';
 import { PipesModule } from '../Pipes/pipes.module';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
 
 @NgModule({
   imports: [
@@ -18,6 +20,7 @@ import { PipesModule } from '../Pipes/pipes.module';
     AsesoresPageRoutingModule,
     PipesModule
   ],
-  declarations: [AsesoresPage]
+  declarations: [AsesoresPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AsesoresPageModule {}

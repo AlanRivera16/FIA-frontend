@@ -8,12 +8,18 @@ import { DashboardPageRoutingModule } from './dashboard-routing.module';
 
 import { DashboardPage } from './dashboard.page';
 
+import { NgChartsModule } from 'ng2-charts';
+import { PipesModule } from '../Pipes/pipes.module';
+
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    DashboardPageRoutingModule
+    DashboardPageRoutingModule,
+    PipesModule,
+    NgChartsModule
   ],
   declarations: [DashboardPage]
 })

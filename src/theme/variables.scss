@@ -270,16 +270,14 @@ ion-loading.login-custom {
 }
 
 //Modal asesores
-.ion-modal-ases {
-  --height: 75%;
-  --width: 90%;
-  --border-radius: 16px;
-  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
 
 .ion-modal-ases::part(backdrop) {
   background: rgb(37, 38, 38);
   opacity: 1;
+}
+
+ion-fab-button{
+  --background: var(--ion-color-darkmain);
 }
 
 //Action sheet eliminar
@@ -304,4 +302,165 @@ ion-accordion-group{
           // color: red;
       }
   }
+}
+
+// Ion ran  
+ion-range::part(tick) {
+  background: #132634;
+}
+
+ion-range::part(tick-active) {
+  background: #698192;
+}
+
+ion-range::part(pin) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--ion-color-darkmain);
+  color: #fff;
+
+  border-radius: 50%;
+  transform: scale(1.01);
+
+  top: -10px;
+
+  min-width: 28px;
+  height: 28px;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+ion-range::part(pin)::before {
+  content: none;
+}
+
+ion-range::part(knob) {
+  background: #203d51;
+}
+
+ion-range::part(bar) {
+  background: #132634;
+}
+
+ion-range::part(bar-active) {
+  background: #698192;
+}
+
+
+//// KETBOARD
+/* filepath: c:\Users\ricardoc\Desktop\FIA\fia-frontend-app\src\app\prestamos\prestamos.page.scss */
+.custom-keyboard-container {
+  max-width: 350px;
+  margin: 0 auto;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.keyboard-display {
+  width: 100%;
+  margin-bottom: 12px;
+}
+.keyboard-input {
+  width: 100%;
+  font-size: 3rem;
+  text-align: center;
+  padding: 8px 12px;
+  border: none;
+  // background: #f4f4f4;
+  border-radius: 8px;
+}
+.keyboard-rows {
+  width: 100%;
+}
+.keyboard-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.keyboard-btn {
+  flex: 1 1 0;
+  margin: 0 4px;
+  padding: 16px 0;
+  font-size: 1.3rem;
+  border: none;
+  border-radius: 8px;
+  background: #e0e0e0;
+  color: #222;
+  transition: background 0.2s;
+}
+.keyboard-btn:active {
+  background: #cacaca;
+}
+.keyboard-btn-del {
+  color: #d32f2f;
+  background: #ffeaea;
+}
+@media (max-width: 500px) {
+  .custom-keyboard-container {
+    max-width: 100vw;
+    padding: 6px 0;
+  }
+  .keyboard-input {
+    font-size: 2rem;
+  }
+  .keyboard-btn {
+    padding: 12px 0;
+    font-size: 1.1rem;
+  }
+}
+
+
+//CLIENTES PAGE - SCROLL HORIZONTAL
+.horizontal-scroll-container {
+  display: flex;
+  /* or inline-flex */
+  overflow-x: auto;
+  white-space: nowrap;
+  /* Prevents content from wrapping to the next line */
+  -webkit-overflow-scrolling: touch;
+  /* Improves scrolling performance on iOS */
+}
+
+/* Optional: Style for ion-col within the horizontal scroll */
+.horizontal-scroll-container ion-col {
+  flex-shrink: 0;
+  /* Prevents columns from shrinking to fit the container */
+}
+
+/* filepath: c:\Users\ricardoc\Desktop\FIA\fia-frontend-app\src\global.scss */
+.swiper-thumbs-wrapper {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 8px 0;
+  background: #fff;
+  border-top: 1px solid #eee;
+  scrollbar-width: thin;
+  scrollbar-color: #CACACA #f4f5f8;
+}
+
+.swiper-thumbs-wrapper swiper-container {
+  min-width: 0;
+  width: 100%;
+}
+
+.swiper-thumbs-wrapper swiper-slide {
+  display: inline-block;
+  width: 70px !important;
+  height: 90px !important;
+  margin: 0 5px;
+  border-radius: 8px;
+  border: 2px solid #eee;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.swiper-thumbs-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
 }

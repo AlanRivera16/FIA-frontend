@@ -1,7 +1,64 @@
 <div class="ion-page">
-  
+
+  <ion-header class="ion-no-border" style="background-color: var(--ion-color-light) !important;">
+      <ion-toolbar style="padding: 16px 20px 16px 10px;">
+        <!-- <ion-label style="color: white;">
+          <h2 style="font-weight: bold;">Bienvenido</h2>
+          <h1 style="font-weight: bold;">Administrador</h1>
+        </ion-label> -->
+        <ion-button style="height: 50px;" size="small" fill="clear" shape="round" slot="end" color="darkmain" (click)="openNotificacionesModal()">
+          <ion-icon style="font-size: 24px;" color="light" name="notifications-outline" aria-hidden="true"></ion-icon>
+          <div class="unread-indicator" *ngIf="tieneNotificacionesPendientes > 0"></div>
+        </ion-button>
+        <ion-icon style="font-size: 24px; color: white; margin-left: 12px;" slot="end" name="settings-outline" (click)="setOpenSettings(true)"></ion-icon>
+        <ion-item slot="start" lines="none">
+          <ion-avatar slot="start" (click)="openModal()" *ngIf="srcImageName(dataUsuario?.evidencia_aval, 'foto-perfil') as image">
+            <ion-img [src]="image.url"></ion-img>
+          </ion-avatar>
+          <ion-label color="light">
+            <h2>Hola, Fabiola</h2>
+            <p class="color-light">Bienvenida a tu Wallet</p>
+          </ion-label>
+        </ion-item>
+      </ion-toolbar>
+      <ion-toolbar style="padding: 16px 0px 32px" class="toolbar-radius" (click)="setOpenSettings(true)">
+        <ion-label>
+          <ion-text color="light" style="text-align: center;">
+            <p>Tu saldo</p>
+            <h1 style="font-size: 35px;">$ {{dataWallet?.saldo | moneyTransform}}.00 </h1>
+          </ion-text>
+        </ion-label>
+      </ion-toolbar>
+      <ion-icon class="power-icon" name="power" color="medium" size="large" *ngIf="!dataWallet?.activa" (click)="setOpenSettings(true)"></ion-icon>
+    </ion-header>
+
   <ion-content>
-    <!-- <ion-row class="ion-padding">
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
+    <ion-grid>
+      <ion-row class="ion-justify-content-around ion-padding">
+        <ion-col class="col-custom">
+          <img class="" src="../../assets/🦆 icon _user octagon_.svg" width="40px" height="40px" />
+          <ion-text>
+          <p style="font-size: 9px; font-weight:bold; margin-bottom: 4px;">Socios activos</p>
+          <p style="font-size: 16px; font-weight:bold; margin: 0;">{{asesores.length}}</p>
+          </ion-text>
+        </ion-col>
+        <ion-col class="col-custom">
+          <img class="" src="../../assets/🦆 icon _home trend down_.svg" width="40px" height="40px" />
+          <p style="font-size: 9px; font-weight:bold; margin-bottom: 4px;">Clientes baja</p>
+          <p style="font-size: 16px; font-weight:bold; margin: 0;">{{clientes_baja.length}}</p>
+        </ion-col>
+        <ion-col class="col-custom">
+          <img class="" src="../../assets/🦆 icon _money send_.svg" width="40px" height="40px" />
+          <p style="font-size: 9px; font-weight:bold; margin-bottom: 4px;">Prestamos Act</p>
+          <p style="font-size: 16px; font-weight:bold; margin: 0;">{{prestamos.length}}</p>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <!-- <ion-row class="ion-padding modal-content">
       <ion-col size="7" style="align-items: left; justify-content: left;">
         <h5 style="font-size: 16px; font-weight: bold; color:white;">Bienvenido</h5>
         <h2 style="font-size: 22px; font-weight: bold; margin: 0; color:white;">Administrador</h2>
@@ -18,26 +75,64 @@
       </ion-col>
     </ion-row> -->
 
-    <ion-header class="ion-no-border ion-padding">
-      <ion-toolbar color="darkmain">
-        <ion-label style="color: white;">
-          <h2 style="font-weight: bold;">Bienvenido</h2>
-          <h1 style="font-weight: bold;">Administrador</h1>
-        </ion-label>
-        <ion-icon style="font-size: 24px; color: white;" slot="end" name="notifications-outline"></ion-icon>
-        <ion-item slot="end" lines="none">
-          <ion-avatar slot="end" (click)="openModal()">
-            <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
-          </ion-avatar>
-        </ion-item>
-      </ion-toolbar>
-    </ion-header>
 
-    <div class="ion-padding modal-content">
-      <h5 style="font-size: 16px; font-weight: bold; ">Actividad</h5>
+    <div class="ion-padding">
+      <div class="" style="display: flex; align-items: center; justify-content: space-between; margin: 0px 10px;">
+        <h5 style="font-size: 16px; font-weight: bold; ">Movimientos</h5>
+        <ion-icon name="filter" [ngClass]="{'my-ion-icon-actived' : isFiltrado == true}" class="my-ion-icon" (click)="setOpenFilter(true)"></ion-icon>
+      </div>
+      <ion-list style="background: transparent;">
+        <!-- <ion-list-header>
+          <ion-label style="font-weight: bold;" color="medium">Hace 1 semana</ion-label>
+        </ion-list-header>
+        <ion-item *ngFor="let m of dataWallet?.movimientos" lines='none' class="my-item" (click)="setViewMov(true, m)">
+          <ion-icon *ngIf="m.tipo==='egreso'" slot="start" name="arrow-down" class="my-ion-icon"></ion-icon>
+          <ion-icon *ngIf="m.tipo==='ingreso'" slot="start" name="arrow-up" class="my-ion-icon"></ion-icon>
+          <ion-label *ngIf="m.id_asesor">
+            <h2 style="font-weight: bold;">{{m.id_asesor?.nombre}}</h2>
+            <p>Prestamo autorizado</p>
+          </ion-label>
+          <ion-label *ngIf="!m.id_asesor">
+            <h2 style="font-weight: bold;">Tu movimiento</h2>
+            <p>Movimiento interno</p>
+          </ion-label>
+          <ion-label slot="end">
+            <h1 style="margin-right: 15px; font-size: 22px;"><span>{{m.tipo==='egreso'? '-' : m.tipo==='ingreso'? '+' : ''}} </span> ${{m.monto | moneyTransform}}</h1>
+          </ion-label>
+        </ion-item> -->
+        <ng-container *ngFor="let ff of mainListFiltrados">
+          <ion-list-header >
+            <ion-label style="font-weight: bold;" color="medium">{{ff.fecha | date: 'MMMM d' | uppercase}}</ion-label>
+          </ion-list-header>
+          <ion-item *ngFor="let m of ff?.movimientos" lines='none' class="my-item" (click)="setViewMov(true, m)">
+            <ion-icon *ngIf="m.tipo==='egreso'" slot="start" name="arrow-down" class="my-ion-icon"></ion-icon>
+            <ion-icon *ngIf="m.tipo==='ingreso'" slot="start" name="arrow-up" class="my-ion-icon"></ion-icon>
+            <ion-label *ngIf="m.id_asesor">
+              <h2 style="font-weight: bold;">{{m.id_asesor?.nombre}}</h2>
+              <p>Prestamo autorizado</p>
+            </ion-label>
+            <ion-label *ngIf="!m.id_asesor">
+              <h2 style="font-weight: bold;">Tu movimiento</h2>
+              <p>Movimiento interno</p>
+            </ion-label>
+            <ion-label slot="end">
+              <h1 style="margin-right: 15px; font-size: 22px;"><span>{{m.tipo==='egreso'? '-' : m.tipo==='ingreso'? '+' : ''}}
+                </span> ${{m.monto | moneyTransform}}</h1>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+      </ion-list>
+      <div class="" style="display: flex; align-items: center; justify-content: center; margin: 0px 10px 30px;">
+        <ion-text *ngIf="!isFiltrado" (click)="setOpenMovimientos(true)">
+          <h5 style="font-size: 16px; font-weight: bold; text-align: center;">Ver todos</h5>
+        </ion-text>
+        <ion-text *ngIf="isFiltrado" (click)="mostrarMasMovimientos()">
+          <h5 style="font-size: 16px; font-weight: bold; text-align: center;">Mostras más </h5>
+        </ion-text>
+      </div>
 
       <ion-grid>
-        <ion-row class="ion-justify-content-around">
+        <!-- <ion-row class="ion-justify-content-around">
           <ion-col class="actividad-item ion-col-content" size="3">
             <img class="" src="../../assets/🦆 icon _user octagon_.svg" width="40px" height="40px" />
             <p style="font-size: 9px; font-weight:bold; margin-bottom: 4px;">Socios activos</p>
@@ -56,11 +151,12 @@
         </ion-row>
 
         <ion-row class="ion-justify-content-around" style="margin-top: 5%;">
-          <ion-col class="actividad-saldo" size="11" >
+          <ion-col class="actividad-saldo" size="11">
             <div class="" style="display: flex; align-items: center; justify-content: start;">
-              <img style="margin-left: 8px;" src="../../assets/🦆 icon _money send_ solid.svg" width="32px" height="32px" />
+              <img style="margin-left: 8px;" src="../../assets/🦆 icon _money send_ solid.svg" width="32px"
+                height="32px" />
               <div style="margin-left: 10%;">
-                <p style="margin: 0;"><strong>$</strong>23,380.00 - <strong>MX</strong></p>
+                <p style="margin: 0;"><strong>$</strong>{{dataWallet?.saldo | moneyTransform}} - <strong>MX</strong></p>
                 <small>Total de saldo asignado</small>
               </div>
             </div>
@@ -69,7 +165,27 @@
 
         <ion-row class="ion-justify-content-around" style="margin-top: 5%;">
           <ion-col class="actividad-saldo ion-col-content" size="11" style="height: 250px;"> Chart.js </ion-col>
-        </ion-row>
+        </ion-row> -->
+        <!-- <div style="display: block">
+          <canvas baseChart 
+            [data]="chartData" 
+            [options]="chartOptions" 
+            chartType="bar">
+          </canvas>
+        </div> -->
+        <div class="chart-container">
+          
+          <canvas baseChart [data]="barChartData" [options]="barChartOptions" chartType="bar">
+          </canvas>
+        </div>
+
+        <!-- Gráfica circular -->
+        <!-- <canvas baseChart [data]="pieChartData" [options]="pieChartOptions">
+        </canvas> -->
+
+        <!-- Línea de tiempo -->
+        <!-- <canvas baseChart [data]="lineChartData" chartType="line">
+        </canvas> -->
 
       </ion-grid>
 
@@ -133,5 +249,199 @@
     </ion-modal> -->
   </ion-content>
 
-  
+  <ion-modal [isOpen]="verMovimientos">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title color="light">Movimientos</ion-title>
+          <ion-buttons slot="start">
+            <ion-button color="light" (click)="setOpenMovimientos(false)"><ion-icon name="arrow-back-outline" size="large"></ion-icon></ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding" style="--background: #ffff">
+        <ion-list style="background: transparent;">
+          <ng-container *ngFor="let ff of movimientosFiltrados">
+            <ion-list-header>
+              <ion-label style="font-weight: bold;" color="medium">{{ff.fecha | date: 'MMMM d' | uppercase}}</ion-label>
+            </ion-list-header>
+            <ion-item *ngFor="let m of ff?.movimientos" lines='full' (click)="setViewMov(true,m)">
+              <ion-label *ngIf="m.id_asesor">
+                <h2 style="font-weight: bold;">{{m.id_asesor?.nombre}}</h2>
+                <p>Prestamo autorizado</p>
+              </ion-label>
+              <ion-label *ngIf="!m.id_asesor">
+                <h2 style="font-weight: bold;">Tu movimiento</h2>
+                <p>Movimiento interno</p>
+              </ion-label>
+              <ion-label slot="end">
+                <h1 style="margin-right: 15px; font-size: 22px;">
+                  <span>{{m.tipo==='egreso'? '-' : m.tipo==='ingreso'? '+' : ''}}</span> ${{m.monto | moneyTransform}}</h1>
+              </ion-label>
+            </ion-item>
+          </ng-container>
+        </ion-list>
+        <ion-infinite-scroll (ionInfinite)="generarMovimientos($event)">
+          <ion-infinite-scroll-content></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="viewMovimiento">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar style="--background: #ffff">
+          <ion-icon size="large" style="margin-right: 16px;" (click)="viewMovimiento=false" slot="end" name="close"></ion-icon>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding" style="--background: #ffff">
+        
+        <ion-item lines="none" *ngIf="movimientoInfo.id_asesor">
+          <ion-avatar slot="start" *ngIf="srcImageName(movimientoInfo?.id_asesor.evidencia_aval, 'foto-perfil') as image">
+            <ion-img [src]="image.url"></ion-img>
+          </ion-avatar>
+          <ion-label>
+            <h1>{{movimientoInfo.id_asesor?.nombre}}</h1>
+            <p>{{movimientoInfo.id_asesor?.role | titlecase}}/Prestamista</p>
+          </ion-label>
+        </ion-item>
+        <ion-item lines="none" *ngIf="!movimientoInfo.id_asesor">
+          <ion-avatar slot="start">
+            <ion-img *ngIf="srcImageName(dataUsuario?.evidencia_aval, 'foto-perfil') as image" [src]="image.url"></ion-img>
+          </ion-avatar>
+          <ion-label>
+            <h1>{{dataUsuario.nombre}} (Tú)</h1>
+            <p>{{dataUsuario.role | titlecase}}</p>
+          </ion-label>
+        </ion-item>
+        <div style="margin-left: 15px; margin-top: 15px;">
+          <ion-label>
+            <h1 style="font-size: 34px;"><span>{{movimientoInfo.tipo==='egreso'? '-' : movimientoInfo.tipo==='ingreso'? '+' : ''}} </span> ${{movimientoInfo.monto | moneyTransform}}</h1>
+            <p style="margin-top: 15px;"><strong>{{movimientoInfo.fecha | date: 'EEEE, MMMM d, y'}}. <span>{{movimientoInfo.fecha | date: 'h:mm a'}}</span></strong></p>
+          </ion-label>
+        </div>
+        <section>
+          <p style="margin-top: 50px; margin-inline-start: 14px;"><strong>Acciones</strong></p>
+          <ion-grid>
+            <ion-row class="ion-justify-content-between">
+              <ion-col class="col-custom-mov" *ngIf="movimientoInfo.id_prestamo" (click)="goToPrestamo(movimientoInfo.id_prestamo?._id)">
+                <ion-icon name="cash" size="large"></ion-icon>
+                <ion-text>
+                  <p style="font-weight:bold; margin-bottom: 4px;">Ver prestamo</p>
+                </ion-text>
+              </ion-col>
+              <ion-col class="col-custom-mov">
+                <ion-icon name="alert-circle" size="large"></ion-icon>
+                <p style="font-weight:bold; margin-bottom: 4px;">Reportar</p>
+              </ion-col>
+              <ion-col (click)="toggleGuardado(movimientoInfo)" [ngClass]="{'darkmain' : guardados.includes(movimientoInfo._id), 'col-custom-mov' : !guardados.includes(movimientoInfo._id)}">
+                <!-- <ion-icon name="bookmark" size="large"></ion-icon> -->
+                 <ion-icon name="bookmark" [color]="guardados.includes(movimientoInfo._id) ? 'light' : 'medium'" size="large"></ion-icon>
+                <p style="font-weight:bold; margin-bottom: 4px;">{{guardados.includes(movimientoInfo._id) ? 'Guardado' : 'Guardar'}}</p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </section>
+        <section style="margin-top: 20px;">
+          <ion-list style="background: transparent;">
+            <ion-list-header>
+              <ion-label><ion-text><h2 style="font-weight: bold;">Detalles</h2></ion-text></ion-label>
+            </ion-list-header>
+            <ion-item lines="none">
+              <ion-label color="medium"><h4 style="font-weight: bold;">Tipo de movimiento</h4></ion-label>
+              <ion-label style="text-align: end;"><h4>{{movimientoInfo.tipo | titlecase}}</h4></ion-label>
+            </ion-item>
+            <ion-item lines="none" *ngIf="movimientoInfo.id_cliente">
+              <ion-label color="medium"><h4 style="font-weight: bold;">Cliente asignado</h4></ion-label>
+              <ion-label style="text-align: end;"><h4>{{movimientoInfo.id_cliente?.nombre}}</h4></ion-label>
+            </ion-item>
+            <ion-item lines="none" style="display: block;">
+              <ion-label color="medium"><h4 style="font-weight: bold;">Descripcion</h4></ion-label>
+              <ion-label style="text-align: end;"><h4>{{movimientoInfo.descripcion}}</h4></ion-label>
+            </ion-item>
+          </ion-list>
+        </section>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="settingsWallet" 
+    [initialBreakpoint]="1" 
+    [breakpoints]="[0, 1]"
+    (ionModalDidDismiss)="settingsWallet=false" 
+    style="--height: auto;">
+    <ng-template>
+      <div class="block">
+        <ion-list style="background: transparent;">
+          <ion-list-header>
+            <ion-label>Opciones</ion-label>
+          </ion-list-header>
+          <ion-item button="true" lines="none" class="my-item" (click)="activarDesactivarWallet()" [ngClass]="{'activa': dataWallet.activa}">
+            <ion-icon name="power" color="dataWallet.activa? 'darkmain':'medium'"></ion-icon>
+            <ion-label style="margin-left: 15px;">{{dataWallet.activa? 'Apagar cartera' : 'Encender cartera'}}</ion-label>
+          </ion-item>
+          <ion-item button="true" lines="none" class="my-item" (click)="depositarWallet()">
+            <ion-icon name="wallet"></ion-icon>
+            <ion-label style="margin-left: 15px;">Agregar fondos a cartera</ion-label>
+          </ion-item>
+          <ion-item button="true" lines="none" class="my-item" (click)="retirarWallet()">
+            <ion-icon name="cash"></ion-icon>
+            <ion-label style="margin-left: 15px;">Hacer retiro</ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="filterModal" 
+    [initialBreakpoint]="1" 
+    [breakpoints]="[0, 1]"
+    (ionModalDidDismiss)="filterModal=false" 
+    style="--height: auto;">
+    <ng-template>
+      <div class="block-filter">
+        <ion-list>
+          <ion-list-header>
+            <ion-label>Opciones</ion-label>
+          </ion-list-header>
+          <ion-grid>
+            <ion-row>
+              <ion-col style="border-right: solid 1px gray;">
+                <ion-item lines="none" [ngClass]="{'border-date': fechaInicio != null && fechaInicio != ''}">
+                  <label>
+                    Fecha de inicio
+                    <ion-input [(ngModel)]="fechaInicio" type="date" placeholder="Enter company name"></ion-input>
+                  </label>
+                </ion-item>
+                 <ion-item lines="none" [ngClass]="{'border-date': fechaFin != null && fechaFin != ''}">
+                    <label>
+                      Fecha final
+                      <ion-input [(ngModel)]="fechaFin" type="date" placeholder="Enter company name"></ion-input>
+                    </label>
+                 </ion-item>
+              </ion-col>
+              <ion-col style="border-left: solid 1px gray;">
+                <ion-item lines="none">
+                  <ion-checkbox [(ngModel)]="filtroIngresos" ion-label="" justify="start"></ion-checkbox>
+                  <ion-label style="margin-left: 15px;">Ingresos</ion-label>
+                </ion-item>
+                <ion-item lines="none">
+                  <ion-checkbox [(ngModel)]="filtroEgresos" ion-label="" justify="start"></ion-checkbox>
+                  <ion-label style="margin-left: 15px;">Egresos</ion-label>
+                </ion-item>
+                <ion-item lines="none">
+                  <ion-checkbox justify="start"></ion-checkbox>
+                  <ion-label style="margin-left: 15px;">Otros</ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+          <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+            <ion-button expand="block" fill="clear" color="darkmain" (click)="limpiarFiltro()">Limpiar filtro</ion-button>
+            <ion-button expand="block" color="darkmain" (click)="filtroFromBack(true)">Filtrar</ion-button>
+          </div>
+        </ion-list>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+
 </div>

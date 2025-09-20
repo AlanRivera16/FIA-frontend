@@ -1,0 +1,62 @@
+ion-searchbar {
+    // --background: #e0e0e0;
+    --background: var(--ion-color-light);
+    --color: rgb(98, 98, 98);
+    --placeholder-color: rgb(98, 98, 98);
+    --icon-color: rgb(98, 98, 98);
+    --clear-button-color: rgb(98, 98, 98);
+    --box-shadow:none;
+    --border-radius: 20px;
+    margin-top: 2%;
+    margin-bottom: 10%;
+}
+
+ion-item{
+    --border-radius: 10px 10px 10px 10px;
+    margin: 5px 0px;
+}
+
+// ion-avatar {
+//     width: 30px; /* Set desired width */
+//     height: 30px; /* Set desired height */
+// }
+
+ion-avatar {
+    margin-bottom: 0px;
+    margin-right: 10px;
+    img {
+        width: 30px; /* Set desired width */
+        height: 30px; /* Set desired height */
+    }
+}
+
+ion-radio::part(container) {
+  width: 25px;
+  height: 25px;
+
+  border-radius: 8px;
+  border: 2px solid #ddd;
+}
+
+ion-radio::part(mark) {
+  background: none;
+  transition: none;
+  transform: none;
+  border-radius: 0;
+}
+
+ion-radio.radio-checked::part(container) {
+  background: #132634;
+  border-color: transparent;
+}
+
+ion-radio.radio-checked::part(mark) {
+  width: 6px;
+  height: 10px;
+
+  border-width: 0px 2px 2px 0px;
+  border-style: solid;
+  border-color: #fff;
+
+  transform: rotate(45deg);
+}

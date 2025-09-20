@@ -44,8 +44,12 @@ export class LoginPage implements OnInit {
   async ngOnInit() {
     this.mailFocuse = true
     this.data = await this.loginService.getData(STORAGE_KEY);
-    if(this.data){
+    console.log(this.data?.role);
+    if(this.data && this.data?.role == 'ADMINISTRADOR'){
+      console.log(this.data);
       this.navCtrl.navigateRoot(['/home/dashboard']);
+    }else if(this.data && this.data?.role == 'ASESOR'){
+      this.navCtrl.navigateRoot(['/home/prestamos']);
     }    
   }
 

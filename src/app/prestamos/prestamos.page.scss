@@ -218,53 +218,22 @@ ion-select {
   }
 
 
-
-// Ion ran  
-ion-range::part(tick) {
-  background: #132634;
+.keyboardCol{
+  height: 70px;
+}
+.keyboardCol ion-button{
+  width: 100%;
+  height: 100%;
+  color: var(--ion-color-dark);
+}
+.block {
+  width: 100%;
+  height: 500px;
+  // display: flex;
+  // align-items: center;
+  // justify-content: center;
 }
 
-ion-range::part(tick-active) {
-  background: #698192;
-}
-
-ion-range::part(pin) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  background: var(--ion-color-darkmain);
-  color: #fff;
-
-  border-radius: 50%;
-  transform: scale(1.01);
-
-  top: -10px;
-
-  min-width: 28px;
-  height: 28px;
-  transition: transform 120ms ease, background 120ms ease;
-}
-
-ion-range::part(pin)::before {
-  content: none;
-}
-
-ion-range::part(knob) {
-  background: #203d51;
-}
-
-ion-range::part(bar) {
-  background: #132634;
-}
-
-ion-range::part(bar-active) {
-  background: #698192;
-}
-
-.item-border::part(native){
-  border-radius: 8px;
-  border-left: solid 8px #0B5970;
-  margin-bottom: 11px;
-  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25); //( horizontal"x", vertical"y", blur, spread, color)
+.fotos-gallery{
+  --ion-grid-columns: 3;
 }

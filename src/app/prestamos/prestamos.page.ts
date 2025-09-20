@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, LOCALE_ID, Inject, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, LOCALE_ID, Inject, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
 import { ModalController, IonModal, AlertController, AlertInput, ToastController, RangeCustomEvent, IonAccordionGroup } from '@ionic/angular';
 import { PrestamosService } from '../services/prestamo/prestamos.service';
 import { Asesor, Cliente, Item } from '../types'
-import { LoginService } from '../services/login/login.service';
+import { LocalFile, LoginService } from '../services/login/login.service';
 import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import Swiper from 'swiper';
@@ -11,6 +11,7 @@ import { HistorialService } from '../services/historial/historial.service';
 import { UsuariosService } from '../services/usuarios/usuarios.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
+import { NotificModalComponent } from '../notific-modal/notific-modal.component';
 
 
 const STORAGE_KEY = 'login-data-user'
@@ -38,19 +39,27 @@ export class PrestamosPage implements OnInit {
   // @ViewChild('formDirective') formDirective : FormGroupDirective;
   @ViewChild('formDirective') formDirective!: NgForm;
   @ViewChild('swiper')
+  
   swiperRef: ElementRef | undefined;
   swiper?:Swiper
+  thumbsSwiper: any;
 
   @ViewChild('accordionGroup') accordionGroup!: IonAccordionGroup;
-
+  @ViewChildren('accordionItem') accordionItems!: QueryList<ElementRef>;
 
   pinFormatter(value: number) {
     return `${value}0K`;
   }
 
+  images: LocalFile[] = [];
+  
+  toZoom = false;
+  zoomImage = '';
+  zoomImageName = '';
+
   dataUser:any = []
 
-  public progress = 0.5; //Regla de tres para porcentaje de barra (aprobados)*(1)/(total de prestamos) || (aprobados)/(total de prestamos) 
+  public progress = 0.5; //Regla de tres para porcentaje de barra (aprobados)*(1)/(total de prestamos) || (aprobados)/(total de prestamos)
   openModalInfo = false
   isModalOpenAdd = false
   isModalClientes = false
@@ -58,24 +67,24 @@ export class PrestamosPage implements OnInit {
 
   //SEGMENT
   segmentValue = 'tabla'
-  
+
   //FORM
   rollModal = ''
   editedAsesor:any = {};
   formInputPOST: FormGroup;
   formSubmit = false;
   postingPrestamo = false
-
+  
   noPaymentChange = true
   canDismiss= true
   backdropDismiss = true
   updatingPago = false
-
+  
   accept_reject = false
-
+  
   textAreaFocused: number | null = null;
   bonoCheck: boolean[] = []
-
+  
   // FILTRO
   selectedEstados: string[] = [];
   filters = {
@@ -86,6 +95,17 @@ export class PrestamosPage implements OnInit {
     tipoPago: '' // 'mensual' o 'semanal'
   }
 
+  //Modal comprobantes 
+  isOpenModalComp = false;
+  esperandoPickPictures = false;
+  pickedPicturesEsperadas = 0;
+  sendingComprobantes = false;
+  editComprobantePrestamo = false;
+  pagoParaComprobante: any = {comprobantes: []};
+
+  selectedPhotoForDelete: any = [];
+  eliminandoPhotos = false;
+  
   prestamos:any = [
     {
       titulo:"Aceptado",
@@ -108,14 +128,24 @@ export class PrestamosPage implements OnInit {
   modalInfo:any = {}
   copyData:any = {}
 
-  selectedClientesText = 'No se ha asignado cliente';
+  selectedClientesText = '';
   selectedClientes: string[] = [];
-  selectedAsesoresText = 'No se ha asignado asesor';
+  selectedAsesoresText = '';
   selectedAsesores: string[] = [];
   clientes: Cliente[] = [];
   asesores: Asesor[] = [];
 
+  selectedClienteObj:any = {};
+  selectedAsesorObj:any = {};
+  
   modalAccordionIndex: string | null = null;
+  modalAccordionValue: string[] = [];
+  initialBreakpoint = 0.6
+
+  openKeyboard = false;
+  keyboardValue: number = 0;
+  private delPressTimer: any = null;
+
 
   constructor(
     private modalCtrl: ModalController,
@@ -130,7 +160,7 @@ export class PrestamosPage implements OnInit {
     private router: Router,
     private changeDetector: ChangeDetectorRef,
     @Inject(LOCALE_ID) public locale: string, // Variable local para configurar dates en Español
-  ) { 
+  ) {
     this.formInputPOST = this.formPrest.group({
       'saldo' : new FormControl("", Validators.required),
       'periodo' :  new FormControl("", Validators.required),
@@ -141,7 +171,7 @@ export class PrestamosPage implements OnInit {
   }
 
   checarBono(e:any, pago:any){
-    this.noPaymentChange = false  
+    this.noPaymentChange = false
     this.canDismiss =  false
     this.backdropDismiss = false
     if(e.target.value){
@@ -153,7 +183,7 @@ export class PrestamosPage implements OnInit {
   }
   checarNotas(){
     console.log('AHHH')
-    this.noPaymentChange = false  
+    this.noPaymentChange = false
     this.canDismiss =  false
     this.backdropDismiss = false
   }
@@ -168,7 +198,7 @@ export class PrestamosPage implements OnInit {
   // }
   swiperSlideChanged(e:any){
     const swiper = this.swiperRef?.nativeElement.swiper.activeIndex
-    // console.log('slide:', swiper) 
+    // console.log('slide:', swiper)
     swiper == 0 ? this.segmentValue = 'tabla' : this.segmentValue = 'historial';
     // console.log(e)
   }
@@ -180,90 +210,82 @@ export class PrestamosPage implements OnInit {
     modal.present();
   }
 
-  showMore = false; 
+  async openNotificacionesModal() {
+    const modal = await this.modalCtrl.create({
+      component: NotificModalComponent,
+    });
+    modal.present();
+  }
+
+  showMore = false;
   toggleShowMore() {
     this.showMore = !this.showMore; // Toggle the value of showMore
   }
 
   async submitAddPrestamo(){
-    this.formSubmit = true
+    this.formSubmit = true;
     console.log(this.formInputPOST.value)
-    let estadoCliente = ""
-    await this.historialService.getHistorialByIdUser(this.formInputPOST.value.id_cliente).subscribe((res: any) => {
-      estadoCliente = res.estado_general
-      console.log(estadoCliente)
+    if (!this.formInputPOST.valid) {
+      console.log("Formulario no válido");
+      return;
+    }
+    if(this.formInputPOST.value.saldo <= 0){
+      console.log("El saldo debe ser mayor a 0");
+      return;
+    }
+    if(this.dataUser && this.dataUser.role == 'ASESOR'){
+      this.formInputPOST.patchValue({'id_asesor': this.dataUser._id})
+    }
+    if (this.formInputPOST.value.periodo == 14 && this.formInputPOST.value.dia_pago == "") {
+      console.log("Falta día de pago para préstamo semanal");
+      return;
+    }
+    this.formInputPOST.value.dia_pago == "" ? delete this.formInputPOST.value.dia_pago : ''; // Eliminar dia_pago si está vacío (si es un prestamo mensual)
+    this.postingPrestamo = true;
 
-      if(! this.formInputPOST.valid){
-        console.log("not valid"); return
-      }else if(this.formInputPOST.valid && this.formInputPOST.value.periodo == 14 && this.formInputPOST.value.dia_pago == ""){
-        console.log("not valid"); return
-      }
-      else{
-        console.log("valid")
-        this.formInputPOST.value.dia_pago == "" ? delete this.formInputPOST.value.dia_pago : ''
-        this.postingPrestamo = true
-  
-        setTimeout(() => {
-          this.prestService.postPrestamos(this.formInputPOST.value).subscribe((res: any) => {
-            // if estadoCliente == Malo send the loan to pendientes
-            if(estadoCliente == "Malo"){
-              this.addItemPendientes(res)
-              this.postingPrestamo = false
-              this.isModalOpenAdd = false
-              console.log(res)
-              this.presentToast('top', 'El estado general del cliente debe revisarse antes de aceptar un cliente',5500)
-            }else if (estadoCliente == 'Excelente' || 'Bueno' || 'Regular'){
-              const today = new Date().toLocaleDateString('en-CA')
-              console.log(today)
-              let body = res.dia_pago? {'fecha_prestamo': today, 'dia_pago':res.dia_pago} : {'fecha_prestamo': today}
-              console.log(body)
-              this.prestService.aceptarPrestamo(res._id, body).subscribe((val:any)=>{
-                this.addItemAceptados(val)
-                this.postingPrestamo = false
-                this.isModalOpenAdd = false
-                console.log(val)
-                this.presentToast('bottom', 'Se ha generado la tabla de amortización exitosamente', 4500)
-              })
-            }
-            // else send the loan to aceptados
-          })
-        }, 1500);
-      }
-    });
-    
+    const today = new Date().toLocaleDateString('en-CA'); // Fecha de hoy para que funcione correctamente en el backend
+    const body = {
+      ...this.formInputPOST.value,
+      fecha_prestamo: today
+    };
+    setTimeout(() => {
+      this.prestService.postPrestamos(body).subscribe((res: any) => {
+        // El backend ya decide si es aceptado o pendiente
+        if (res.aceptado) {
+          this.addItemAceptados(res.prestamo);
+          this.presentToast('bottom', 'Se ha generado la tabla de amortización exitosamente', 4500);
+        } else {
+          this.addItemPendientes(res.prestamo);
+          this.presentToast('top', 'El estado general del cliente debe revisarse antes de aceptar un cliente', 5500);
+        }
+        this.postingPrestamo = false;
+        this.isModalOpenAdd = false;
+      }, (err: any) => {
+        console.log(err);
+        this.postingPrestamo = false;
+        this.presentToast('top', `${err.error.message}`, 5500);
+      });
+    }, 1500);
   }
   cancelSubmit(){
     this.formDirective?.resetForm();
+    this.selectedClienteObj = {};
+    this.selectedAsesorObj = {};
+    this.keyboardValue = 0;
     this.formSubmit = false
   }
 
-  async ngOnInit() {  
-    this.setAllData();
-    
-    this.route.queryParams.subscribe(params => {
-      if (params['id_prestamo']) {
-        // Espera a que los datos estén cargados
-        setTimeout(() => {
-          this.openPrestamoModalById(params['id_prestamo']);
-          console.log('Soy params de url:', params)
-          // Si viene index_pago, abre el accordion
-          if (params['index_pago'] !== undefined) {
-            this.modalAccordionIndex = params['index_pago']; // Guarda el índice del accordion
-            // setTimeout(() => {
-            //   this.toggleAccordion((params['index_pago']));
-            // }, 500); // Espera a que el modal esté abierto
-          }
-          // Elimina los params
-          this.router.navigate([], { queryParams: {}, replaceUrl: true });
-        }, 800);
-      } else if (params['post_prestamo']) {
-        console.log('Holaaaaaa');
-        setTimeout(() => {
-          this.setOpenAdd(true,'AGREGAR')
-          this.router.navigate([], { queryParams: {}, replaceUrl: true });
-          }, 500);
-        }
+  async ngOnInit() {
+    this.loginService.imagesPrestamos$.subscribe(images => {
+      this.images = images;
+      console.log('Imágenes de préstamos actualizadas:', this.images);
+
     });
+
+    await this.loginService.loadFilesEntity('prestamos');
+
+
+    this.setAllData();
   }
 
   openPrestamoModalById(idPrestamo: string) {
@@ -279,22 +301,31 @@ export class PrestamosPage implements OnInit {
   }
 
   toggleAccordion = (index: string) => {
-    //console.log('Ya me cliquearin soy inex: ' , index)
-    const nativeEl = this.accordionGroup;
-    nativeEl.value = index; // Cambia el valor del acordeón al índice proporcionado
+    // console.log('Ya me cliquearin soy inex: ' , index)
+    // const nativeEl = this.accordionGroup;
+    // nativeEl.value = index; // Cambia el valor del acordeón al índice proporcionado
+    this.modalAccordionValue = [index]
+    setTimeout(() => {
+      // Busca el elemento con el data-accordion-index igual al index
+      const accordionEl = document.querySelector(`[data-accordion-index="${index}"]`);
+    if (accordionEl) {
+      (accordionEl as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    }, 400); // Espera a que el DOM se actualice
   };
   accordionGroupChange = (ev: any) => {
     //console.log(ev.detail.value) // value es un array de los expandidos
+    this.modalAccordionValue = ev.detail.value;
   };
-  onModalPresented() {
-    this.changeDetector.detectChanges();
-    setTimeout(() => {
-      if (this.modalAccordionIndex !== null && this.accordionGroup) {
-        this.toggleAccordion(this.modalAccordionIndex!);
-        this.modalAccordionIndex = null;
-      }
-    }, 300);
-  }
+  // onModalPresented() {
+  //   this.changeDetector.detectChanges();
+  //   setTimeout(() => {
+  //     if (this.modalAccordionIndex !== null && this.accordionGroup) {
+  //       this.toggleAccordion(this.modalAccordionIndex!);
+  //       this.modalAccordionIndex = null;
+  //     }
+  //   }, 300);
+  // }
 
   handleRefresh(event:any) {
     setTimeout(() => {
@@ -302,35 +333,128 @@ export class PrestamosPage implements OnInit {
       event.target.complete();
     }, 2000);
   }
-
+  
   async setAllData(){
-    await this.prestService.getPrestamos().subscribe((res:any)=>{
-       console.log(res)
-
-      this.prestamos[0].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Aceptado'}))
-      this.prestamos[1].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Pendiente'}))
-      this.prestamos[2].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Rechazado'}))
-      this.prestamos[3].prestamos = res.filter(((ptms:any) => { return ptms.estado == 'Cerrado'}))
-      // console.log(this.prestamos);
-      this.results = [...this.prestamos]
-    })
-    await this.prestService.getClientes().subscribe((res:any)=>{
-      console.log('Clientes para buscar', res)
-      this.clientes = res
-    });
-    await this.usuerService.getAsesores().subscribe((res:any)=>{
-      console.log('Asesores para buscar', res)
-      this.asesores = res
-    });
     this.dataUser = await this.loginService.getData(STORAGE_KEY);
-    this.formInputPOST.patchValue({'id_asesor': this.dataUser._id})
-    // this.editedAsesor.id_asesor = this.dataUser._id
-    console.log(this.dataUser, this.formInputPOST.value)
-  }
+
+    if(this.dataUser && this.dataUser.role == 'ASESOR'){ //Si el user es asesor solo traigo sus clientes
+      console.log('Datos de usuario:', this.dataUser);
+      await this.prestService.getPrestamosByAsesor(this.dataUser._id).subscribe((res: any) => {
+        console.log('Prestamos de asesor', res)
+        
+        this.prestamos[0].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Aceptado' }))
+        this.prestamos[1].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Pendiente' }))
+        this.prestamos[2].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Rechazado' }))
+        this.prestamos[3].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Cerrado' }))
+        // console.log(this.prestamos);
+        this.results = [...this.prestamos]
+      });
+
+      await this.usuerService.getClientes(this.dataUser._id).subscribe((res:any)=>{
+        console.log('Clientes de asesor', res)
+        this.clientes = res
+
+        this.route.queryParams.subscribe(params => {
+          if (params['id_prestamo']) {
+            console.log('Solo abro el prestamo porque cliente me dijo')
+            this.initialBreakpoint = 1
+            // Espera a que los datos estén cargados
+            setTimeout(() => {
+              this.openPrestamoModalById(params['id_prestamo']);
+              console.log('Soy params de url:', params)
+              // Si viene index_pago, abre el accordion
+              if (params['index_pago'] !== undefined) {
+                setTimeout(() => {
+                  this.toggleAccordion((params['index_pago']));
+                  console.log('Abri el accordion del pago index:', (params['index_pago']))
+                }, 200);
+              }
+              // Elimina los params
+              this.router.navigate([], { queryParams: {}, replaceUrl: true });
+            }, 800);
+          } else if (params['post_prestamo']) {
+            console.log('Voy abrir el modal POST porque cliente me dijo')
+            setTimeout(() => {
+              this.setOpenAdd(true, 'AGREGAR')
+
+              this.formInputPOST.patchValue({ 'id_cliente': params['cliente_id'] }) // Guarda el ID del cliente seleccionado desde clientes page
+
+              // Busca el objeto completo del cliente
+              const clienteObj = res.find((c: any) => c._id === params['cliente_id']);
+              this.selectedClienteObj = clienteObj || {};
+              this.changeDetector.detectChanges();
+
+              this.router.navigate([], { queryParams: {}, replaceUrl: true });
+            }, 500);
+          }
+        });
+      });
+
+    }else if (this.dataUser && this.dataUser.role == 'ADMINISTRADOR'){ //De lo contrario traigo todos los clientes en general y tambien todos los asesores
+      await this.prestService.getPrestamos().subscribe((res: any) => {
+        console.log(res)
+
+        this.prestamos[0].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Aceptado' }))
+        this.prestamos[1].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Pendiente' }))
+        this.prestamos[2].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Rechazado' }))
+        this.prestamos[3].prestamos = res.filter(((ptms: any) => { return ptms.estado == 'Cerrado' }))
+        // console.log(this.prestamos);
+        this.results = [...this.prestamos]
+      })
+      
+      await this.prestService.getClientes().subscribe((res:any)=>{
+        console.log('Clientes para buscar', res)
+        this.clientes = res
+  
+        this.route.queryParams.subscribe(params => {
+          if (params['id_prestamo']) {
+            console.log('Solo abro el prestamo porque cliente me dijo')
+            this.initialBreakpoint = 1
+            // Espera a que los datos estén cargados
+            setTimeout(() => {
+              this.openPrestamoModalById(params['id_prestamo']);
+              console.log('Soy params de url:', params)
+              // Si viene index_pago, abre el accordion
+              if (params['index_pago'] !== undefined) {
+                // this.modalAccordionIndex = params['index_pago'] // Guarda el índice del accordion
+                // console.log('Voy a abrir el accordion del pago index:', this.modalAccordionIndex)
+                setTimeout(() => {
+                  this.toggleAccordion((params['index_pago']));
+                  console.log('Abri el accordion del pago index:', (params['index_pago']))
+                }, 200); // Espera a que el modal esté abierto
+              }
+              // Elimina los params
+              this.router.navigate([], { queryParams: {}, replaceUrl: true });
+            }, 800);
+          } else if (params['post_prestamo']) {
+            console.log('Voy abrir el modal POST porque cliente me dijo')
+            setTimeout(() => {
+              this.setOpenAdd(true, 'AGREGAR')
+  
+              this.formInputPOST.patchValue({ 'id_cliente': params['cliente_id'] }) // Guarda el ID del cliente seleccionado desde clientes page
+  
+              // Busca el objeto completo del cliente
+              const clienteObj = res.find((c: any) => c._id === params['cliente_id']);
+              this.selectedClienteObj = clienteObj || {};
+              this.changeDetector.detectChanges();
+  
+              this.router.navigate([], { queryParams: {}, replaceUrl: true });
+            }, 500);
+          }
+        });
+  
+      });
+      await this.usuerService.getAsesores().subscribe((res:any)=>{
+        console.log('Asesores para buscar', res)
+        this.asesores = res
+      });
+      console.log(this.dataUser, this.formInputPOST.value);
+    }
+    }
 
   setModalInfo(isOpen: boolean, data:any){
     this.openModalInfo = isOpen
-    this.bonoCheck = new Array(data.tabla_amortizacion.length).fill(false); 
+    this.bonoCheck = new Array(data.tabla_amortizacion.length).fill(false);
     const estados = this.setEstados(data.tabla_amortizacion);
     data.tabla_amortizacion = estados.array;
     //data.totalPagado = estados.totalPagado; //Pago total de cuotas pagadas
@@ -339,7 +463,7 @@ export class PrestamosPage implements OnInit {
     //data.totalPendiente = estados.totalPendiente; //Pagos que no se han pagado (multas y abonos malos)
     //data.multa = estados.multasArray;
     console.log()
-    
+
     if(isOpen){
       this.copyData = JSON.parse(JSON.stringify(data.tabla_amortizacion)) //Copia en estado base que nunca será modificada
       this.modalInfo = JSON.parse(JSON.stringify(data)) // Copia en estado base que sí puede ser modificada
@@ -387,7 +511,7 @@ export class PrestamosPage implements OnInit {
           }
         //console.log(saldo_pendiente)
       }
-      if (pago.estado_pago == 'No pagado' && pago.multa.monto_pendiente > 0) {
+      if ((pago.estado_pago == 'No pagado' && pago.multa.monto_pendiente > 0) || (pago.estado_pago == 'Pagado' && pago.multa.monto_pendiente > 0)) {
         // console.log(pago.multa.dia_retraso, "SI")
         const montoPorDia = pago.multa.monto_pendiente / pago.multa.dia_retraso;
         multasArray = Array(pago.multa.dia_retraso).fill(montoPorDia);
@@ -404,7 +528,7 @@ export class PrestamosPage implements OnInit {
         // console.log(montoPorDia, multasArray, "NO")
         // pago.multa.multasArray = multasArray;
       }
-      
+
 
     // Add the cuota value to the total
     //totalCuota += pago.cuota;
@@ -425,53 +549,9 @@ export class PrestamosPage implements OnInit {
     modal.present();
   }
 
-  generarTablaAmor(monto:number, interes:number, periodo:number){
-    
-    let tabla = [];
-    let intereses = 0;
-
-    intereses = (interes * monto) / (100);
-
-    let fechas = this.calcularFechas(new Date ('2024-12-04'))
-    for (let i = 1; i <= periodo; i++) { // if periodo 
-      // const interes = saldoPendiente * tasaMensual;
-      // const capital = cuota - interes;
-      // saldoPendiente -= capital;
-
-      tabla.push({
-        num_pago: i,
-        fecha_pago:fechas[i-1],
-        cuota: intereses,
-        estado_pago: false
-      });
-
-    }
-    tabla[tabla.length -1].cuota = intereses + monto
-    // console.log(fechas)
-    console.log(tabla)
-  }
-
-  calcularFechas(fechaInicial: Date): Date[] {
-  const fechas: Date[] = [];
-  const lunesProximo = new Date(fechaInicial);
-
-  // Ajustar la fecha al próximo lunes
-  const diaDeLaSemana = lunesProximo.getDay(); // 0: Domingo, 1: Lunes, ..., 6: Sábado
-  const diasHastaLunes = (diaDeLaSemana === 0) ? 1 : 8 - diaDeLaSemana;
-  lunesProximo.setDate(lunesProximo.getDate() + diasHastaLunes);
-
-  // Generar las siguientes 14 fechas (cada lunes)
-  for (let i = 0; i < 14; i++) {
-    const nuevaFecha = new Date(lunesProximo);
-    nuevaFecha.setDate(lunesProximo.getDate() + i * 7); // Sumar semanas
-    fechas.push(nuevaFecha);
-  }
-
-  return fechas;
-}
-
 setOpenAdd(isOpen: boolean, roll:string) {
   this.isModalOpenAdd = isOpen;
+  this.openKeyboard = isOpen;
   this.rollModal = roll
   this.cancelSubmit()
 
@@ -496,37 +576,56 @@ formatData(data: string[], type:'cliente' | 'asesor') {
 
 clienteSelectionChanged(clientes: string[]) {
   this.selectedClientes = clientes;
-  console.log('Sle', this.selectedClientes)
-  this.selectedClientesText = this.formatData(this.selectedClientes, 'cliente');
-  console.log(clientes, this.selectedClientesText)
+  // Busca el objeto completo del cliente seleccionado
+  const clienteObj = this.clientes.find((cliente: any) => cliente._id === clientes[0]);
+  //this.selectedClientesText = clienteObj ? clienteObj.nombre : '';
+  this.selectedClienteObj = clienteObj; // <-- Guarda el objeto completo
+  console.log('Scl', this.selectedClienteObj)
 
   // this.formInputPOST.setValue({'id_cliente': clientes[0]})
-  this.formInputPOST.patchValue({'id_cliente': clientes[0]})
-  this.filters.clienteId = clientes[0] // Para filtro de prestamos
+  this.formInputPOST.patchValue({'id_cliente': this.selectedClienteObj._id})
+  //this.filters.clienteId = this.selectedClienteObj._id // Para filtro de prestamos
   this.modal_cli.dismiss();
+}
+clienteSelecChangeFilter(clientes: string[]){
+  this.selectedClientes = clientes;
+  this.selectedClientesText = this.formatData(this.selectedClientes, 'cliente');
+  this.filters.clienteId = clientes[0]
+  this.modal_cli.dismiss();
+}
+asesorSelecChangeFilter(asesores: string[]){
+  this.selectedAsesores = asesores;
+  this.selectedAsesoresText = this.formatData(this.selectedAsesores, 'asesor');
+  this.filters.asesorId = asesores[0]
+  this.modal_ase.dismiss();
 }
 removeCliSelection(){
   this.selectedClientes = [];
-  this.selectedClientesText = 'No se ha asignado asesor';
+  this.selectedClientesText = '';
+  this.filters.clienteId = '';
 }
 asesorSelectionChanged(asesores: string[]) {
   this.selectedAsesores = asesores;
-  console.log('Sle', this.selectedAsesores)
-  this.selectedAsesoresText = this.formatData(this.selectedAsesores, 'asesor');
+  // Buscar el objeto completo del asesor seleccionado
+  const asesorObj = this.asesores.find((asesor: any) => asesor._id === asesores[0]);
+  //this.selectedAsesoresText = asesorObj ? asesorObj.nombre : '';
+  this.selectedAsesorObj = asesorObj; // <-- Guarda el objeto completo
   console.log(asesores, this.selectedAsesoresText)
 
   // this.formInputPOST.setValue({'id_cliente': clientes[0]})
   //this.formInputPOST.patchValue({'id_cliente': asesores[0]})
-  this.filters.asesorId = asesores[0] // Para filtro de prestamos
+  this.formInputPOST.patchValue({'id_asesor': this.selectedAsesorObj._id})
+  //this.filters.asesorId = asesores[0] // Para filtro de prestamos
   this.modal_ase.dismiss();
 }
 removeAseSelection(){
   this.selectedAsesores = [];
-  this.selectedAsesoresText = 'No se ha asignado asesor';
+  this.selectedAsesoresText = '';
+  this.filters.asesorId = '';
 }
 
 updateTablaAmortz(infoPrestamo:any){
-  
+
   // let modificar = this.prestamos[0].prestamos.filter((prest:any)=>{return prest._id == infoPrestamo._id})
   console.log(infoPrestamo.tabla_amortizacion)
   // console.log(infoPrestamo._id,modificar)
@@ -568,7 +667,7 @@ cancelPut(){
 }
 setPagoEstado(pago: any, checked: any, estado: string, index:number): void { // 'Pagado'|'Pendiente'
   console.log(pago)
-  this.noPaymentChange = false  
+  this.noPaymentChange = false
   this.canDismiss =  false
   this.backdropDismiss = false
 
@@ -578,7 +677,7 @@ setPagoEstado(pago: any, checked: any, estado: string, index:number): void { // 
   if(this.bonoCheck[index] && pago.estado_pago == 'Pagado'){// Revisar si bonoCkeck y su input no tienen datos si es que el estado se cambia a 'Pagado'
     this.bonoCheck[index] = false
     delete pago.abono_pago;
-  }  
+  }
   console.log(this.canDismiss, this.backdropDismiss, this.noPaymentChange)
 }
 async changeListener(info:any){
@@ -590,6 +689,8 @@ onWillDismiss() {
   this.openModalInfo = false
   this.segmentValue = 'tabla'
   this.showMore = false
+  this.modalAccordionValue = []
+  this.initialBreakpoint = 0.6
 }
 
 async aceptarPrestamo(infoPrestamo:any) {
@@ -617,30 +718,34 @@ async aceptarPrestamo(infoPrestamo:any) {
         text:'Aprobar',
         handler: (alertData) => {
           console.log(alertData.fecha)
-          //if(alertData.fecha){
-            //console.log(infoPrestamo)
-            //let body = infoPrestamo.dia_pago? {'fecha_prestamo': alertData.fecha, 'dia_pago':infoPrestamo.dia_pago} : {'fecha_prestamo': alertData.fecha}
-            //console.log(body)
-            //this.accept_reject = true
-            //this.prestService.aceptarPrestamo(infoPrestamo._id, body).subscribe((res:any)=>{
-            //  setTimeout(() => {
-            //    this.removeItemPendientes(infoPrestamo._id)
-            //    this.addItemAceptados(res)
-            //    this.accept_reject = false
+          if(alertData.fecha){
+            console.log(infoPrestamo)
+            let body = infoPrestamo.dia_pago? {'fecha_prestamo': alertData.fecha, 'dia_pago':infoPrestamo.dia_pago} : {'fecha_prestamo': alertData.fecha}
+            console.log(body)
+            this.accept_reject = true
+            this.prestService.aceptarPrestamo(infoPrestamo._id, body).subscribe((res:any)=>{
+             setTimeout(() => {
+               this.removeItemPendientes(infoPrestamo._id)
+               this.addItemAceptados(res)
+               this.accept_reject = false
 
-            //    this.presentToast('bottom', 'Se ha generado la tabla de amortización exitosamente', 2500)
-            //    setTimeout(() => {
-            //      this.openModalInfo = false
-            //    }, 1200);
-            //  }, 1500);
-            //  console.log(res)
-            //})
-            //return true
-          //}else{
-          //  this.presentToast('top', 'Selecciona una fecha para generar la tabla de amortización', 1500)
-          //  return false
-          //}
-          
+               this.presentToast('bottom', 'Se ha generado la tabla de amortización exitosamente', 2500)
+               setTimeout(() => {
+                 this.openModalInfo = false
+               }, 1200);
+             }, 1500);
+             console.log(res)
+            }, (err:any) => {
+              console.log(err.error.message)
+              this.accept_reject = false
+              this.presentToast('bottom', err.error.message, 2500)
+            })
+            return true
+          }else{
+           this.presentToast('top', 'Selecciona una fecha para generar la tabla de amortización', 1500)
+           return false
+          }
+
         }
       },
     ],
@@ -669,10 +774,10 @@ async cerrarPrestamo(infoPrestamo:any) {
                setTimeout(() => {
                  this.openModalInfo = false
                }, 1200);
-            console.log(res)  
+            console.log(res)
           });
           return true
-          
+
         }
       },
     ],
@@ -730,12 +835,12 @@ async pagarMultaPago(id:string, pago:number, monto:number, index:number) {
         text:'Pagar',
         handler: () => {
           console.log('Data: ', this.modalInfo, index)
-          
+
           this.prestService.pagarMulta(id, pago, {}).subscribe((res:any) =>{
             console.log(res)
             this.updatePagoMulta(this.modalInfo, pago, res.multa)
             this.presentToast("bottom", res.message, 3000)
-            
+
             //setData al guardar el pago de la multa
           })
         }
@@ -756,20 +861,40 @@ async presentToast(position: 'top' | 'middle' | 'bottom', message:string, time:n
 }
 
 addItemAceptados(item:{}){
-  this.prestamos[0].prestamos.push(item)
-  //this.results[0].prestamos.push(item) // Para resultados
+  this.prestamos[0].prestamos.unshift(item);
+  // this.updateResultsAfterAdd();
+  this.results = [...this.prestamos]
 }
 addItemPendientes(item:{}){
-  this.prestamos[1].prestamos.push(item)
-  //this.results[1].prestamos.push(item) // Para resultados
+  this.prestamos[1].prestamos.unshift(item);
+  // this.updateResultsAfterAdd();
+  this.results = [...this.prestamos]
 }
 addItemRechazados(item:{}){
-  this.prestamos[2].prestamos.push(item)
-  //this.results[2].prestamos.push(item) // Para resultados
+  this.prestamos[2].prestamos.unshift(item);
+  // this.updateResultsAfterAdd();
+  this.results = [...this.prestamos]
 }
 addItemCerrados(item:{}){
-  this.prestamos[3].prestamos.push(item)
-  //this.results[3].prestamos.push(item) // Para resultados
+  this.prestamos[3].prestamos.unshift(item);
+  // this.updateResultsAfterAdd();
+  this.results = [...this.prestamos]
+}
+
+updateResultsAfterAdd() {
+  // Si hay algún filtro activo, vuelve a aplicar el filtro
+  if (
+    this.filters.estados.length > 0 ||
+    this.filters.saldoMin > 0 ||
+    this.filters.clienteId ||
+    this.filters.asesorId ||
+    this.filters.tipoPago
+  ) {
+    this.filterPrestamos(this.filters);
+  } else {
+    // Si no hay filtros, simplemente clona prestamos
+    this.results = [...this.prestamos];
+  }
 }
 removeItemPendientes(id:string){
   let pendientes = this.prestamos[1].prestamos.filter((prest:any)=>{
@@ -788,17 +913,21 @@ removeItemAceptado(id:string){
 updatePagoMulta(pago:any, pagoNum:number, res:any){
   console.log(pago, pagoNum)
   pago.tabla_amortizacion[pagoNum-1].multa = res
+  pago.tabla_amortizacion[pagoNum-1].estado_pago = 'Pagado'
   this.setModalInfo(true, pago)
 
   const index = this.prestamos[0].prestamos.findIndex((item:any) => item._id === pago._id)
   console.log(index)
   this.prestamos[0].prestamos[index].tabla_amortizacion[pagoNum-1].multa = res
+  this.prestamos[0].prestamos[index].tabla_amortizacion[pagoNum-1].estado_pago = 'Pagado'
   console.log(this.prestamos[0].prestamos[index])
 }
 
 srcImageName(images: { originalname: string }[], name: string): any {
-  if(images && images.length > 0) {
+  if (images && images.length > 0) {
     return images.find(img => img.originalname === name + '.jpeg');
+  } else { // Si modal add/update esta abierto no muestres la imagen por defecto
+    return { url: 'https://ionicframework.com/docs/img/demos/avatar.svg' }; // Default image if not found
   }
 }
 
@@ -834,7 +963,7 @@ refreshFilter() {
   this.selectedEstados = [];
   this.selectedClientes = [];
   this.selectedClientesText = 'No se ha asignado cliente';
-  this.selectedAsesores = []; 
+  this.selectedAsesores = [];
   this.selectedAsesoresText = 'No se ha asignado asesor';
   console.log('Filtros reiniciados', this.filters)
   setTimeout(() => {
@@ -842,64 +971,290 @@ refreshFilter() {
   }, 1000);
 }
 
-filterPrestamos({
-  estados = [],
-  saldoMin = 0,
-  clienteId = '',
-  clienteNombre = '',
-  asesorId = '',
-  asesorNombre = '',
-  tipoPago = ''
-}: {
-  estados?: string[],
-  saldoMin?: number,
-  clienteId?: string,
-  clienteNombre?: string,
-  asesorId?: string,
-  asesorNombre?: string,
-  tipoPago?: string
-}) {
-  const saldoMinReal = saldoMin * 1000;
+  filterPrestamos({
+    estados = [],
+    saldoMin = 0,
+    clienteId = '',
+    clienteNombre = '',
+    asesorId = '',
+    asesorNombre = '',
+    tipoPago = ''
+  }: {
+    estados?: string[],
+    saldoMin?: number,
+    clienteId?: string,
+    clienteNombre?: string,
+    asesorId?: string,
+    asesorNombre?: string,
+    tipoPago?: string
+  }) {
+    const saldoMinReal = saldoMin * 1000;
 
-  console.log('saldo minimo: ', saldoMin)
-  console.log('Filtrando prestamos con: ', this.filters)
-  // Filtra los grupos por estado (titulo)
-  let filtrados = this.prestamos.filter((grupo: any) => 
-    estados.length === 0 || estados.includes(grupo.titulo)
-  ).map((grupo: any) => {
-    // Filtra los prestamos dentro de cada grupo
-    let prestamosFiltrados = grupo.prestamos.filter((p: any) => {
-      // Saldo mínimo
-      if (saldoMin && p.saldo < saldoMinReal) return false;
+    console.log('saldo minimo: ', saldoMin)
+    console.log('Filtrando prestamos con: ', this.filters)
+    // Filtra los grupos por estado (titulo)
+    let filtrados = this.prestamos.filter((grupo: any) =>
+      estados.length === 0 || estados.includes(grupo.titulo)
+    ).map((grupo: any) => {
+      // Filtra los prestamos dentro de cada grupo
+      let prestamosFiltrados = grupo.prestamos.filter((p: any) => {
+        // Saldo mínimo
+        if (saldoMin && p.saldo < saldoMinReal) return false;
 
-      // Cliente (por id o nombre)
-      //if (clienteId && (!p.id_cliente || p.id_cliente._id !== clienteId)) return false;
-      // Asesor (por id o nombre)
-      //if (asesorId && (!p.id_asesor || p.id_asesor._id !== asesorId)) return false;
-      if (clienteId || asesorId) {
-        const matchCliente = clienteId && p.id_cliente && p.id_cliente._id === clienteId;
-        const matchAsesor = asesorId && p.id_asesor && p.id_asesor._id === asesorId;
-        // Si ambos están presentes, debe coincidir al menos uno
-        if (!(matchCliente || matchAsesor)) return false;
-      }
+        // Cliente (por id o nombre)
+        //if (clienteId && (!p.id_cliente || p.id_cliente._id !== clienteId)) return false;
+        // Asesor (por id o nombre)
+        //if (asesorId && (!p.id_asesor || p.id_asesor._id !== asesorId)) return false;
+        if (clienteId || asesorId) {
+          const matchCliente = clienteId && p.id_cliente && p.id_cliente._id === clienteId;
+          const matchAsesor = asesorId && p.id_asesor && p.id_asesor._id === asesorId;
+          // Si ambos están presentes, debe coincidir al menos uno
+          if (!(matchCliente || matchAsesor)) return false;
+        }
 
-      // Tipo de pago
-      if (tipoPago && p.tipo_pago !== tipoPago) return false;
+        // Tipo de pago
+        if (tipoPago && p.tipo_pago !== tipoPago) return false;
 
-      return true;
+        return true;
+      });
+
+      // Devuelve el grupo solo si tiene prestamos filtrados
+      return { ...grupo, prestamos: prestamosFiltrados };
     });
 
-    // Devuelve el grupo solo si tiene prestamos filtrados
-    return { ...grupo, prestamos: prestamosFiltrados };
-  });
+    // Elimina los grupos vacíos
+    filtrados = filtrados.filter((grupo: any) => grupo.prestamos.length > 0);
+    console.log(filtrados)
+    this.results = filtrados; // Actualiza los resultados
+    this.isModalFilter = false;
+    return filtrados;
+  }
 
-  // Elimina los grupos vacíos
-  filtrados = filtrados.filter((grupo: any) => grupo.prestamos.length > 0);
-  console.log(filtrados)
-  this.results = filtrados; // Actualiza los resultados
-  this.isModalFilter = false; 
-  return filtrados;
-}
+  pressKey(key: string) {
+    if (key === 'del') {
+      this.keyboardValue = Math.floor(this.keyboardValue / 10);
+    } else {
+      // Solo acepta dígitos
+      const digit = parseInt(key, 10);
+      if (!isNaN(digit)) {
+        this.keyboardValue = this.keyboardValue * 10 + digit;
+      }
+    }
+  }
+  // Long press handlers for delete button
+  onDelPressStart() {
+    this.delPressTimer = setTimeout(() => {
+      this.keyboardValue = 0;
+    }, 600);
+  }
+  onDelPressEnd() {
+    clearTimeout(this.delPressTimer);
+  }
+  confirmKeyboard() {
+    this.formInputPOST.patchValue({ saldo: this.keyboardValue });
+    setTimeout(() => {
+      this.openKeyboard = false;
+    }, 100);
+  }
+  closeKeyboard() {
+    this.openKeyboard = false;
+  }
+  hasKeys(obj: any): boolean {
+    return obj && Object.keys(obj).length > 0;
+  }
+
+
+  //Zoom settings
+  setZoomIn(imageUrl:string, imageName:string) {
+    this.toZoom = true;
+    this.zoomImage = imageUrl;
+    this.zoomImageName = imageName;
+  }
+  dismissZoom() {
+    this.toZoom = false;
+    this.zoomImage = '';
+  }
+
+
+  //Modal comprobantes
+  setOpenModalComprobantes(isOpen:boolean, pago: any) {
+    this.isOpenModalComp = isOpen
+    this.pagoParaComprobante = pago
+    console.log('Pago para comprobante: ', pago)
+  }
+
+  closeModalComprobantes() {
+    this.isOpenModalComp = false;
+    this.pagoParaComprobante = null 
+    this.selectedPhotoForDelete = []
+    this.sendingComprobantes = false;
+    this.eliminandoPhotos = false;
+    this.editComprobantePrestamo = false;
+  }
+
+  pickPictures(imageName:string) {
+    if(this.pagoParaComprobante) {
+      this.esperandoPickPictures = true;
+      this.pickedPicturesEsperadas = 0;
+  
+      this.loginService.pickImages(imageName, 'prestamos').then((cantidad) => {
+        // Si tu método pickImages puede retornar la cantidad seleccionada, úsala aquí
+        this.pickedPicturesEsperadas = cantidad;
+  
+        // Espera a que el observable de imágenes tenga la cantidad correcta
+        const checkInterval = setInterval(() => {
+          const imagesActuales = this.images.filter(img => img.name.includes('comprobante')).length;
+          console.log(this.esperandoPickPictures, imagesActuales, this.pickedPicturesEsperadas);
+          if (this.esperandoPickPictures && imagesActuales === this.pickedPicturesEsperadas) {
+            clearInterval(checkInterval);
+            this.esperandoPickPictures = false;
+            this.submitComprobantes(this.pagoParaComprobante.num_pago);
+          }
+        }, 200); // Checa cada 200ms
+      });
+    }else {
+      console.log('No hay pago seleccionado') 
+      return;
+    }
+  }
+
+  async submitComprobantes(numero_pago: number) {
+    if(this.modalInfo && numero_pago !== undefined && numero_pago > 0){
+      this.sendingComprobantes = true;
+      const comprobantes = this.images.filter(img => img.name.includes('comprobante'));
+      console.log('Comprobantes a enviar:', comprobantes);
+
+      let formData = new FormData();
+      formData.append('num_pago', numero_pago.toString());
+      if (comprobantes.length > 0) {
+        for (let file of comprobantes) { // Add images to formData
+          const response = await fetch(file.data);
+          const blob = await response.blob();
+          formData.append('image_comprobante', blob, file.name);
+        }
+      }
+
+      this.prestService.postComprobantesPago(this.modalInfo._id, formData).subscribe((data:any) => {
+        console.log('Respuesta del servidor:', data);
+        this.pagoParaComprobante.comprobantes = data.comprobantes; // Actualiza los comprobantes en modalInfo
+        this.presentToast('bottom', data.message, 2000);
+        this.loginService.deleteFolder(this.loginService.imagesPrestamos, 'prestamos'); // Limpia la carpeta temporal
+        this.images = [];
+
+        //ACtualizar el prestamo en el array principal
+        for (const grupo of this.prestamos) {
+          if(Array.isArray(grupo.prestamos)){
+            const index = grupo.prestamos.findIndex((p:any) => p._id === this.modalInfo._id);
+            if (index !== -1) {
+              grupo.prestamos[index].comprobantes = data.comprobantes;
+              break; // Sale del loop una vez que encuentra y actualiza el prestamo
+            }
+          }
+        }
+        this.sendingComprobantes = false;
+      });
+    }
+  }
+
+  //ACEPTAR PAGO PRESTAMO
+  async aceptarPago(pago: any) {
+    // Verifica si el array de comprobantes está vacío
+    const tieneComprobantes = pago.comprobantes && pago.comprobantes.length > 0;
+
+    const alert = await this.alertController.create({
+      header: '¡Atención!',
+      subHeader: tieneComprobantes
+        ? '¿Seguro que deseas continuar?'
+        : 'Pago sin comprobantes, ¿Deseas continuar?',
+      message: tieneComprobantes
+        ? 'Al aceptar el pago este se registrará en los movimientos de la wallet.'
+        : 'Recuerda que al aceptar el pago este se registrará en los movimientos de la wallet.',
+      buttons: [
+        {
+          text: 'No',
+          handler: () => { return true; }
+        },
+        {
+          text: 'Continuar',
+          handler: () => {
+            this.actualizarPagoAceptado(pago);
+            return true;
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async actualizarPagoAceptado(pago: any) {
+    // Llama al endpoint para aceptar el pago
+    this.prestService.aceptarPagoPrestamo(this.modalInfo._id, pago.num_pago, {}).subscribe((data: any) => {
+      // Actualiza el pago en modalInfo.tabla_amortizacion
+      const index = this.modalInfo.tabla_amortizacion.findIndex((p: any) => p.num_pago === pago.num_pago);
+      if (index !== -1) {
+        this.modalInfo.tabla_amortizacion[index] = {
+          ...this.modalInfo.tabla_amortizacion[index],
+          ...data.pago
+        };
+      }
+
+      // Actualiza el pago en el array principal de prestamos
+      for (const grupo of this.prestamos) {
+        if (Array.isArray(grupo.prestamos)) {
+          const prestamoIndex = grupo.prestamos.findIndex((p: any) => p._id === this.modalInfo._id);
+          if (prestamoIndex !== -1) {
+            const pagoIndex = grupo.prestamos[prestamoIndex].tabla_amortizacion.findIndex((p: any) => p.num_pago === pago.num_pago);
+            if (pagoIndex !== -1) {
+              grupo.prestamos[prestamoIndex].tabla_amortizacion[pagoIndex] = {
+                ...grupo.prestamos[prestamoIndex].tabla_amortizacion[pagoIndex],
+                ...data.pago
+              };
+            }
+          }
+        }
+      }
+
+      this.presentToast('bottom', data.message, 2000);
+    });
+  }
+
+  //DELETE COMPROBANTES
+  onPhotoCheckboxChange(event: any, comp: any) {
+    if (event.detail.checked) {
+      // Agrega si no está
+      if (!this.selectedPhotoForDelete.some((img: any) => img.public_id === comp.public_id)) {
+        this.selectedPhotoForDelete.push(comp);
+      }
+    } else {
+      // Elimina si está
+      this.selectedPhotoForDelete = this.selectedPhotoForDelete.filter((img: any) => img.public_id !== comp.public_id);
+    }
+  }
+  checkElementSelected(array:any, image:any): boolean {
+    return array.some((img:any) => img.public_id === image.public_id);
+  }
+  async deleteSelectedComp() {
+    if (!this.modalInfo?._id || !this.pagoParaComprobante.num_pago || this.selectedPhotoForDelete.length === 0) return;
+    const public_ids = this.selectedPhotoForDelete.map((img:any) => img.public_id);
+    this.eliminandoPhotos = true;
+    console.log('Eliminar comprobantes con public_ids:', public_ids);
+    await this.prestService.deletePhotos(this.modalInfo._id, this.pagoParaComprobante.num_pago, public_ids).subscribe((data: any) => {
+      this.pagoParaComprobante.comprobantes = data.comprobantes; // Actualiza los comprobantes en modalInfo
+      this.presentToast('bottom', data.message, 2000);
+      this.selectedPhotoForDelete = [];
+      this.eliminandoPhotos = false;
+      console.log('Comprobantes actualizados:', this.pagoParaComprobante.comprobantes);
+    }, (error: any) => {
+      console.error('Error al eliminar comprobantes:', error);
+      this.eliminandoPhotos = false;
+      this.presentToast('top', `${error.error.message}`, 5500);
+    });
+  }
+
+  cancelPhotoSelection() {
+    this.selectedPhotoForDelete = [];
+  }
 
 }
 

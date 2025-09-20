@@ -26,8 +26,16 @@
   text-decoration: none;
 }
 
+ion-header{
+  background: var(--ion-background-color, #fff);
+  padding: 10px 20px 6px;
+  h1 {
+    font-weight: bold;
+  }
+}
+
 ion-toolbar {
-  --background: transparent;
+  //--background: transparent;
   --color: black;
 
   // --border-color: #f24aec;
@@ -42,5 +50,24 @@ ion-toolbar {
 
 ion-item::part(native) {
   background: transparent;
+}
+
+
+
+.notificaciones {
+  height: 50px;
+}
+.unread-indicator {
+  background: var(--ion-color-primary);
+
+  width: 10px;
+  height: 10px;
+
+  border-radius: 100%;
+
+  position: absolute;
+
+  inset-inline-start: 12px;
+  top: 12px;
 }
 

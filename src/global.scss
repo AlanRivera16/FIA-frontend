@@ -40,21 +40,34 @@ ion-searchbar {
         input{
             font-size: 14px !important;
             font-weight: 600 !important;
-            padding-inline-start: 22px !important;
-            padding-top: 3px !important;
-            padding-bottom: 3px !important;
+            // padding-inline-start: 22px !important;
+            // padding-top: 3px !important;
+            // padding-bottom: 3px !important;
         }
     }
 }
- 
-ion-searchbar ion-icon {
-    right: 16px !important;
-    left: auto !important;
-    top: 8px !important;
-    // inset-inline-end: 16px !important;
-  }
 
-// ion-toolbar {
-//     --ion-toolbar-background-color: transparent;
-//     --ion-toolbar-text-color: white;
-// }
+.swiper-center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 600px;
+
+  swiper-container{
+    --swiper-navigation-color: #fff; 
+    --swiper-pagination-color: #fff; 
+    height: 600px; 
+    width: 100%;
+  }
+}
+.swiper-slider-wrapper {
+//   height: 100%;
+//   min-height: 600px;
+max-height: 70%;
+
+  swiper-container{
+    height: 100%; 
+    width: 100%;
+  }
+}

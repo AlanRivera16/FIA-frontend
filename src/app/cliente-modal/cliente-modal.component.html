@@ -1,5 +1,5 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header >
+  <!-- <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button style="--color: var(--ion-color-primary);" (click)="cancelChanges()">Cancelar</ion-button>
     </ion-buttons>
@@ -7,13 +7,19 @@
     <ion-buttons slot="end">
       <ion-button style="--color: var(--ion-color-primary);" (click)="confirmChanges()">Hecho</ion-button>
     </ion-buttons>
-  </ion-toolbar>
+  </ion-toolbar> -->
   <ion-toolbar>
-    <ion-searchbar (ionInput)="searchbarInput($event)"></ion-searchbar>
+    <ion-icon size="large" style="margin-left: 16px;" slot="start" name="close-outline" (click)="cancelChanges()"></ion-icon>
+    <ion-text color="dark"><h3 style="font-weight: bold; margin-top: 10px; margin-left: 40px;">{{ title | titlecase }}</h3></ion-text>
   </ion-toolbar>
+  <!-- <ion-toolbar>
+    <ion-searchbar (ionInput)="searchbarInput($event)"></ion-searchbar>
+  </ion-toolbar> -->
 </ion-header>
 
-<ion-content color="light" class="ion-padding">
+<ion-content class="ion-padding">
+
+  <ion-searchbar placeholder="Buscar..." (ionInput)="searchbarInput($event)"></ion-searchbar>
   <!-- <ion-list id="modal-list" [inset]="true">
     <ion-item *ngFor="let item of filteredItems; trackBy: trackItems">
       <ion-checkbox 
@@ -26,17 +32,35 @@
       >
     </ion-item>
   </ion-list> -->
+  <ion-text color="dark">
+    <h4 style="font-weight: bold;">Selecciona una opción</h4>
+  </ion-text>
 
   <ion-list id="modal-list" [inset]="true">
-    <ion-radio-group (ionChange)="checkboxChange($event)">
-      <ion-item *ngFor="let item of filteredItems;">
-        <ion-radio 
-        [value]="item._id"
-        >
-        {{item.nombre}}
-      </ion-radio>
-      </ion-item>
+    <ion-radio-group (ionChange)="checkboxChange($event)" [value]="workingSelectedValues[0]">
+      <ng-container *ngFor="let item of filteredItems">
+        <ion-item lines="none" [color]="item._id == workingSelectedValues[0]? 'light' : ''">
+          <ion-avatar *ngIf="srcImageName(item?.evidencia_aval, 'foto-perfil') as image">
+            <img [src]="image.url" alt="Silhouette of a person's head" />
+          </ion-avatar>
+          <ion-radio 
+          [value]="item._id"
+          >
+          {{item.nombre}}
+        </ion-radio>
+        </ion-item>
+      </ng-container>
     </ion-radio-group>
   </ion-list>
 
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button color="medium" slot="end" fill="clear" style="font-weight: bold; margin: 10px 15px;" (click)="cleanSelection()">CANCELAR</ion-button>
+    <ion-button color="darkmain" slot="end" style="margin: 10px 15px;" [disabled]="workingSelectedValues.length <= 0 ? true : false" (click)="confirmChanges()">
+      SIGUIENTE
+      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

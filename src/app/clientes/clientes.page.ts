@@ -6,8 +6,10 @@ import { HistorialService } from '../services/historial/historial.service';
 import { FormBuilder, FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { LocalFile, LoginService } from '../services/login/login.service';
 import { PrestamosService } from '../services/prestamo/prestamos.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Asesor } from '../types';
+
+const STORAGE_KEY = 'login-data-user'
 
 @Component({
   selector: 'app-clientes',
@@ -18,8 +20,15 @@ export class ClientesPage implements OnInit, AfterViewInit {
 @ViewChild('formDirective') formDirective!: NgForm;
 // @ViewChildren(IonItem, {read: ElementRef}) items!: QueryList<ElementRef>;
 @ViewChildren('noAsigItem', {read: ElementRef}) noAsigItems!: QueryList<ElementRef>;
+@ViewChildren('photosDelete', {read: ElementRef}) photosDeleteItems!: QueryList<ElementRef>;
 @ViewChild('modal_ase') modal_ase!: IonModal;
   images: LocalFile[] = [];
+
+  dataUser: any = [];
+
+  toZoom = false;
+  zoomImageUrl = '';
+  zoomImageName = '';
 
   isModalOpenAdd = false;
   isModalOpenClient = false;
@@ -41,6 +50,9 @@ export class ClientesPage implements OnInit, AfterViewInit {
   formSubmit = false;
   postingCliente = false;
   accordionValues = ['first'];
+
+  sendingGarantias = false;
+  garantiasLocal: LocalFile[] = [];
 
   pseudo_table_asesors_lastmoves= [
     {
@@ -129,6 +141,14 @@ export class ClientesPage implements OnInit, AfterViewInit {
   clientesData:any = []
   public results:any = []
 
+  private esperandoGarantias = false;
+  private cantidadGarantiasEsperadas = 0;
+
+  selectedPhotos:any = [];
+  selectedPhotoForDelete:any = [];
+  selectPhotosActive = false;
+  accordionValueCliente = ['third', 'fourth'];
+
   constructor(
     private actionSheetCtrl: ActionSheetController,
     public loginService: LoginService,
@@ -139,6 +159,7 @@ export class ClientesPage implements OnInit, AfterViewInit {
     public formPrest : FormBuilder,
     private toastController: ToastController,
     private router: Router,
+    private route: ActivatedRoute,
     private gestureCtrl: GestureController,
     private cdr: ChangeDetectorRef
   ) {
@@ -146,6 +167,7 @@ export class ClientesPage implements OnInit, AfterViewInit {
       nombre: new FormControl("", Validators.required),
       telefono: new FormControl("", Validators.required),
       email: new FormControl("", Validators.required),
+      curp: new FormControl("", Validators.required),
       direccion: new FormControl("", Validators.required),
 
       nombre_aval: new FormControl("", Validators.required),
@@ -160,6 +182,11 @@ export class ClientesPage implements OnInit, AfterViewInit {
       this.longPress();
     });
     this.longPress();
+
+    this.photosDeleteItems.changes.subscribe(() => {
+      this.initPhotosDeleteLongPress();
+    });
+    this.initPhotosDeleteLongPress();
   }
   // longPress()
   longPress() {
@@ -353,6 +380,9 @@ export class ClientesPage implements OnInit, AfterViewInit {
           this.asignarAsesorModal = false;
         }, 200);
         this.cdr.detectChanges();
+      }, (err: any) => {
+        console.log(err.error.message)
+        this.presentToast('bottom', err.error.message, 2500)
       });
   }
   asignarAsesorAMultiplesClientes() {
@@ -382,6 +412,8 @@ export class ClientesPage implements OnInit, AfterViewInit {
   async ngOnInit() {
     this.loginService.imagesClientes$.subscribe(images => {
       this.images = images;
+      console.log('Imágenes de clientes actualizadas:', this.images);
+
     });
 
     await this.loginService.loadFilesEntity('cliente');
@@ -390,37 +422,62 @@ export class ClientesPage implements OnInit, AfterViewInit {
   }
 
   async setAllData() {
+
+    this.dataUser = await this.loginService.getData(STORAGE_KEY);
     this.clientesData = [];
     this.results = [];
-    await this.usuariosService.getAsesores().subscribe((data:any) => {
-      let fotoAsesor:any = {};
-      data.forEach((item:any) => {
-        this.usuariosService.getClientes(item._id).subscribe((clientes: any) => {
-          if(item.evidencia_aval.length > 0 ){
-            fotoAsesor = item.evidencia_aval.filter((e:any) => e.originalname === 'foto-perfil.jpeg')[0];
-            fotoAsesor ? fotoAsesor : fotoAsesor = {url: 'https://ionicframework.com/docs/img/demos/avatar.svg'};
-          } else { 
-            fotoAsesor = {url: 'https://ionicframework.com/docs/img/demos/avatar.svg'}; 
-          }
-          this.clientesData.push({
-            _id: item._id,
-            nombre: item.nombre,
-            foto_perfil: fotoAsesor.url, 
-            clientes: clientes,
+
+    if(this.dataUser && this.dataUser.role == 'ADMINISTRADOR'){
+      await this.usuariosService.getAsesores().subscribe((data:any) => {
+        let fotoAsesor:any = {};
+        data.forEach((item:any) => {
+          this.usuariosService.getClientes(item._id).subscribe((clientes: any) => {
+            if(item.evidencia_aval.length > 0 ){
+              fotoAsesor = item.evidencia_aval.filter((e:any) => e.originalname === 'foto-perfil.jpeg')[0];
+              fotoAsesor ? fotoAsesor : fotoAsesor = {url: 'https://ionicframework.com/docs/img/demos/avatar.svg'};
+            } else { 
+              fotoAsesor = {url: 'https://ionicframework.com/docs/img/demos/avatar.svg'}; 
+            }
+            this.clientesData.push({
+              _id: item._id,
+              nombre: item.nombre,
+              foto_perfil: fotoAsesor.url, 
+              clientes: clientes,
+            });
+            this.results = [...this.clientesData];
           });
-          this.results = [...this.clientesData];
         });
+        console.log('Asesor con clientes:', this.clientesData);
       });
-    });
-    await this.usuariosService.getClientesNoAsignados().subscribe((data:any) => {
-      console.log('Clientes no asignados:', data);
-      this.clientesNoAsignados = data;
-      this.resultsClientes = [...data]; // Inicializa los resultados con los clientes no asignados
-    });
-    await this.usuariosService.getAsesores().subscribe((res:any)=>{
-      console.log('Asesores para buscar', res)
-      this.asesores = res
-    });
+      await this.usuariosService.getClientesNoAsignados().subscribe((data:any) => {
+        console.log('Clientes no asignados:', data);
+        this.clientesNoAsignados = data;
+        this.resultsClientes = [...data]; // Inicializa los resultados con los clientes no asignados
+      });
+      await this.usuariosService.getAsesores().subscribe((res:any)=>{
+        console.log('Asesores para buscar', res)
+        this.asesores = res
+      });
+  
+      this.route.queryParams.subscribe(params => {
+        if (params['id_cliente']) {
+          console.log('Solo abro el modal del cliente')
+          // Espera a que los datos estén cargados
+          setTimeout(() => {
+            console.log('Soy params de url:', params)
+            this.openClienteModalById(params['id_cliente']);
+            // Elimina los params
+            this.router.navigate([], { queryParams: {}, replaceUrl: true });
+          }, 200);
+        }
+      });
+    } else if(this.dataUser && this.dataUser.role == 'ASESOR'){
+      await this.usuariosService.getClientes(this.dataUser._id).subscribe((clientes: any) => {
+        this.clientesData = clientes;
+        this.results = [...this.clientesData];
+        console.log('Clientes del asesor:', this.clientesData);
+      });
+    }
   }
 
   goToPrestamo(idPrestamo: string) {
@@ -431,28 +488,35 @@ export class ClientesPage implements OnInit, AfterViewInit {
     }, 500); // 200ms para asegurar cierre visual
   }
   goToPrestamoPago(idPrestamo: string, indexPago: number) {
-    this.isModalOpenClient = false; // Cierra el modal de clientes
+    this.presRetrModal = false; // Cierra el modal de retrasos
+    setTimeout(() => {
+      this.isModalOpenClient = false; // Cierra el modal de clientes
+    }, 100);
     setTimeout(() => {
       this.router.navigate(['/home/prestamos'], { queryParams: { id_prestamo: idPrestamo, index_pago: indexPago } });
     }, 500); // 200ms para asegurar cierre visual
   }
-  goToPrestamos(){
+  goToPrestamosCli(cliente:any){
     this.isModalOpenClient = false; // Cierra el modal de clientes
     this.presRetrModal = false; // Cierra el modal de clientes
     setTimeout(() => {
-      this.router.navigate(['/home/prestamos'], { queryParams: { post_prestamo: true } });
+      this.router.navigate(['/home/prestamos'], { queryParams: { post_prestamo: true, cliente_id: cliente._id, cliente_name: cliente.nombre } });
     }, 200); // 200ms para asegurar cierre visual
   }
 
   getRetrasosAgrupados() {
-    // Suponiendo que clienteModalInfo.historial?.detalles_retrasos es un array
+    // Obtiene el array de retrasos
     const retrasos = this.clienteModalInfo.historial?.detalles_retrasos || [];
+    // Agrupa los retrasos por id_prestamo
     const agrupados: { [idPrestamo: string]: any[] } = {};
     for (const r of retrasos) {
-      if (!agrupados[r.id_prestamo]) agrupados[r.id_prestamo] = [];
-      agrupados[r.id_prestamo].push(r);
+      if (r.id_prestamo) {
+        if (!agrupados[r.id_prestamo]) agrupados[r.id_prestamo] = [];
+        agrupados[r.id_prestamo].push(r);
+      }
     }
     console.log('Retrasos agrupados:', agrupados);
+    // Opcional: solo retorna grupos con al menos un retraso
     return agrupados;
   }
 
@@ -472,6 +536,27 @@ export class ClientesPage implements OnInit, AfterViewInit {
     this.loginService.selectPicture(imageName, 'cliente').then(() => {
       this.isModalOpenPicture = false
     })
+  }
+  pickPicture(imageName:string){
+    // Antes de seleccionar, activa la bandera y guarda cuántas esperas
+    this.esperandoGarantias = true;
+    this.cantidadGarantiasEsperadas = 0; // Se actualizará en el método pickImages
+
+    this.loginService.pickImages(imageName, 'cliente').then((cantidad) => {
+      // Si tu método pickImages puede retornar la cantidad seleccionada, úsala aquí
+      this.cantidadGarantiasEsperadas = cantidad;
+      this.isModalOpenPicture = false;
+      
+      // Espera a que el observable de imágenes tenga la cantidad correcta
+      const checkInterval = setInterval(() => {
+        const garantiasActuales = this.images.filter(img => img.name.includes('garantia')).length;
+        if (this.esperandoGarantias && garantiasActuales === this.cantidadGarantiasEsperadas) {
+          clearInterval(checkInterval);
+          this.esperandoGarantias = false;
+          this.submitGarantias();
+        }
+      }, 200); // Checa cada 200ms
+    });
   }
   deletePicture(image:any){
     this.loginService.deleteImageEntity(image, 'cliente').then(() => {
@@ -508,6 +593,7 @@ export class ClientesPage implements OnInit, AfterViewInit {
     //await this.cancelarSubmit()
   }
   async setOpenClient(isOpen: boolean, item: any){
+    this.loginService.deleteFolder(this.loginService.imagesClientes, 'cliente'); // Siempre limpia la carpeta temporal primero antes de abrir el modal
     this.isModalOpenClient = isOpen;
     this.clienteModalInfo = item;
     await this.historialService.getHistorialByIdUser(item._id).subscribe((data:any) => {
@@ -547,6 +633,20 @@ export class ClientesPage implements OnInit, AfterViewInit {
       }
     }
   }
+
+  openClienteModalById(idCliente: string) {
+    // Busca el cliente en tus datos
+    let clienteEncontrado: any = null;
+    console.log('Buscando cliente con ID:', idCliente);
+    for (const asesores of this.clientesData) {
+      clienteEncontrado = asesores.clientes.find((c: any) => c._id === idCliente);
+      if (clienteEncontrado) break;
+    }
+    if (clienteEncontrado) {
+      this.setOpenClient(true, clienteEncontrado);
+    }
+  }
+
   getProximoPago(tablaAmortizacion: any[]): { pago: any, idx: number } | null {
     if (!Array.isArray(tablaAmortizacion) || tablaAmortizacion.length === 0) {
       return null;
@@ -662,6 +762,17 @@ export class ClientesPage implements OnInit, AfterViewInit {
     this.clientesNoAsignados = filteredNoAsignados;
   }
 
+  handleInputClientes(event:any){
+    const query = event.target.value.toLowerCase();
+    // Filtra solo los clientes del asesor (cuando solo hay un asesor)
+    const filteredClientes = this.clientesData.filter((cliente: any) =>
+      cliente.nombre.toLowerCase().includes(query) ||
+      cliente.email.toLowerCase().includes(query) ||
+      cliente.telefono?.toString().includes(query)
+    );
+    this.results = filteredClientes;
+  }
+
   //For form
   async submitAddCliente(){
     this.formSubmit = true
@@ -669,8 +780,8 @@ export class ClientesPage implements OnInit, AfterViewInit {
     console.log(this.formInputPOST.value, this.formInputPOST.valid, this.images, this.rollModal)
 
 
-    // if(!this.formInputPOST.valid || this.images.length != 8 && this.rollModal != 'ACTUALIZAR'){
-    if(!this.formInputPOST.valid && this.rollModal != 'ACTUALIZAR'){
+    if(!this.formInputPOST.valid || this.images.length != 8 && this.rollModal != 'ACTUALIZAR'){
+    // if(!this.formInputPOST.valid && this.rollModal != 'ACTUALIZAR'){
       console.log("not valid"); return
     }else{
 
@@ -681,8 +792,7 @@ export class ClientesPage implements OnInit, AfterViewInit {
       formData.append('telefono', this.formInputPOST.value.telefono); 
       formData.append('email', this.formInputPOST.value.email);
       formData.append('direccion', this.formInputPOST.value.direccion);
-      formData.append('role', "CLIENTE");
-      formData.append('password', "werv!@");
+      // formData.append('role', "CLIENTE");
       formData.append('nombre_aval', this.formInputPOST.value.nombre_aval);
       formData.append('telefono_aval', this.formInputPOST.value.telefono_aval);
       formData.append('email_aval', this.formInputPOST.value.email_aval);
@@ -729,9 +839,22 @@ export class ClientesPage implements OnInit, AfterViewInit {
             this.formDirective?.resetForm();
             this.formSubmit = false;
 
-            // Agregar el nuevo asesor al principio del array (opcional)
+            // Agregar el nuevo cliente al array correspondiente
             if (data && data.usuario) {
-              this.results.unshift(data.usuario);
+              const cliente = data.usuario;
+              if (cliente.assigned_to) {
+                // Buscar el asesor correspondiente en results
+                const asesorIndex = this.results.findIndex((a: any) => a._id === cliente.assigned_to);
+                if (asesorIndex !== -1) {
+                  if (!Array.isArray(this.results[asesorIndex].clientes)) {
+                    this.results[asesorIndex].clientes = [];
+                  }
+                  this.results[asesorIndex].clientes.unshift(cliente);
+                }
+              } else {
+                // Si no tiene asesor asignado, agregar a clientesNoAsignados
+                this.clientesNoAsignados.unshift(cliente);
+              }
               this.presentToast('bottom', data.message, 2500);
             }
 
@@ -739,7 +862,11 @@ export class ClientesPage implements OnInit, AfterViewInit {
             this.isModalOpenAdd = false;
             this.images = []; // Limpiar las imágenes después de enviar
           }, 2000);
-        })
+        }, (error: any) => {
+          console.error(error);
+          this.postingCliente = false;
+          this.presentToast('top', `${error.error.message}`, 5500);
+        });
       }
 
       
@@ -788,8 +915,43 @@ export class ClientesPage implements OnInit, AfterViewInit {
     await toast.present();
   }
 
+  async submitGarantias(){
+    if(this.isModalOpenClient && this.clienteModalInfo){
+      this.sendingGarantias = true
+      const images = this.images.filter(img => img.name.includes('garantia'));
+      
+      let formData: any = new FormData();
 
-  setEvidencia(typeMedia: 'foto-perfil' | 'INE-front' | 'INE-back' | 'com-domicilio' | 'foto-perfil-aval' | 'INE-front-aval' | 'INE-back-aval' | 'com-domicilio-aval'){
+      if (images.length > 0) {
+        for (let file of images) { // Add images to formData
+          const response = await fetch(file.data);
+          const blob = await response.blob();
+          formData.append('image_garantia', blob, file.name);
+        }
+      }
+
+      await this.usuariosService.postGarantia(formData, this.clienteModalInfo._id).subscribe((data: any) => {
+        console.log('Respuesta de garantía:', data.message, data.garantias);
+        this.clienteModalInfo.garantia = data.garantias;
+        this.loginService.deleteFolder(this.loginService.imagesClientes, 'cliente');
+        this.images = this.images.filter(img => img.name !== 'garantia.jpeg'); // Elimina solo las imágenes de garantía del array
+
+         // Actualiza el cliente en el array principal de asesores
+        for (const asesor of this.results) {
+          if (Array.isArray(asesor.clientes)) {
+            const idx = asesor.clientes.findIndex((c: any) => c._id === this.clienteModalInfo._id);
+            if (idx !== -1) {
+              asesor.clientes[idx].garantias = data.garantias;
+            }
+          }
+        }
+        this.sendingGarantias = false;
+      });
+    }
+  }
+
+
+  setEvidencia(typeMedia: 'foto-perfil' | 'INE-front' | 'INE-back' | 'com-domicilio' | 'foto-perfil-aval' | 'INE-front-aval' | 'INE-back-aval' | 'com-domicilio-aval' | 'garantia'){
     console.log(typeMedia)
     this.isModalOpenPicture = true
     this.rollMedia = typeMedia
@@ -814,4 +976,106 @@ export class ClientesPage implements OnInit, AfterViewInit {
     console.log('Pago seleccionado:', this.selectedPagoIndex[idPrestamo])
   }
 
+  callNumber(phone: string) {
+    window.open(`tel:${phone}`, '_system');
+  }
+
+
+  //Zoom settings
+  setZoomIn(imageUrl:string, imageName:string) {
+    console.log(this.selectPhotosActive)
+    if(this.selectPhotosActive) return; // Si está en modo selección, no hacer zoom
+    this.toZoom = true;
+    this.zoomImageUrl = imageUrl;
+    this.zoomImageName = imageName;
+  }
+  dismissZoom() {
+    this.toZoom = false;
+    this.zoomImageUrl = '';
+    this.zoomImageName = '';
+  }
+
+
+  //Long press delete photos
+  initPhotosDeleteLongPress() {
+    const itemsArray = this.photosDeleteItems.toArray();
+    for (let i = 0; i < itemsArray.length; i++) {
+      const item = itemsArray[i];
+      let pressTimer: any = null;
+      const gar = this.clienteModalInfo.garantias[i];
+      if (!gar) continue;
+
+      const gesture: Gesture = this.gestureCtrl.create({
+        el: item.nativeElement,
+        threshold: 0,
+        gestureName: 'garantia-long-press',
+        onStart: () => {
+          pressTimer = setTimeout(() => {
+            // Aquí tu lógica de selección múltiple
+            console.log('Long press en garantía activo');
+            this.selectPhotosActive = true;
+            console.log(this.selectPhotosActive);
+            // if (!this.selectedPhotoForDelete.some((img: any) => img.public_id === gar.public_id)) {
+            //   this.selectedPhotoForDelete.push(gar);
+            // }
+            this.cdr.detectChanges();
+          }, 500); // 500ms para considerar long press
+        },
+        onEnd: () => {
+          clearTimeout(pressTimer);
+        }
+      });
+      gesture.enable(true);
+    }
+  }
+  accordionCliente = (event: any) => {
+    this.accordionValueCliente = event.detail.value; // value es un array de los expandidos
+    console.log('Accordion cliente:', this.accordionValueCliente);
+  };
+
+  toSelectDeletePhoto(){
+    this.selectPhotosActive = true;
+  }
+  onPhotoCheckboxChange(event: any, gar: any) {
+    if (event.detail.checked) {
+      // Agrega si no está
+      if (!this.selectedPhotoForDelete.some((img:any) => img.public_id === gar.public_id)) {
+        this.selectedPhotoForDelete.push(gar);
+        this.cdr.detectChanges();
+      }
+    } else {
+      // Elimina si está
+      this.selectedPhotoForDelete = this.selectedPhotoForDelete.filter((img:any) => img.public_id !== gar.public_id);
+      this.cdr.detectChanges();
+    }
+  }
+  checkElementSelected(array:any, image:any): boolean {
+    return array.some((img:any) => img.public_id === image.public_id);
+  }
+  async deleteSelectedGarantias() {
+    if (!this.clienteModalInfo?._id || this.selectedPhotoForDelete.length === 0) return;
+    this.cdr.detectChanges();
+    const public_ids = this.selectedPhotoForDelete.map((img:any) => img.public_id);
+    this.sendingGarantias = true;
+    console.log('Eliminar garantías con public_ids:', public_ids);
+    await this.usuariosService.deletePhotos(this.clienteModalInfo._id, public_ids).subscribe((data: any) => {
+      this.clienteModalInfo.garantias = data.garantias;
+      this.selectedPhotoForDelete = [];
+      this.selectPhotosActive = false;
+      this.sendingGarantias = false;
+      console.log('Garantías actualizadas:', this.clienteModalInfo.garantias);
+      this.presentToast('bottom', data.message, 2000);
+      this.cdr.detectChanges();
+    }, (error: any) => {
+      console.error('Error al eliminar garantías:', error);
+      this.sendingGarantias = false;
+      this.presentToast('top', `${error.error.message}`, 5500);
+      this.cdr.detectChanges();
+    });
+  }
+  cancelPhotoSelection() {
+    this.selectedPhotoForDelete = [];
+    this.selectPhotosActive = false;
+    this.cdr.detectChanges();
+  }
 }

@@ -4,6 +4,9 @@ import { LocalFile, LoginService } from '../services/login/login.service';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
 import { UsuariosService } from '../services/usuarios/usuarios.service';
 import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import Swiper from 'swiper';
+import { Router } from '@angular/router';
+import { HistorialService } from '../services/historial/historial.service';
 
 declare var google: any; // Importar Google Maps
 
@@ -26,12 +29,20 @@ export class AsesoresPage implements OnInit {
   isModalOpenPicture = false;
   rollMedia = '';
 
+  viewClient = false;
+  viewClientData:any = {};
+
   rollModal = ''
   // Para form 
   formInputPOST: FormGroup;
   formSubmit = false;
   postingAsesor = false;
   accordionValues = ['first'];
+
+  // Para Zoom Modal
+  toZoom = false;
+  zoomImage = '';
+  zoomImageName = '';
 
   pseudo_table_asesors_lastmoves= [
     {
@@ -176,15 +187,18 @@ export class AsesoresPage implements OnInit {
     },
   ]
 
-  public results = [...this.pseudo_table_asesors]
+  public results:any = []
   
   constructor(
     private actionSheetCtrl: ActionSheetController, 
     public loginService: LoginService,
+    public historialService: HistorialService,
     private usuariosService: UsuariosService,
     private modalCtrl: ModalController,
     public formPrest : FormBuilder,
     private toastController: ToastController,
+    private router: Router,
+
   ) { 
     this.formInputPOST = this.formPrest.group({
       nombre : new FormControl("", Validators.required),
@@ -267,6 +281,9 @@ export class AsesoresPage implements OnInit {
       this.dataSingleAsesor.clientes = clientes
       this.isModalOpenItem = isOpen;
     })
+    // await this.historialService.getHistorialByIdUser(this.dataSingleAsesor._id).subscribe((historial:any) => {
+    //   this.dataSingleAsesor.historial = historial;
+    // });
     
     console.log('Soy al dar solo clic', this.dataSingleAsesor)
   }
@@ -370,7 +387,6 @@ export class AsesoresPage implements OnInit {
       formData.append('email', this.formInputPOST.value.email);
       formData.append('direccion', this.formInputPOST.value.direccion);
       formData.append('role', "ASESOR");
-      formData.append('password', "werv!@");
       formData.append('nombre_aval', this.formInputPOST.value.nombre_aval);
       formData.append('telefono_aval', this.formInputPOST.value.telefono_aval);
       formData.append('email_aval', this.formInputPOST.value.email_aval);
@@ -486,9 +502,47 @@ export class AsesoresPage implements OnInit {
   srcImageName(images: { originalname: string }[], name: string): any {
     if(images && images.length > 0) {
       return images.find(img => img.originalname === name + '.jpeg');
+    } else if (!this.isModalOpenAdd) { // Si modal add/update esta abierto no muestres la imagen por defecto
+      return { url: 'https://ionicframework.com/docs/img/demos/avatar.svg' }; // Default image if not found
     }
   }
   accordionGroupChange = (ev: any) => {
   this.accordionValues = ev.detail.value; // value es un array de los expandidos
   };
+
+
+  //Zoom settings
+  setZoomIn(imageUrl:string, imageName:string) {
+    this.toZoom = true;
+    this.zoomImage = imageUrl;
+    this.zoomImageName = imageName;
+  }
+  dismissZoom() {
+    this.toZoom = false;
+    this.zoomImage = '';
+  }
+
+  //Modal view client
+  viewClientModal(data:any){
+    this.viewClient = true;
+    this.viewClientData = data;
+  }
+  dismissViewClient(){
+    this.viewClient = false;
+    this.viewClientData = {};
+  }
+  goToClient(id_cliente:string){
+    this.isModalOpenItem = false;
+    this.dismissViewClient();
+    setTimeout(() => {
+      this.router.navigate(['/home/clientes'], { queryParams: { id_cliente: id_cliente } });
+    }, 200); // 200ms para asegurar cierre visual
+  }
+  goToPrestamosCli(cliente:any){
+    this.isModalOpenItem = false; 
+    this.dismissViewClient();
+    setTimeout(() => {
+      this.router.navigate(['/home/prestamos'], { queryParams: { post_prestamo: true, cliente_id: cliente._id, cliente_name: cliente.nombre } });
+    }, 200); // 200ms para asegurar cierre visual
+  }
 }

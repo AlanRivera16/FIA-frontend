@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-icon size="large" style="margin-left: 16px;" slot="start" name="arrow-back-outline" (click)="closeModal()"></ion-icon>
+    <ion-title>Notiificaciones</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list [inset]="false">
+    <!-- <ion-item [button]="true" detail="false">
+      <div class="unread-indicator-wrapper" slot="start">
+        <div class="unread-indicator"></div>
+      </div>
+      <ion-label>
+        <strong>Rick Astley</strong>
+        <ion-text>Never Gonna Give You Up</ion-text><br />
+        <ion-note color="medium" class="ion-text-wrap">
+          Never gonna give you up Never gonna let you down Never gonna run...
+        </ion-note>
+      </ion-label>
+      <div class="metadata-end-wrapper" slot="end">
+        <ion-note color="medium">06:11</ion-note>
+        <ion-icon color="medium" name="chevron-forward"></ion-icon>
+      </div>
+    </ion-item>
+    <ion-item [button]="true" detail="false">
+      <ion-avatar aria-hidden="true" slot="start">
+        <img alt="" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+      </ion-avatar>
+      <ion-label>
+        <strong>
+          Emma Young
+          <div class="unread-indicator-custom"></div>
+        </strong>
+        <ion-text>Asesor / Prestamista</ion-text><br />
+        <ion-note color="medium" class="ion-text-wrap">
+          Prestamo: De $4,500.00 a Juan Alberto Pesada con mas informacion
+        </ion-note>
+      </ion-label>
+      <div class="metadata-end-wrapper" slot="end">
+        <ion-note color="medium">Ago 12, 2025</ion-note>
+      </div>
+    </ion-item> -->
+    <ion-item [button]="true" detail="false" *ngFor="let n of notificaciones; let i = index" (click)="marcarComoLeida(n, i)">
+      <ion-avatar aria-hidden="true" slot="start">
+        <img *ngIf="srcImageName(n.from?.evidencia_aval, 'foto-perfil') as image"  alt="" [src]="image.url" />
+        <!-- <img alt="" [src]="'https://picsum.photos/80/80?random=' + index" /> -->
+      </ion-avatar>
+      <ion-label *ngIf="n.from">
+        <strong>
+          {{n.from.nombre}}
+          <div class="unread-indicator-custom" *ngIf="!n.isRead"></div>
+        </strong>
+        <ion-text>{{n.from.role | titlecase}} {{n.from.role == 'ASESOR'? '/ Prestamista' : n.from.role == 'ADMINISTRADOR'? '' : '/ Prestatario'}}</ion-text><br />
+        <ion-note *ngIf="n.type != 'otro'" color="medium" class="ion-text-wrap">
+          {{n.type | titlecase}}: 
+          {{n.mensaje}}
+        </ion-note>
+        <ion-note *ngIf="n.type == 'otro'" color="medium" class="ion-text-wrap">
+          {{n.mensaje}}
+        </ion-note>
+      </ion-label>
+      <div class="metadata-end-wrapper" slot="end">
+        <ion-note color="medium">{{n.fecha | date: 'MMM d, y' | titlecase}}</ion-note>
+      </div>
+    </ion-item>
+  </ion-list>
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="cargarNotificaciones($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando más..."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+</ion-content>

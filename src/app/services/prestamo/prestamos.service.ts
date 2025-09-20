@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class PrestamosService {
 
-  api_test = 'http://localhost:3000';
+  api_test = 'http://localhost:8382';
   api_prod = 'https://fia-backend-production.up.railway.app';
 
   constructor(
@@ -14,36 +14,50 @@ export class PrestamosService {
   ) { }
 
   getPrestamos(){
-    return this.http.get(`${this.api_prod}/prestamos_asesor`)
+    return this.http.get(`${this.api_test}/prestamos_asesor`)
   }
   getPrestamosById(id:string){
-    return this.http.get(`${this.api_prod}/prestamo_by_id/${id}`)
+    return this.http.get(`${this.api_test}/prestamo_by_id/${id}`)
   }
   getClientes(){
-    return this.http.get(`${this.api_prod}/usuarios/clientes`)
+    return this.http.get(`${this.api_test}/usuarios/clientes`)
+  }
+  getPrestamosByAsesor(id:string){
+    return this.http.get(`${this.api_test}/prestamos/asesor/${id}`)
   }
 
   postPrestamos(body:any){
-    return this.http.post(`${this.api_prod}/prestamo`, body)
+    return this.http.post(`${this.api_test}/prestamo`, body)
+  }
+  postComprobantesPago(id:string, body:any){
+    return this.http.post(`${this.api_test}/prestamo/comprobantes/${id}`, body)
   }
   aceptarPrestamo(id:string,body:any){
-    return this.http.patch(`${this.api_prod}/crear_tabla/${id}`, body)
+    return this.http.patch(`${this.api_test}/crear_tabla/${id}`, body)
   }
 
   putPago(id:string, body:{}){
-    return this.http.patch(`${this.api_prod}/update_tabla/pago/${id}`, body)
+    return this.http.patch(`${this.api_test}/update_tabla/pago/${id}`, body)
   }
 
   pagarMulta(id:string, pago:number, body:{}){
-    return this.http.patch(`${this.api_prod}/prestamo/pago/multa/${id}/${pago}`, body)
+    return this.http.patch(`${this.api_test}/prestamo/pago/multa/${id}/${pago}`, body)
+  }
+
+  aceptarPagoPrestamo(id_prestamo:string, num_pago:number, body:{}){
+    return this.http.patch(`${this.api_test}/prestamo/aceptar-pago/${id_prestamo}/${num_pago}`, body)
   }
 
   rechazarPrestamo(id:string){
-    return this.http.patch(`${this.api_prod}/rechazar/prestamo/${id}`, {})
+    return this.http.patch(`${this.api_test}/rechazar/prestamo/${id}`, {})
   }
 
   cerrarPrestamo(id:string){
-    return this.http.patch(`${this.api_prod}/cerrar/prestamo/${id}`, {})
+    return this.http.patch(`${this.api_test}/cerrar/prestamo/${id}`, {})
+  }
+
+  deletePhotos(id_prestamo: string, num_pago: number, id_comprobantes: any){
+    return this.http.patch(`${this.api_test}/prestamo/comprobantes/${id_prestamo}`, {num_pago: num_pago, public_ids: id_comprobantes} )
   }
 
   restarDías(fecha1:Date, fecha2:Date){

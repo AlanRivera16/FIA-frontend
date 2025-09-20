@@ -1,51 +1,30 @@
-<!-- <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
+
+<ion-app>
+  <ion-header class="ion-no-border" *ngIf="mostrarHeader">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-label>
+        <ion-text color="dark"><h1>{{title}}</h1></ion-text>
+      </ion-label>
+      
+      <ion-button class="notificaciones" size="small" fill="clear" shape="round" slot="end" color="darkmain" (click)="openNotificacionesModal()">
+        <ion-icon style="font-size: 24px;" color="dark" name="notifications-outline" aria-hidden="true"></ion-icon>
+        <div class="unread-indicator" *ngIf="tieneNotificacionesPendientes > 0"></div>
+      </ion-button>
+      
+      <ion-item slot="end" lines="none">
+        <ion-avatar (click)="openProfileModal()">
+          <ion-img *ngIf="srcImageName(dataUser?.evidencia_aval, 'foto-perfil') as image" [src]="image.url"></ion-img>
+        </ion-avatar>
+      </ion-item>
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
-</ion-content> -->
-<ion-app>
-  <!-- <ion-header>
-    <ion-toolbar>
-      <ion-title></ion-title>
-      <ion-row>
-        <ion-col size="7" style="color: black;">
-          <h2 style="font-size: 22px; font-weight: bold; margin: 0;">Clientes</h2>
-        </ion-col>
-        <ion-col size="5">
-          <ion-item lines="none" (click)="openModal()">
-            <ion-avatar slot="end">
-              <ion-img src="https://i.pravatar.cc/300?u=c"></ion-img>
-            </ion-avatar>
-            <ion-label style="padding-left: 10px; color: black;">
-              <ion-icon style="font-size: 24px;" name="notifications-outline"></ion-icon>
-            </ion-label>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-    </ion-toolbar>
-  </ion-header> -->
-
   <ion-router-outlet id="main"></ion-router-outlet>
-
+  
   <ion-tabs>
     <ion-tab-bar slot="bottom">
-      <ion-tab-button tab="asesores">
-        <!-- <img src="../../assets/🦆 icon _tabs_asesor.svg" alt="" width="26px" height="26px"> -->
+      <ion-tab-button tab="asesores" *ngIf="dataUser?.role == 'ADMINISTRADOR'">
         <ion-icon name="woman-outline"></ion-icon>
         Asesores
       </ion-tab-button>
@@ -53,18 +32,54 @@
         <ion-icon name="people-outline"></ion-icon>
         Clientes
       </ion-tab-button>
-      <ion-tab-button tab="dashboard">
-        <ion-icon name="home-outline"></ion-icon>
-        Inicio
+      <ion-tab-button tab="dashboard" *ngIf="dataUser?.role == 'ADMINISTRADOR'">
+        <ion-icon name="wallet-outline"></ion-icon>
+        Wallet
       </ion-tab-button>
       <ion-tab-button tab="prestamos">
         <ion-icon name="logo-bitcoin"></ion-icon>
         Prestamos
       </ion-tab-button>
-      <!-- <ion-tab-button tab="altbaj">
-        <ion-icon name="trending-down-outline"></ion-icon>
-        A y B
-      </ion-tab-button> -->
+     
     </ion-tab-bar>
   </ion-tabs>
 </ion-app>
+
+<!-- <ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-label>
+      <ion-text color="dark"><h1>{{title}}</h1></ion-text>
+    </ion-label>
+    <ion-button class="notificaciones" size="small" fill="clear" shape="round" slot="end" color="darkmain" (click)="openNotificacionesModal()">
+      <ion-icon style="font-size: 24px;" color="dark" name="notifications-outline" aria-hidden="true"></ion-icon>
+      <div class="unread-indicator" *ngIf="tieneNotificacionesPendientes > 0"></div>
+    </ion-button>
+    <ion-item slot="end" lines="none">
+      <ion-avatar (click)="openProfileModal()">
+        <ion-img *ngIf="srcImageName(dataUser.evidencia_aval, 'foto-perfil') as image" [src]="image.url"></ion-img>
+      </ion-avatar>
+    </ion-item>
+  </ion-toolbar>
+</ion-header>
+
+<ion-router-outlet></ion-router-outlet>
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="dashboard" [routerLink]="['/home/dashboard']">
+      <ion-icon name="wallet-outline"></ion-icon>
+      Wallet
+    </ion-tab-button>
+    <ion-tab-button tab="clientes" [routerLink]="['/home/clientes']">
+      <ion-icon name="people-outline"></ion-icon>
+      Clientes
+    </ion-tab-button>
+    <ion-tab-button tab="asesores" [routerLink]="['/home/asesores']">
+      <ion-icon name="woman-outline"></ion-icon>
+      Asesores
+    </ion-tab-button>
+    <ion-tab-button tab="prestamos" [routerLink]="['/home/prestamos']">
+      <ion-icon name="logo-bitcoin"></ion-icon>
+      Prestamos
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs> -->

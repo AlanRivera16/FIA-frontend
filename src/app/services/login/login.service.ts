@@ -9,7 +9,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 const IMAGE_DIR = 'asesores/imgs';
 const IMAGE_DIRS = {
   asesor: 'asesores/imgs',
-  cliente: 'clientes/imgs'
+  cliente: 'clientes/imgs',
+  perfil: 'perfil/imgs',
+  prestamos: 'prestamos/imgs'
 };
 
 export interface LocalFile {
@@ -24,8 +26,13 @@ export interface LocalFile {
 export class LoginService {
   private imagesSubject = new BehaviorSubject<LocalFile[]>([]);
   private imagesClientesSubject = new BehaviorSubject<LocalFile[]>([]);
+  private imagesPerfilSubject = new BehaviorSubject<LocalFile[]>([]);
+  private imagesPrestamosSubject = new BehaviorSubject<LocalFile[]>([]);
+
   public images$: Observable<LocalFile[]> = this.imagesSubject.asObservable();
   public imagesClientes$: Observable<LocalFile[]> = this.imagesClientesSubject.asObservable();
+  public imagesPerfil$: Observable<LocalFile[]> = this.imagesPerfilSubject.asObservable();
+  public imagesPrestamos$: Observable<LocalFile[]> = this.imagesPrestamosSubject.asObservable();
 
   local_url = 'http://localhost:3000';
   api_prod = 'https://fia-backend-production.up.railway.app';
@@ -34,6 +41,8 @@ export class LoginService {
   //url:any = '';
   images: LocalFile[] = [];
   imagesClientes: LocalFile[] = [];
+  imagesPerfil: LocalFile[] = [];
+  imagesPrestamos: LocalFile[] = [];
 
 
   constructor(
@@ -50,30 +59,34 @@ export class LoginService {
     return this.http.patch(`${this.api_prod}/login`, credenciales)
   }
 
-  async loadFiles() {
-    this.images = [];
-    try {
-      const result = await Filesystem.readdir({
-        path: IMAGE_DIR,
-        directory: Directory.Data,
-      });
+  // async loadFiles() {
+  //   this.images = [];
+  //   try {
+  //     const result = await Filesystem.readdir({
+  //       path: IMAGE_DIR,
+  //       directory: Directory.Data,
+  //     });
 
-      await this.loadFileData(result.files.map((x: any) => x.name));
-      this.imagesSubject.next(this.images); // Emitir el cambio
-    } catch (err) {
-      await Filesystem.mkdir({
-        path: IMAGE_DIR,
-        directory: Directory.Data,
-        recursive: true,
-      });
-      console.log('Error encontrado con LocalFile' ,err)
-    }
-  }
+  //     await this.loadFileData(result.files.map((x: any) => x.name));
+  //     this.imagesSubject.next(this.images); // Emitir el cambio
+  //   } catch (err) {
+  //     await Filesystem.mkdir({
+  //       path: IMAGE_DIR,
+  //       directory: Directory.Data,
+  //       recursive: true,
+  //     });
+  //     console.log('Error encontrado con LocalFile' ,err)
+  //   }
+  // }
 
-  async loadFilesEntity(tipo: 'asesor' | 'cliente') {
+  async loadFilesEntity(tipo: 'asesor' | 'cliente' | 'perfil' | 'prestamos') {
     const dir = IMAGE_DIRS[tipo];
-    const arr = tipo === 'asesor' ? this.images : this.imagesClientes;
-    const subject = tipo === 'asesor' ? this.imagesSubject : this.imagesClientesSubject;
+    let arr = tipo === 'asesor' ? this.images : this.imagesClientes;
+    let subject = tipo === 'asesor' ? this.imagesSubject : this.imagesClientesSubject;
+    if (tipo === 'perfil') {
+      arr = this.imagesPerfil;
+      subject = this.imagesPerfilSubject;
+    }
     arr.length = 0;
     try {
       const result = await Filesystem.readdir({
@@ -122,7 +135,7 @@ export class LoginService {
     }
   }
 
-  async takePicture(fileName:string, tipo: 'asesor' | 'cliente') {
+  async takePicture(fileName:string, tipo: 'asesor' | 'cliente' | 'perfil') {
     if (fileName === 'foto-perfil') {
       const image = await Camera.getPhoto({
         quality: 100,
@@ -149,8 +162,8 @@ export class LoginService {
       }
     }
   };
-  
-  async selectPicture(fileName:string, tipo: 'asesor' | 'cliente') {
+
+  async selectPicture(fileName:string, tipo: 'asesor' | 'cliente' | 'perfil') {
     const image = await Camera.getPhoto({
       quality: 90,
       allowEditing: false,
@@ -163,44 +176,74 @@ export class LoginService {
     }
 
   }
-
-  // Actualiza el método saveImage para emitir cambios
-  async saveImage(photo: Photo, nombreArchivo: string) {
+  async pickImages(fileName:string, tipo: 'asesor' | 'cliente' | 'perfil' | 'prestamos'): Promise<number> {
     try {
-      let base64Data = await this.readAsBase64(photo);
+      const result = await Camera.pickImages({
+        quality: 90,
+        limit: 10 // Puedes ajustar el límite
+      });
 
-      // Si base64Data ya es un DataURL, extrae solo la parte base64
-      if (base64Data.startsWith('data:')) {
-        base64Data = base64Data.split(',')[1];
+      let count = 0;
+      if (result && result.photos && result.photos.length > 0) {
+        for (const galleryPhoto of result.photos) {
+          // Convert GalleryPhoto to Photo
+          const photo: Photo = {
+            webPath: galleryPhoto.webPath,
+            format: galleryPhoto.format,
+            saved: false // default value for 'saved'
+          };
+          await this.saveImageEntity(photo, this.generateUniqueName(fileName), tipo);
+          count++;
+        }
       }
-
-      const fileName = nombreArchivo + '.jpeg';
-      const filePath = `${IMAGE_DIR}/${fileName}`;
-
-      // Guardar la imagen en el sistema de archivos
-      await Filesystem.writeFile({
-        path: filePath,
-        data: base64Data,
-        directory: Directory.Data,
-      });
-
-      // Agregar directamente al array `images`
-      this.images.push({
-        name: fileName,
-        path: filePath,
-        data: `data:image/jpeg;base64,${base64Data}`,
-      });
-
-      // Emitir el cambio
-      this.imagesSubject.next(this.images);
-
-      console.log('Imagen guardada y agregada al array:', fileName);
+      return count;
     } catch (error) {
-      console.error('Error al guardar la imagen:', error);
+      console.error('Error al seleccionar imágenes:', error);
+      return 0;
     }
   }
-  
-  async saveImageEntity(photo: Photo, nombreArchivo: string, tipo: 'asesor' | 'cliente') {
+  // Genera un nombre único para cada imagen
+  private generateUniqueName(mainName:string): string {
+    return mainName + '_' + Math.floor(Math.random() * 100);
+  }
+
+  // Actualiza el método saveImage para emitir cambios
+  // async saveImage(photo: Photo, nombreArchivo: string) {
+  //   try {
+  //     let base64Data = await this.readAsBase64(photo);
+
+  //     // Si base64Data ya es un DataURL, extrae solo la parte base64
+  //     if (base64Data.startsWith('data:')) {
+  //       base64Data = base64Data.split(',')[1];
+  //     }
+
+  //     const fileName = nombreArchivo + '.jpeg';
+  //     const filePath = `${IMAGE_DIR}/${fileName}`;
+
+  //     // Guardar la imagen en el sistema de archivos
+  //     await Filesystem.writeFile({
+  //       path: filePath,
+  //       data: base64Data,
+  //       directory: Directory.Data,
+  //     });
+
+  //     // Agregar directamente al array `images`
+  //     this.images.push({
+  //       name: fileName,
+  //       path: filePath,
+  //       data: `data:image/jpeg;base64,${base64Data}`,
+  //     });
+
+  //     // Emitir el cambio
+  //     this.imagesSubject.next(this.images);
+
+  //     console.log('Imagen guardada y agregada al array:', fileName);
+  //   } catch (error) {
+  //     console.error('Error al guardar la imagen:', error);
+  //   }
+  // }
+
+  async saveImageEntity(photo: Photo, nombreArchivo: string, tipo: 'asesor' | 'cliente' | 'perfil' | 'prestamos') {
     try {
       let base64Data = await this.readAsBase64(photo);
       if (base64Data.startsWith('data:')) {
@@ -223,6 +266,12 @@ export class LoginService {
       if (tipo === 'asesor') {
         this.images.push(fileObj);
         this.imagesSubject.next(this.images);
+      } else if (tipo === 'perfil') {
+        this.imagesPerfil.push(fileObj);
+        this.imagesPerfilSubject.next(this.imagesPerfil);
+      } else if(tipo === 'prestamos') {
+        this.imagesPrestamos.push(fileObj);
+        this.imagesPrestamosSubject.next(this.imagesPrestamos);
       } else {
         this.imagesClientes.push(fileObj);
         this.imagesClientesSubject.next(this.imagesClientes);
@@ -259,21 +308,21 @@ export class LoginService {
     reader.readAsDataURL(blob);
   });
 
-  async deleteImage(file: LocalFile){
-    await Filesystem.deleteFile({
-      directory: Directory.Data,
-      path: file.path
-    });
-    this.loadFiles();
-  }
-  async deleteImageEntity(file: LocalFile, tipo: 'asesor' | 'cliente') {
+  // async deleteImage(file: LocalFile){
+  //   await Filesystem.deleteFile({
+  //     directory: Directory.Data,
+  //     path: file.path
+  //   });
+  //   this.loadFiles();
+  // }
+  async deleteImageEntity(file: LocalFile, tipo: 'asesor' | 'cliente' | 'perfil' | 'prestamos') {
     await Filesystem.deleteFile({
       directory: Directory.Data,
       path: file.path
     });
     await this.loadFilesEntity(tipo);
   }
-  async deleteFolder(imagenes: LocalFile[], tipo: 'asesor' | 'cliente') {
+  async deleteFolder(imagenes: LocalFile[], tipo: 'asesor' | 'cliente' | 'perfil' | 'prestamos') {
     await Promise.all(imagenes.map(file => this.deleteImageEntity(file, tipo)));
   }
 
@@ -295,8 +344,11 @@ export class LoginService {
     return this.storage.remove(keyStorageVariable) || [];
   }
 
+  // public setItem(key: string, value: any) {
+  //   this.mySessionStorage?.set(key, value);
+  // }
   public setItem(key: string, value: any) {
-    this.mySessionStorage?.set(key, value);
+    this.storage.set(key, value);
   }
 
   public async getItem(key: string) {

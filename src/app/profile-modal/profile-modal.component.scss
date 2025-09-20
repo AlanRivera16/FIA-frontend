@@ -1,8 +1,4 @@
-ion-icon {
-    font-size: 40px;
-  }
-
-  .ion-icon-list {
+.ion-icon-list {
     font-size: 28px;
     margin-right: 15px;
   }
@@ -15,3 +11,49 @@ ion-icon {
     width: 50px;
     height: 50px;
   }
+
+  .block {
+  width: 100%;
+  height: 250px;
+  padding: 16px;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: start;
+  // justify-content: center;
+}
+
+.model{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+
+// ion-modal {
+//   --height: auto;
+// }
+
+.edit-avatar{
+  width: 100px;
+  height: 100px;
+  position: relative;
+  ion-icon{
+    background: var(--ion-color-light);
+    border-radius: 50%;
+    padding: 8px 8px;
+    border: solid 6px #ffff;
+    position: absolute;
+    inset-inline-end: -15px;
+    bottom: -10px;
+    font-size: 28px
+  }
+}
+
+
+.pick-modal {
+  --height: auto;
+   &::part(content) {
+        border-radius: 20px 20px 0 0; // Here the border radius
+    }
+}

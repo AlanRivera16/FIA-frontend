@@ -4,11 +4,15 @@ export interface Item {
   }
 
 export interface Cliente {
-  nombre:string
-  _id:string
+  nombre:string;
+  _id:string;
+  evidencia_aval: {
+    originalname: string;
+    url: string;
+  }[];
 }
 
 export interface Asesor {
-  nombre:string
-  _id:string  
+  nombre:string;
+  _id:string;
 }

@@ -12,22 +12,23 @@ export class ClienteModalComponent  implements OnInit {
 
   constructor(private modalCtrl:ModalController) { }
 
-  @Input() items: Cliente[] = [];
+  @Input() items: any[] = [];
   @Input() selectedItems: string[] = [];
   @Input() title = 'Select Items';
 
   @Output() selectionCancel = new EventEmitter<void>();
   @Output() selectionChange = new EventEmitter<string[]>();
 
-  filteredItems: Cliente[] = [];
+  filteredItems: any[] = [];
   workingSelectedValues: string[] = [];
 
   ngOnInit() {
     this.filteredItems = [...this.items];
     this.workingSelectedValues = [...this.selectedItems];
+    console.log(this.filteredItems, this.selectedItems, this.workingSelectedValues)
   }
 
-  trackItems(index: number, item: Cliente) {
+  trackItems(index: number, item: any) {
     return item.nombre;
   }
 
@@ -38,6 +39,11 @@ export class ClienteModalComponent  implements OnInit {
 
   confirmChanges() {
     this.selectionChange.emit(this.workingSelectedValues);
+  }
+
+  cleanSelection() {
+    this.workingSelectedValues = [];
+    this.selectedItems = [];
   }
 
   searchbarInput(ev:any) {
@@ -89,7 +95,16 @@ export class ClienteModalComponent  implements OnInit {
       console.log(ev)
       const { value } = ev.detail;
       this.workingSelectedValues = [value];
-      console.log(this.workingSelectedValues)
+      console.log(value, this.workingSelectedValues)
+  }
+
+
+  srcImageName(images: { originalname: string }[], name: string): any {
+    if (images && images.length > 0) {
+      return images.find(img => img.originalname === name + '.jpeg');
+    } else { // Si modal add/update esta abierto no muestres la imagen por defecto
+      return { url: 'https://ionicframework.com/docs/img/demos/avatar.svg' }; // Default image if not found
+    }
   }
 
 }

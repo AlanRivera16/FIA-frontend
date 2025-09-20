@@ -10,7 +10,6 @@ import { PrestamosPage } from './prestamos.page';
 import { PipesModule } from '../Pipes/pipes.module';
 import { ClienteModalComponent } from '../cliente-modal/cliente-modal.component'
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { AsesorModalComponent } from '../asesor-modal/asesor-modal.component';
 import { SharedComponentsModule } from '../shared-components/shared-components.module';
 
 @NgModule({

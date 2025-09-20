@@ -14,19 +14,19 @@ export class WalletService {
   ) { }
 
   getWallet(id:string){
-    return this.http.get(`${this.api_test}/wallet/${id}`)
+    return this.http.get(`${this.api_prod}/wallet/${id}`)
     // return this.http.get(`${this.api_prod}/wallet/${id}`) --- IGNORE ---
   }
 
   setEstadoWallet(owner: string, activa: boolean) {
-    return this.http.put(`${this.api_test}/wallet/${owner}/estado`, { activa });
+    return this.http.put(`${this.api_prod}/wallet/${owner}/estado`, { activa });
   }
 
   depositar(owner: string, monto: number, descripcion?: string) {
-    return this.http.post(`${this.api_test}/wallet/${owner}/depositar`, { monto, descripcion });
+    return this.http.post(`${this.api_prod}/wallet/${owner}/depositar`, { monto, descripcion });
   }
 
 retirar(owner: string, monto: number, descripcion?: string) {
-    return this.http.post(`${this.api_test}/wallet/${owner}/retirar`, { monto, descripcion });
+    return this.http.post(`${this.api_prod}/wallet/${owner}/retirar`, { monto, descripcion });
   }
 }

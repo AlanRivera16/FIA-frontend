@@ -34,7 +34,7 @@ export class LoginService {
   public imagesPerfil$: Observable<LocalFile[]> = this.imagesPerfilSubject.asObservable();
   public imagesPrestamos$: Observable<LocalFile[]> = this.imagesPrestamosSubject.asObservable();
 
-  local_url = 'http://localhost:3000';
+  api_test = 'http://localhost:8382';
   api_prod = 'https://fia-backend-production.up.railway.app';
   mySessionStorage : Storage | null = null;
 

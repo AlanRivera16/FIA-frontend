@@ -153,9 +153,6 @@ export class DashboardPage implements OnInit {
     }
     
     this.setAllData();
-    this.filtroFromBack();
-
-    this.buscarGuardado()
   }
 
   async setAllData(){
@@ -198,6 +195,9 @@ export class DashboardPage implements OnInit {
       this.clientes_baja = res;
     });
 
+    this.filtroFromBack();
+
+    this.buscarGuardado();
   }
 
   async cargarGuardados() {

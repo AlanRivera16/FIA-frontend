@@ -7,6 +7,7 @@ import { FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Valida
 import Swiper from 'swiper';
 import { Router } from '@angular/router';
 import { HistorialService } from '../services/historial/historial.service';
+import { PrestamosService } from '../services/prestamo/prestamos.service';
 
 declare var google: any; // Importar Google Maps
 
@@ -194,6 +195,7 @@ export class AsesoresPage implements OnInit {
     public loginService: LoginService,
     public historialService: HistorialService,
     private usuariosService: UsuariosService,
+    private prestamosService: PrestamosService,
     private modalCtrl: ModalController,
     public formPrest : FormBuilder,
     private toastController: ToastController,
@@ -284,6 +286,13 @@ export class AsesoresPage implements OnInit {
     // await this.historialService.getHistorialByIdUser(this.dataSingleAsesor._id).subscribe((historial:any) => {
     //   this.dataSingleAsesor.historial = historial;
     // });
+    for (let p of this.dataSingleAsesor.id_historial.prestamos_detallados) {
+      //console.log(p.id_prestamo)
+      this.prestamosService.getPrestamosById(p.id_prestamo).subscribe((data: any) => {
+        //console.log('Prestamos Detallados:', data);
+        p.detalles = data;
+      });
+    }
     
     console.log('Soy al dar solo clic', this.dataSingleAsesor)
   }
@@ -376,6 +385,8 @@ export class AsesoresPage implements OnInit {
 
 
     if(!this.formInputPOST.valid || this.images.length != 8 && this.rollModal != 'ACTUALIZAR'){
+      this.presentToast('bottom', 'Por favor, completa todos los campos requeridos para el asesor y su aval y agrega las evidencias necesarias.', 3500);
+      this.formInputPOST.get('nombre_aval')?.status == 'INVALID' ? this.accordionValues = ['second'] : null
       console.log("not valid"); return
     }else{
 
@@ -417,6 +428,10 @@ export class AsesoresPage implements OnInit {
               if (index !== -1) {
                 this.results[index] = data.usuario;
               }
+              this.dataSingleAsesor.nombre = data.usuario.nombre; // Actualizar dataSingleAsesor
+              this.dataSingleAsesor.telefono = data.usuario.telefono;
+              this.dataSingleAsesor.email = data.usuario.email;
+              this.dataSingleAsesor.direccion = data.usuario.direccion;
               this.presentToast('bottom', data.message, 2500);
             }
 

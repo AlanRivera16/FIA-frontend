@@ -782,7 +782,10 @@ export class ClientesPage implements OnInit, AfterViewInit {
 
     if(!this.formInputPOST.valid || this.images.length != 8 && this.rollModal != 'ACTUALIZAR'){
     // if(!this.formInputPOST.valid && this.rollModal != 'ACTUALIZAR'){
-      console.log("not valid"); return
+      this.presentToast('bottom', 'Por favor, completa todos los campos requeridos para el cliente y su aval y agrega las evidencias necesarias.', 3500);
+      this.formInputPOST.get('nombre_aval')?.status == 'INVALID' ? this.accordionValues = ['second'] : null;
+      console.log("not valid"); 
+      return
     }else{
 
       this.postingCliente = true
@@ -823,6 +826,10 @@ export class ClientesPage implements OnInit, AfterViewInit {
               if (index !== -1) {
                 this.results[index] = data.usuario;
               }
+              this.clienteModalInfo.nombre = data.usuario.nombre; // Actualiza el nombre en el modal si está abierto
+              this.clienteModalInfo.telefono = data.usuario.telefono;
+              this.clienteModalInfo.email = data.usuario.email;
+              this.clienteModalInfo.direccion = data.usuario.direccion;
               this.presentToast('bottom', data.message, 2500);
             }
 

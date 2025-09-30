@@ -227,9 +227,10 @@ export class PrestamosPage implements OnInit {
     console.log(this.formInputPOST.value)
     if (!this.formInputPOST.valid) {
       console.log("Formulario no válido");
+      this.presentToast('bottom', 'Por favor, completa todos los campos requeridos para dar de alta un prestamo.', 3500);
       return;
     }
-    if(this.formInputPOST.value.saldo <= 0){
+    if(this.formInputPOST.value.saldo <= 0 || this.formInputPOST.value.saldo == null){
       console.log("El saldo debe ser mayor a 0");
       return;
     }

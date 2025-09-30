@@ -34,7 +34,7 @@
   </ion-list>
   <hr style="background: gray; width: 85%;">
   <ion-list [inset]="true" lines="none">
-    <ion-item>
+    <ion-item (click)="openConfiguracion()">
       <ion-icon class="ion-icon-list" name="settings-outline"></ion-icon>
       <p style="font-weight: bold;">Configuración</p>
     </ion-item>
@@ -109,7 +109,7 @@
             <ion-label>Media</ion-label>
             <ion-icon color="dark" name="image" slot="start"></ion-icon>
           </ion-item>
-          <ion-item lines="none" style="margin: 4px 0px;" (click)="goToWallet()">
+          <ion-item lines="none" style="margin: 4px 0px;" (click)="goToWallet()" *ngIf="data?.role=='ADMINISTRADOR'">
             <ion-label>Wallet</ion-label>
             <ion-icon color="dark" name="wallet" slot="start"></ion-icon>
           </ion-item>
@@ -193,6 +193,69 @@
           </ion-list-header>
         </ion-list>
       </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="configuracionModal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Configuraciones</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="configuracionModal = false">Close</ion-button>
+          </ion-buttons>
+          <ion-progress-bar type="indeterminate" *ngIf="updatingConfig"></ion-progress-bar>
+          <ion-button fill="solid" 
+            slot="end" 
+            shape="round" 
+            color="darkmain" 
+            style="margin-right: 10px;"
+            *ngIf="toEditConfig"
+            (click)="submitConfig()"
+          >Guardar</ion-button>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-list>
+          <ion-list-header>
+            <ion-label style="font-weight: bold;"><ion-text color="medium">Opciones</ion-text></ion-label>
+          </ion-list-header>
+          
+          <ion-item button id="open-modal-time" class="disabled-item" [ngClass]="{'disabled-item' : data.role == 'ASESOR'}">
+            <ion-label>Hora de corte</ion-label>
+            <ion-note slot="end" style="font-size: 14px;">{{horaCorteSeleccionada | date: 'h:mm a'}}</ion-note>
+            <ion-icon slot="end" name="chevron-forward" *ngIf="data.role == 'ADMINISTRADOR'"></ion-icon>
+          </ion-item>
+          <ion-item button id="open-modal-maxmon" class="disabled-item" [ngClass]="{'disabled-item' : data.role == 'ASESOR'}">
+            <ion-label>Monto max de prestamo</ion-label>
+            <ion-note slot="end" style="font-size: 14px;">${{montoMaxSeleccionado | number:'1.0-0'}}</ion-note>
+            <ion-icon slot="end" name="chevron-forward" *ngIf="data.role == 'ADMINISTRADOR'"></ion-icon>
+          </ion-item>
+
+        </ion-list>
+      </ion-content>
+      <ion-modal style="--height: auto;" trigger="open-modal-time" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
+        <ng-template>
+          <div class="block">
+            <ion-datetime 
+            value="2025-09-26T20:01:00"
+            presentation="time" 
+            [showDefaultButtons]="true" 
+            doneText="Confirmar" 
+            cancelText="Cancelar" 
+            (ionChange)="setTimeInput($event)"></ion-datetime>
+          </div>
+        </ng-template>
+      </ion-modal>
+      <ion-modal style="--height: auto;" trigger="open-modal-maxmon" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
+        <ng-template>
+          <div class="">
+            <ion-item style="padding: 24px;">
+              <ion-input label="Ingresa una cantidad" type="number" value="24000" [(ngModel)]="montoMaxSeleccionado"></ion-input>
+            </ion-item>
+          </div>
+        </ng-template>
+      </ion-modal>
     </ng-template>
   </ion-modal>
 

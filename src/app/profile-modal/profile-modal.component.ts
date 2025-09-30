@@ -6,6 +6,7 @@ import { UsuariosService } from '../services/usuarios/usuarios.service';
 import { HistorialService } from '../services/historial/historial.service';
 import { Router } from '@angular/router';
 import { NotificModalComponent } from '../notific-modal/notific-modal.component';
+import { WalletService } from '../services/wallet/wallet.service';
 
 
 const STORAGE_KEY = 'login-data-user'
@@ -24,6 +25,7 @@ export class ProfileModalComponent  implements OnInit {
 
   pickPictureModal = false;
   guardadosModal = false;
+  configuracionModal = false;
 
   formProfilePOST!: FormGroup;
   toEdit = false;
@@ -31,6 +33,14 @@ export class ProfileModalComponent  implements OnInit {
   updating = false;
 
   guardados: any[] = [];
+
+
+  configurationWallet: any;
+
+  horaCorteSeleccionada: string = '2025-09-26T20:01:00';
+  montoMaxSeleccionado: number = 24000;
+  toEditConfig = false;
+  updatingConfig = false;
 
   constructor(
     private modalCtrl: ModalController,
@@ -42,6 +52,7 @@ export class ProfileModalComponent  implements OnInit {
     private toastController: ToastController,
     private historialService: HistorialService,
     public router: Router,
+    private walletService: WalletService,
   ) {
     // this.formProfilePOST = this.formBuilder.group({
     //   nombre: new FormControl("", Validators.required),
@@ -153,6 +164,9 @@ export class ProfileModalComponent  implements OnInit {
       // Aquí puedes procesar o mostrar los movimientos guardados en el modal
     });
   }
+  openConfiguracion() {
+    this.configuracionModal = true;
+  }
   closeGuardados() {
     this.guardadosModal = false;
   }
@@ -179,7 +193,10 @@ export class ProfileModalComponent  implements OnInit {
     // await this.historialService.obtenerMovimientosGuardados(this.data._id).subscribe((res: any) => {
     //   this.guardados = res.guardados.map((mov: any) => mov._id);
     // });
-
+    await this.walletService.getWalletConfig('688da59bfb293ae6030bc09f').subscribe((res: any) => {
+      this.configurationWallet = res;
+      console.log('Wallet:', this.configurationWallet);
+    });
   }
 
   async signOut(){
@@ -214,7 +231,7 @@ export class ProfileModalComponent  implements OnInit {
     }
     return
   };
-
+  
   setEdit(){
     this.toEdit = true;
     this.initForm();
@@ -324,6 +341,15 @@ export class ProfileModalComponent  implements OnInit {
       component: NotificModalComponent,
     });
     modal.present();
+  }
+
+  setTimeInput(e:any){
+    this.horaCorteSeleccionada = e.detail.value;
+    console.log('Hora de corte seleccionada:', this.horaCorteSeleccionada);
+  }
+
+  async submitConfig() {
+    this.updatingConfig = true;
   }
 
 }

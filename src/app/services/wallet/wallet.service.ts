@@ -17,6 +17,9 @@ export class WalletService {
     return this.http.get(`${this.api_prod}/wallet/${id}`)
     // return this.http.get(`${this.api_prod}/wallet/${id}`) --- IGNORE ---
   }
+  getWalletConfig(id:string){
+    return this.http.get(`${this.api_prod}/wallet/${id}/config`)
+  }
 
   setEstadoWallet(owner: string, activa: boolean) {
     return this.http.put(`${this.api_prod}/wallet/${owner}/estado`, { activa });

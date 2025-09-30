@@ -259,7 +259,7 @@
             <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">{{cliente.nombre}}</h5>
           </ion-label>
           <ion-label style="font-size: 11px; text-align: center; font-weight: bold;" (click)="setOpenClient(true, cliente)">
-            Saldo: <span style="color: #14BD4D;">${{cliente.saldo}}.00</span>
+            Saldo: <span style="color: #14BD4D;">${{cliente.saldoTotal | moneyTransform}}</span>
           </ion-label>
           <ion-icon style="margin: 0px;" name="ellipsis-vertical" slot="end" (click)="setOpenOpts(true, cliente)"></ion-icon>
         </ion-item>
@@ -278,7 +278,7 @@
         <h5 style="margin-bottom: 0px; font-size: 12px; font-weight: bold;">{{cliente.nombre}}</h5>
       </ion-label>
       <ion-label style="font-size: 11px; text-align: center; font-weight: bold;" (click)="setOpenClient(true, cliente)">
-        Saldo: <span style="color: #14BD4D;">${{cliente.saldo}}.00</span>
+        Saldo: <span style="color: #14BD4D;">${{cliente.saldoTotal | moneyTransform}}</span>
       </ion-label>
       <ion-icon style="margin: 0px;" name="ellipsis-vertical" slot="end" (click)="setOpenOpts(true, cliente)"></ion-icon>
     </ion-item>
@@ -438,7 +438,7 @@
         <div class="ion-no-padding" style="display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 8px 16px;">
           <div style="background-color: #0B5970; width: 85%; margin: 6px; border-radius: 10px; height: 35px; display: flex; align-items: center;">
             <img style="margin-left: 8px;" src="../../assets/🦆 icon _money send_ solid.svg" width="24px" height="24px" />
-            <p style="margin: 0; margin-left: 14%; font-size: 12px; color: white;"><strong>Saldo:</strong> ${{clienteModalInfo.saldo}}.00 - <strong>MX</strong></p>
+            <p style="margin: 0; margin-left: 14%; font-size: 12px; color: white;"><strong>Saldo:</strong> ${{clienteModalInfo.saldoTotal | moneyTransform}} - <strong>MX</strong></p>
           </div>
           <div style="background-color: rgba(224, 224, 224, 0.46); width: 85%; margin: 6px; border-radius: 10px; height: 35px; display: flex; align-items: center;">
             <img style="margin-left: 8px;" src="../../assets/🦆 icon _trend down_.svg" width="24px" height="24px" />
@@ -455,7 +455,7 @@
             <div class="" slot="content">
               <ion-list style="padding: 10px 28px;">
                 <ion-list-header class="ion-no-padding">
-                  <ion-label>Cliente info:</ion-label>
+                  <ion-label style="font-weight: bold;">Cliente info:</ion-label>
                 </ion-list-header>
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
                   <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Número telefónico:</p>
@@ -479,7 +479,7 @@
               </ion-list>
               <ion-list style="padding: 10px 28px;">
                 <ion-list-header class="ion-no-padding">
-                  <ion-label>Aval info:</ion-label>
+                  <ion-label style="font-weight: bold;">Aval info:</ion-label>
                 </ion-list-header>
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px;">
                   <p style="font-size: 12px; font-weight: bold; margin: 8px 0px 0px 0px;">Nombre completo:</p>
@@ -924,7 +924,7 @@
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <ion-accordion-group [multiple]="true" [value]="['first']" (ionChange)="accordionGroupChange($event)">
+          <ion-accordion-group [multiple]="true" [value]="accordionValues" (ionChange)="accordionGroupChange($event)">
             <ion-accordion value="first">
               <ion-item slot="header" color="darkmain">
                 <ion-icon *ngIf="!accordionValues.includes('first')" slot="end" name="add-outline" color="light"></ion-icon>
